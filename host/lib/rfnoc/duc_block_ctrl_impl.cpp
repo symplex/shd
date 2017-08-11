@@ -16,14 +16,14 @@
 //
 
 #include "dsp_core_utils.hpp"
-#include <uhd/rfnoc/duc_block_ctrl.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/convert.hpp>
-#include <uhd/types/ranges.hpp>
+#include <shd/rfnoc/duc_block_ctrl.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/convert.hpp>
+#include <shd/types/ranges.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <cmath>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 // TODO move this to a central location
 template <class T> T ceil_log2(T num){
@@ -31,12 +31,12 @@ template <class T> T ceil_log2(T num){
 }
 
 // TODO remove this once we have actual lambdas
-static double lambda_forward_prop(uhd::property_tree::sptr tree, uhd::fs_path prop, double value)
+static double lambda_forward_prop(shd::property_tree::sptr tree, shd::fs_path prop, double value)
 {
     return tree->access<double>(prop).set(value).get();
 }
 
-static double lambda_forward_prop(uhd::property_tree::sptr tree, uhd::fs_path prop)
+static double lambda_forward_prop(shd::property_tree::sptr tree, shd::fs_path prop)
 {
     return tree->access<double>(prop).get();
 }
@@ -47,7 +47,7 @@ public:
     static const size_t NUM_HALFBANDS = 2;
     static const size_t CIC_MAX_INTERP = 128;
 
-    UHD_RFNOC_BLOCK_CONSTRUCTOR(duc_block_ctrl)
+    SHD_RFNOC_BLOCK_CONSTRUCTOR(duc_block_ctrl)
     {
         // Argument/prop tree hooks
         for (size_t chan = 0; chan < get_input_ports().size(); chan++) {
@@ -65,24 +65,24 @@ public:
                 .add_coerced_subscriber(boost::bind(&duc_block_ctrl_impl::set_output_rate, this, _1, chan))
             ;
 
-            // Legacy properties (for backward compat w/ multi_usrp)
-            const uhd::fs_path dsp_base_path = _root_path / "legacy_api" / chan;
+            // Legacy properties (for backward compat w/ multi_smini)
+            const shd::fs_path dsp_base_path = _root_path / "legacy_api" / chan;
             // Legacy properties
             _tree->create<double>(dsp_base_path / "rate/value")
                 .set_coercer(boost::bind(&lambda_forward_prop, _tree, get_arg_path("input_rate/value", chan), _1))
                 .set_publisher(boost::bind(&lambda_forward_prop, _tree, get_arg_path("input_rate/value", chan)))
             ;
-            _tree->create<uhd::meta_range_t>(dsp_base_path / "rate/range")
+            _tree->create<shd::meta_range_t>(dsp_base_path / "rate/range")
                 .set_publisher(boost::bind(&duc_block_ctrl_impl::get_input_rates, this))
             ;
             _tree->create<double>(dsp_base_path / "freq/value")
                 .set_coercer(boost::bind(&lambda_forward_prop, _tree, get_arg_path("freq/value", chan), _1))
                 .set_publisher(boost::bind(&lambda_forward_prop, _tree, get_arg_path("freq/value", chan)))
             ;
-            _tree->create<uhd::meta_range_t>(dsp_base_path / "freq/range")
+            _tree->create<shd::meta_range_t>(dsp_base_path / "freq/range")
                 .set_publisher(boost::bind(&duc_block_ctrl_impl::get_freq_range, this))
             ;
-            _tree->access<uhd::time_spec_t>("time/cmd")
+            _tree->access<shd::time_spec_t>("time/cmd")
                 .add_coerced_subscriber(boost::bind(&block_ctrl_base::set_command_time, this, _1, chan))
             ;
             if (_tree->exists("tick_rate")) {
@@ -138,14 +138,14 @@ public:
     }
 
     void issue_stream_cmd(
-            const uhd::stream_cmd_t &stream_cmd_,
+            const shd::stream_cmd_t &stream_cmd_,
             const size_t chan
     ) {
-        UHD_RFNOC_BLOCK_TRACE() << "duc_block_ctrl_base::issue_stream_cmd()" << std::endl;
+        SHD_RFNOC_BLOCK_TRACE() << "duc_block_ctrl_base::issue_stream_cmd()" << std::endl;
 
-        uhd::stream_cmd_t stream_cmd = stream_cmd_;
-        if (stream_cmd.stream_mode == uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE or
-            stream_cmd.stream_mode == uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_MORE) {
+        shd::stream_cmd_t stream_cmd = stream_cmd_;
+        if (stream_cmd.stream_mode == shd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE or
+            stream_cmd.stream_mode == shd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_MORE) {
             size_t interpolation = get_arg<double>("output_rate", chan) / get_arg<double>("input_rate", chan);
             stream_cmd.num_samps *= interpolation;
         }
@@ -172,28 +172,28 @@ private:
     }
 
     //! Return a range of valid frequencies the CORDIC can tune to
-    uhd::meta_range_t get_freq_range(void)
+    shd::meta_range_t get_freq_range(void)
     {
         const double output_rate = get_arg<double>("output_rate");
-        return uhd::meta_range_t(
+        return shd::meta_range_t(
                 -output_rate/2,
                 +output_rate/2,
                 output_rate/std::pow(2.0, 32)
         );
     }
 
-    uhd::meta_range_t get_input_rates(void)
+    shd::meta_range_t get_input_rates(void)
     {
-        uhd::meta_range_t range;
+        shd::meta_range_t range;
         const double output_rate = get_arg<double>("output_rate");
         for (int rate = 512; rate > 256; rate -= 4){
-            range.push_back(uhd::range_t(output_rate/rate));
+            range.push_back(shd::range_t(output_rate/rate));
         }
         for (int rate = 256; rate > 128; rate -= 2){
-            range.push_back(uhd::range_t(output_rate/rate));
+            range.push_back(shd::range_t(output_rate/rate));
         }
         for (int rate = 128; rate >= 1; rate -= 1){
-            range.push_back(uhd::range_t(output_rate/rate));
+            range.push_back(shd::range_t(output_rate/rate));
         }
         return range;
     }
@@ -209,8 +209,8 @@ private:
             hb_enable++;
             interp /= 2;
         }
-        UHD_ASSERT_THROW(hb_enable <= NUM_HALFBANDS);
-        UHD_ASSERT_THROW(interp > 0 and interp <= CIC_MAX_INTERP);
+        SHD_ASSERT_THROW(hb_enable <= NUM_HALFBANDS);
+        SHD_ASSERT_THROW(interp > 0 and interp <= CIC_MAX_INTERP);
         // hacky hack: Unlike the DUC, the DUC actually simply has 2
         // flags to enable either halfband.
         uint32_t hb_enable_word = hb_enable;
@@ -226,7 +226,7 @@ private:
         sr_write("M", std::pow(2.0, double(hb_enable)) * (interp & 0xff), chan);
 
         if (interp > 1 and hb_enable == 0) {
-            UHD_MSG(warning) << boost::format(
+            SHD_MSG(warning) << boost::format(
                 "The requested interpolation is odd; the user should expect passband CIC rolloff.\n"
                 "Select an even interpolation to ensure that a halfband filter is enabled.\n"
                 "interpolation = dsp_rate/samp_rate -> %d = (%f MHz)/(%f MHz)\n"
@@ -273,5 +273,5 @@ private:
     }
 };
 
-UHD_RFNOC_BLOCK_REGISTER(duc_block_ctrl, "DUC");
+SHD_RFNOC_BLOCK_REGISTER(duc_block_ctrl, "DUC");
 

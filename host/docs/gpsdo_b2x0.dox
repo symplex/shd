@@ -1,9 +1,9 @@
-/*! \page page_gpsdo_b2x0 Internal GPSDO Application Notes (USRP-B2x0 Models)
+/*! \page page_gpsdo_b2x0 Internal GPSDO Application Notes (SMINI-B2x0 Models)
 
 \tableofcontents
 
 This application note describes the use of integrated GPS-disciplined
-oscillators with Ettus Research USRP devices.
+oscillators with Ettus Research SMINI devices.
 
 \section gpsdob_specs Specifications
 
@@ -33,7 +33,7 @@ supporting passive antennas.
 To install the GPSDO, you must insert it into the slot on the board near
 the 10 MHz Reference SMA. Keep in mind that the two sides of the GPSDO
 have a different number of pins. When inserting the GPSDO, make sure to
-press down firmly and evenly. When turning on the USRP B2X0 device, a
+press down firmly and evenly. When turning on the SMINI B2X0 device, a
 green LED should illuminate on the GPSDO. This signifies that the unit
 has successfully been placed.
 
@@ -44,7 +44,7 @@ pins.</b>
 
 \section gpsdob_using Using the GPSDO in Your Application
 
-By default, if a GPSDO is detected at startup, the USRP will be
+By default, if a GPSDO is detected at startup, the SMINI will be
 configured to use it as a frequency and time reference. The internal
 VITA timestamp will be initialized to the GPS time, and the internal
 oscillator will be phase-locked to the 10MHz GPSDO reference. If the
@@ -55,7 +55,7 @@ GPS data is obtained through the **mboard_sensors** interface. To
 retrieve the current GPS time, use the **gps_time** sensor:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-usrp->get_mboard_sensor("gps_time");
+smini->get_mboard_sensor("gps_time");
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The returned value will be the current epoch time, in seconds since

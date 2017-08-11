@@ -15,14 +15,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/property_tree.hpp>
-#include <uhd/types/dict.hpp>
+#include <shd/property_tree.hpp>
+#include <shd/types/dict.hpp>
 #include <boost/foreach.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/make_shared.hpp>
 #include <iostream>
 
-using namespace uhd;
+using namespace shd;
 
 /***********************************************************************
  * Helper function to iterate through paths
@@ -51,7 +51,7 @@ fs_path fs_path::branch_path(void) const{
     return fs_path(this->substr(0, pos));
 }
 
-fs_path uhd::operator/(const fs_path &lhs, const fs_path &rhs){
+fs_path shd::operator/(const fs_path &lhs, const fs_path &rhs){
     //strip trailing slash on left-hand-side
     if (not lhs.empty() and *lhs.rbegin() == '/'){
         return fs_path(lhs.substr(0, lhs.size()-1)) / rhs;
@@ -65,7 +65,7 @@ fs_path uhd::operator/(const fs_path &lhs, const fs_path &rhs){
     return fs_path(lhs + "/" + rhs);
 }
 
-fs_path uhd::operator/(const fs_path &lhs, size_t rhs)
+fs_path shd::operator/(const fs_path &lhs, size_t rhs)
 {
     fs_path rhs_str = boost::lexical_cast<std::string>(rhs);
     return lhs / rhs_str;
@@ -74,7 +74,7 @@ fs_path uhd::operator/(const fs_path &lhs, size_t rhs)
 /***********************************************************************
  * Property tree implementation
  **********************************************************************/
-class property_tree_impl : public uhd::property_tree{
+class property_tree_impl : public shd::property_tree{
 public:
 
     property_tree_impl(const fs_path &root = fs_path()):
@@ -103,7 +103,7 @@ public:
             parent = node;
             node = &(*node)[name];
         }
-        if (parent == NULL) throw uhd::runtime_error("Cannot uproot");
+        if (parent == NULL) throw shd::runtime_error("Cannot uproot");
         parent->pop(fs_path(path.leaf()));
     }
 
@@ -141,7 +141,7 @@ public:
             if (not node->has_key(name)) (*node)[name] = node_type();
             node = &(*node)[name];
         }
-        if (node->prop.get() != NULL) throw uhd::runtime_error("Cannot create! Property already exists at: " + path);
+        if (node->prop.get() != NULL) throw shd::runtime_error("Cannot create! Property already exists at: " + path);
         node->prop = prop;
     }
 
@@ -154,17 +154,17 @@ public:
             if (not node->has_key(name)) throw_path_not_found(path);
             node = &(*node)[name];
         }
-        if (node->prop.get() == NULL) throw uhd::runtime_error("Cannot access! Property uninitialized at: " + path);
+        if (node->prop.get() == NULL) throw shd::runtime_error("Cannot access! Property uninitialized at: " + path);
         return node->prop;
     }
 
 private:
     void throw_path_not_found(const fs_path &path) const{
-        throw uhd::lookup_error("Path not found in tree: " + path);
+        throw shd::lookup_error("Path not found in tree: " + path);
     }
 
     //basic structural node element
-    struct node_type : uhd::dict<std::string, node_type>{
+    struct node_type : shd::dict<std::string, node_type>{
         boost::shared_ptr<void> prop;
     };
 
@@ -186,6 +186,6 @@ property_tree::~property_tree(void){
 /***********************************************************************
  * Property tree factory
  **********************************************************************/
-uhd::property_tree::sptr uhd::property_tree::make(void){
+shd::property_tree::sptr shd::property_tree::make(void){
     return sptr(new property_tree_impl());
 }

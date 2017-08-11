@@ -20,42 +20,42 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "usrp_common.h"
+#include "smini_common.h"
 
 void
 set_led_0 (unsigned char on)
 {
   if (!on)			// active low
-    USRP_PC |= bmPC_LED0;
+    SMINI_PC |= bmPC_LED0;
   else
-    USRP_PC &= ~bmPC_LED0;
+    SMINI_PC &= ~bmPC_LED0;
 }
 
 void 
 set_led_1 (unsigned char on)
 {
   if (!on)			// active low
-    USRP_PC |= bmPC_LED1;
+    SMINI_PC |= bmPC_LED1;
   else
-    USRP_PC &= ~bmPC_LED1;
+    SMINI_PC &= ~bmPC_LED1;
 }
 
 void
 toggle_led_0 (void)
 {
-  USRP_PC ^= bmPC_LED0;
+  SMINI_PC ^= bmPC_LED0;
 }
 
 void
 toggle_led_1 (void)
 {
-  USRP_PC ^= bmPC_LED1;
+  SMINI_PC ^= bmPC_LED1;
 }
 
 void
 set_sleep_bits (unsigned char bits, unsigned char mask)
 {
-  // NOP on usrp1
+  // NOP on smini1
 }
 
 static xdata unsigned char xbuf[1];
@@ -65,6 +65,6 @@ init_board (void)
 {
   //init_spi ();
 
-  //USRP_PC &= ~bmPC_nRESET;	// active low reset
-  //USRP_PC |= bmPC_nRESET;
+  //SMINI_PC &= ~bmPC_nRESET;	// active low reset
+  //SMINI_PC |= bmPC_nRESET;
 }

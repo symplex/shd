@@ -15,12 +15,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/types/sensors.hpp>
-#include <uhd/exception.hpp>
+#include <shd/types/sensors.hpp>
+#include <shd/exception.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 sensor_value_t::sensor_value_t(
     const std::string &name,
@@ -84,7 +84,7 @@ std::string sensor_value_t::to_pp_string(void) const{
     case STRING:
         return str(boost::format("%s: %s %s") % name % value % unit);
     }
-    UHD_THROW_INVALID_CODE_PATH();
+    SHD_THROW_INVALID_CODE_PATH();
 }
 
 bool sensor_value_t::to_bool(void) const{

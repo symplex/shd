@@ -59,7 +59,7 @@ CHECK_CXX_SOURCE_COMPILES("
 IF(HAVE_CLOCK_GETTIME)
     MESSAGE(STATUS "  High resolution timing supported through clock_gettime.")
     SET(TIME_SPEC_DEFS HAVE_CLOCK_GETTIME)
-    LIBUHD_APPEND_LIBS("-lrt")
+    LIBSHD_APPEND_LIBS("-lrt")
 ELSEIF(HAVE_MACH_ABSOLUTE_TIME)
     MESSAGE(STATUS "  High resolution timing supported through mach_absolute_time.")
     SET(TIME_SPEC_DEFS HAVE_MACH_ABSOLUTE_TIME)
@@ -79,7 +79,7 @@ SET_SOURCE_FILES_PROPERTIES(
 ########################################################################
 # This file included, use CMake directory variables
 ########################################################################
-LIBUHD_APPEND_SOURCES(
+LIBSHD_APPEND_SOURCES(
     ${CMAKE_CURRENT_SOURCE_DIR}/device_addr.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/mac_addr.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/metadata.cpp
@@ -96,12 +96,12 @@ LIBUHD_APPEND_SOURCES(
 )
 
 IF(ENABLE_C_API)
-    LIBUHD_APPEND_SOURCES(
+    LIBSHD_APPEND_SOURCES(
         ${CMAKE_CURRENT_SOURCE_DIR}/metadata_c.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ranges_c.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/sensors_c.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/string_vector_c.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tune_c.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/usrp_info_c.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/smini_info_c.cpp
     )
 ENDIF()

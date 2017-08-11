@@ -2,7 +2,7 @@
 // Copyright 2013-2015 Ettus Research LLC
 //
 
-/* Define the USB 2.0 and USB 3.0 enumeration descriptions for the USRP B200
+/* Define the USB 2.0 and USB 3.0 enumeration descriptions for the SMINI B200
  * device. */
 
 
@@ -555,7 +555,7 @@ const uint8_t b200_usb_manufacture_desc[] __attribute__ ((aligned (32))) =
     };
 
 /* NI Manufacturer String Descriptor */
-const uint8_t niusrp_usb_manufacture_desc[] __attribute__ ((aligned (32))) =
+const uint8_t nismini_usb_manufacture_desc[] __attribute__ ((aligned (32))) =
     {
         0x36,                           /* Descriptor Size */
         CY_U3P_USB_STRING_DESCR,        /* Device Descriptor Type */
@@ -604,8 +604,8 @@ const uint8_t b200_usb_product_desc[] __attribute__ ((aligned (32))) =
         '0',0x00
     };
 
-/* NI-USRP 2900 Product String Descriptor */
-const uint8_t niusrp_2900_usb_product_desc[] __attribute__ ((aligned (32))) =
+/* NI-SMINI 2900 Product String Descriptor */
+const uint8_t nismini_2900_usb_product_desc[] __attribute__ ((aligned (32))) =
     {
         0x1A,                           /* Descriptor Size */
         CY_U3P_USB_STRING_DESCR,        /* Device Descriptor Type */
@@ -623,8 +623,8 @@ const uint8_t niusrp_2900_usb_product_desc[] __attribute__ ((aligned (32))) =
         '0',0x00
     };
 
-/* NI-USRP 2901 Product String Descriptor */
-const uint8_t niusrp_2901_usb_product_desc[] __attribute__ ((aligned (32))) =
+/* NI-SMINI 2901 Product String Descriptor */
+const uint8_t nismini_2901_usb_product_desc[] __attribute__ ((aligned (32))) =
     {
         0x1A,                           /* Descriptor Size */
         CY_U3P_USB_STRING_DESCR,        /* Device Descriptor Type */

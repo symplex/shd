@@ -1217,7 +1217,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>uhd.freq_range(freq,freq+1)</value>
+      <value>shd.freq_range(freq,freq+1)</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -1311,7 +1311,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>uhd.gain_range(0,0,0)</value>
+      <value>shd.gain_range(0,0,0)</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -2961,7 +2961,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>uhd.time_spec_t()</value>
+      <value>shd.time_spec_t()</value>
     </param>
   </block>
   <block>
@@ -3043,7 +3043,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>[requested_freq, uhd.tune_request(requested_freq, lo_offset_txt), uhd.tune_request(requested_freq, dsp_freq=0, dsp_freq_policy=uhd.tune_request.POLICY_MANUAL)][tune_mode]</value>
+      <value>[requested_freq, shd.tune_request(requested_freq, lo_offset_txt), shd.tune_request(requested_freq, dsp_freq=0, dsp_freq_policy=shd.tune_request.POLICY_MANUAL)][tune_mode]</value>
     </param>
   </block>
   <block>
@@ -3062,7 +3062,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>uhd.tune_result_t()</value>
+      <value>shd.tune_result_t()</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -3195,7 +3195,7 @@
     </param>
     <param>
       <key>code</key>
-      <value>'%s (\'%s\'), %s' % (self.src.get_usrp_info().get('mboard_id'), self.src.get_usrp_info().get('mboard_name'), self.src.get_usrp_info().get('rx_subdev_name'))</value>
+      <value>'%s (\'%s\'), %s' % (self.src.get_smini_info().get('mboard_id'), self.src.get_smini_info().get('mboard_name'), self.src.get_smini_info().get('rx_subdev_name'))</value>
     </param>
     <param>
       <key>comment</key>
@@ -3223,7 +3223,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>usrp_info</value>
+      <value>smini_info</value>
     </param>
     <param>
       <key>injection</key>
@@ -3242,7 +3242,7 @@
     </param>
     <param>
       <key>code</key>
-      <value>',\n'.join(map(lambda x: '%s: %s'%(x,self.src.get_usrp_info().get(x)), self.src.get_usrp_info().keys()))</value>
+      <value>',\n'.join(map(lambda x: '%s: %s'%(x,self.src.get_smini_info().get(x)), self.src.get_smini_info().keys()))</value>
     </param>
     <param>
       <key>comment</key>
@@ -3270,7 +3270,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>usrp_info_all</value>
+      <value>smini_info_all</value>
     </param>
     <param>
       <key>injection</key>
@@ -4280,7 +4280,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>usrp_info</value>
+      <value>smini_info</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -4304,11 +4304,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>variable_static_usrp_info</value>
+      <value>variable_static_smini_info</value>
     </param>
     <param>
       <key>label</key>
-      <value>USRP</value>
+      <value>SMINI</value>
     </param>
     <param>
       <key>notebook</key>
@@ -4467,7 +4467,7 @@
     </param>
     <param>
       <key>label</key>
-      <value>UHD device args</value>
+      <value>SHD device args</value>
     </param>
     <param>
       <key>short_id</key>
@@ -7759,7 +7759,7 @@
     </param>
   </block>
   <block>
-    <key>uhd_usrp_source</key>
+    <key>shd_smini_source</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -7774,7 +7774,7 @@
     </param>
     <param>
       <key>center_freq0</key>
-      <value>uhd.tune_request(freq, lo_offset)</value>
+      <value>shd.tune_request(freq, lo_offset)</value>
     </param>
     <param>
       <key>norm_gain0</key>
@@ -8582,7 +8582,7 @@
     </param>
   </block>
   <block>
-    <key>uhd_usrp_source</key>
+    <key>shd_smini_source</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -8597,7 +8597,7 @@
     </param>
     <param>
       <key>center_freq0</key>
-      <value>uhd.tune_request(freq, lo_offset)</value>
+      <value>shd.tune_request(freq, lo_offset)</value>
     </param>
     <param>
       <key>norm_gain0</key>
@@ -8817,7 +8817,7 @@
     </param>
     <param>
       <key>center_freq1</key>
-      <value>uhd.tune_request(freq, lo_offset)</value>
+      <value>shd.tune_request(freq, lo_offset)</value>
     </param>
     <param>
       <key>norm_gain1</key>

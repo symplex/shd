@@ -15,13 +15,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/usb_device_handle.hpp>
-#include <uhd/transport/usb_control.hpp>
-#include <uhd/transport/usb_zero_copy.hpp>
-#include <uhd/exception.hpp>
+#include <shd/transport/usb_device_handle.hpp>
+#include <shd/transport/usb_control.hpp>
+#include <shd/transport/usb_zero_copy.hpp>
+#include <shd/exception.hpp>
 
-using namespace uhd;
-using namespace uhd::transport;
+using namespace shd;
+using namespace shd::transport;
 
 usb_control::~usb_control(void){
     /* NOP */
@@ -35,7 +35,7 @@ usb_control::sptr usb_control::make(
         usb_device_handle::sptr,
         const int
 ) {
-    throw uhd::not_implemented_error("no usb support -> usb_control::make not implemented");
+    throw shd::not_implemented_error("no usb support -> usb_control::make not implemented");
 }
 
 usb_zero_copy::sptr usb_zero_copy::make(
@@ -46,5 +46,5 @@ usb_zero_copy::sptr usb_zero_copy::make(
     const unsigned char,
     const device_addr_t &
 ){
-    throw uhd::not_implemented_error("no usb support -> usb_zero_copy::make not implemented");
+    throw shd::not_implemented_error("no usb support -> usb_zero_copy::make not implemented");
 }

@@ -32,7 +32,7 @@
 
 	
 	;; BIG TIME KLUDGE!
-	;; Look at usrp_main.rst and count the bytes from our
+	;; Look at smini_main.rst and count the bytes from our
 	;; "normal return location" to the first instruction following
 	;; the comment:	"_mcs51_getRAMCLEAR () start"
 	

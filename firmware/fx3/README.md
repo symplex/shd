@@ -3,7 +3,7 @@ INSTRUCTIONS
 
 # Building the B2xx FX3 Firmware
 
-The USRP B200 and B210 each use the Cypress FX3 USB3 PHY for USB3 connectivity.
+The SMINI B200 and B210 each use the Cypress FX3 USB3 PHY for USB3 connectivity.
 This device has an ARM core on it, which is programmed in C. This README will
 show you how to build our firmware source
 
@@ -14,7 +14,7 @@ managing the transport from the host to the FPGA by configuring IO and DMA.
 
 ## Setting up the Cypress SDK
 
-In order to compile the USRP B200 and B210 firmware, you will need the FX3 SDK
+In order to compile the SMINI B200 and B210 firmware, you will need the FX3 SDK
 distributed by the FX3 manufacturer, Cypress Semiconductor. You can download the
 [FX3 SDK from here](http://www.cypress.com/documentation/software-and-drivers/ez-usb-fx3-sdk-archives)
 *Note*: You *must* use SDK version 1.2.3!
@@ -34,23 +34,23 @@ tools. These variables are:
 
 Now, you'll need to set-up the Cypress SDK, as well. In the SDK, navigate to
 the `firmware` directory, and copy the following sub-directories into
-`uhd.git/firmware/fx3`: `common/`, `lpp_source/`, `u3p_firmware/`.
+`shd.git/firmware/fx3`: `common/`, `lpp_source/`, `u3p_firmware/`.
 
 Your directory structure should now look like:
 
 ```
-uhd.git/
+shd.git/
        |
        --firmware/
                  |
                  --fx3/
                       |
-                      --b200/               # From UHD
+                      --b200/               # From SHD
                       --common/             # From Cypress SDK
-                      --gpif2_designer/     # From UHD
+                      --gpif2_designer/     # From SHD
                       --lpp_source/         # From Cypress SDK
                       --u3p_firmware/       # From Cypress SDK
-                      --README.md           # From UHD
+                      --README.md           # From SHD
 ```
 
 
@@ -61,7 +61,7 @@ into the `common/` directory you just copied from the Cypress SDK, and apply the
 patch `b200/fx3_mem_map.patch`.
 
 ```
-    # cd uhd.git/firmware/fx3/common/
+    # cd shd.git/firmware/fx3/common/
     $ patch -p2 < ../b200/fx3_mem_map.patch
 ```
 
@@ -73,10 +73,10 @@ Now, you should be able to head into the `b200/` directory and simply build the
 firmware:
 
 ```
-    $ cd uhd.git/firmware/fx3/b200
+    $ cd shd.git/firmware/fx3/b200
     $ make
 ```
 
-It will generate a `usrp_b200_fw.hex` file, which you can then give to UHD to
-program your USRP B200 or USRP B210.
+It will generate a `smini_b200_fw.hex` file, which you can then give to SHD to
+program your SMINI B200 or SMINI B210.
 

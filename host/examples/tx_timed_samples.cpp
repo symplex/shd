@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/smini/multi_smini.hpp>
 #include <boost/program_options.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/format.hpp>
@@ -26,8 +26,8 @@
 
 namespace po = boost::program_options;
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+int SHD_SAFE_MAIN(int argc, char *argv[]){
+    shd::set_thread_priority_safe();
 
     //variables to be set by po
     std::string args;
@@ -41,7 +41,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "help message")
-        ("args", po::value<std::string>(&args)->default_value(""), "single uhd device address args")
+        ("args", po::value<std::string>(&args)->default_value(""), "single shd device address args")
         ("wire", po::value<std::string>(&wire)->default_value(""), "the over the wire type, sc16, sc8, etc")
         ("secs", po::value<double>(&seconds_in_future)->default_value(1.5), "number of seconds in the future to transmit")
         ("nsamps", po::value<size_t>(&total_num_samps)->default_value(10000), "total number of samples to transmit")
@@ -55,39 +55,39 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //print the help message
     if (vm.count("help")){
-        std::cout << boost::format("UHD TX Timed Samples %s") % desc << std::endl;
+        std::cout << boost::format("SHD TX Timed Samples %s") % desc << std::endl;
         return ~0;
     }
 
     bool verbose = vm.count("dilv") == 0;
 
-    //create a usrp device
+    //create a smini device
     std::cout << std::endl;
-    std::cout << boost::format("Creating the usrp device with: %s...") % args << std::endl;
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
-    std::cout << boost::format("Using Device: %s") % usrp->get_pp_string() << std::endl;
+    std::cout << boost::format("Creating the smini device with: %s...") % args << std::endl;
+    shd::smini::multi_smini::sptr smini = shd::smini::multi_smini::make(args);
+    std::cout << boost::format("Using Device: %s") % smini->get_pp_string() << std::endl;
 
     //set the tx sample rate
     std::cout << boost::format("Setting TX Rate: %f Msps...") % (rate/1e6) << std::endl;
-    usrp->set_tx_rate(rate);
-    std::cout << boost::format("Actual TX Rate: %f Msps...") % (usrp->get_tx_rate()/1e6) << std::endl << std::endl;
+    smini->set_tx_rate(rate);
+    std::cout << boost::format("Actual TX Rate: %f Msps...") % (smini->get_tx_rate()/1e6) << std::endl << std::endl;
 
     std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
-    usrp->set_time_now(uhd::time_spec_t(0.0));
+    smini->set_time_now(shd::time_spec_t(0.0));
 
     //create a transmit streamer
-    uhd::stream_args_t stream_args("fc32", wire); //complex floats
-    uhd::tx_streamer::sptr tx_stream = usrp->get_tx_stream(stream_args);
+    shd::stream_args_t stream_args("fc32", wire); //complex floats
+    shd::tx_streamer::sptr tx_stream = smini->get_tx_stream(stream_args);
 
     //allocate buffer with data to send
     std::vector<std::complex<float> > buff(tx_stream->get_max_num_samps(), std::complex<float>(ampl, ampl));
 
     //setup metadata for the first packet
-    uhd::tx_metadata_t md;
+    shd::tx_metadata_t md;
     md.start_of_burst = false;
     md.end_of_burst = false;
     md.has_time_spec = true;
-    md.time_spec = uhd::time_spec_t(seconds_in_future);
+    md.time_spec = shd::time_spec_t(seconds_in_future);
 
     //the first call to send() will block this many seconds before sending:
     const double timeout = seconds_in_future + 0.1; //timeout (delay before transmit + padding)
@@ -115,11 +115,11 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     tx_stream->send("", 0, md);
 
     std::cout << std::endl << "Waiting for async burst ACK... " << std::flush;
-    uhd::async_metadata_t async_md;
+    shd::async_metadata_t async_md;
     bool got_async_burst_ack = false;
     //loop through all messages for the ACK packet (may have underflow messages in queue)
     while (not got_async_burst_ack and tx_stream->recv_async_msg(async_md, timeout)){
-        got_async_burst_ack = (async_md.event_code == uhd::async_metadata_t::EVENT_CODE_BURST_ACK);
+        got_async_burst_ack = (async_md.event_code == shd::async_metadata_t::EVENT_CODE_BURST_ACK);
     }
     std::cout << (got_async_burst_ack? "success" : "fail") << std::endl;
 

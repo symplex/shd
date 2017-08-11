@@ -15,11 +15,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/usrp/fe_connection.hpp>
-#include <uhd/exception.hpp>
+#include <shd/smini/fe_connection.hpp>
+#include <shd/exception.hpp>
 #include <boost/test/unit_test.hpp>
 
-using namespace uhd::usrp;
+using namespace shd::smini;
 
 BOOST_AUTO_TEST_CASE(test_quardrature){
     fe_connection_t IQ("IQ"), QI("QI"), IbQ("IbQ"), QbI("QbI"), QbIb("QbIb");
@@ -70,10 +70,10 @@ BOOST_AUTO_TEST_CASE(test_heterodyne){
     BOOST_CHECK(IbIb.is_q_inverted());
     BOOST_CHECK(QbQb.is_q_inverted());
 
-    BOOST_CHECK_THROW(fe_connection_t dummy("IIb"), uhd::value_error);
-    BOOST_CHECK_THROW(fe_connection_t dummy("IbI"), uhd::value_error);
-    BOOST_CHECK_THROW(fe_connection_t dummy("QQb"), uhd::value_error);
-    BOOST_CHECK_THROW(fe_connection_t dummy("QbQ"), uhd::value_error);
+    BOOST_CHECK_THROW(fe_connection_t dummy("IIb"), shd::value_error);
+    BOOST_CHECK_THROW(fe_connection_t dummy("IbI"), shd::value_error);
+    BOOST_CHECK_THROW(fe_connection_t dummy("QQb"), shd::value_error);
+    BOOST_CHECK_THROW(fe_connection_t dummy("QbQ"), shd::value_error);
 }
 
 BOOST_AUTO_TEST_CASE(test_real){
@@ -100,9 +100,9 @@ BOOST_AUTO_TEST_CASE(test_real){
 }
 
 BOOST_AUTO_TEST_CASE(test_invalid){
-    BOOST_CHECK_THROW(fe_connection_t dummy("blah"), uhd::value_error);
-    BOOST_CHECK_THROW(fe_connection_t dummy("123456"), uhd::value_error);
-    BOOST_CHECK_THROW(fe_connection_t dummy("ii"), uhd::value_error);
-    BOOST_CHECK_THROW(fe_connection_t dummy("qb"), uhd::value_error);
-    BOOST_CHECK_THROW(fe_connection_t dummy("IIIQ"), uhd::value_error);
+    BOOST_CHECK_THROW(fe_connection_t dummy("blah"), shd::value_error);
+    BOOST_CHECK_THROW(fe_connection_t dummy("123456"), shd::value_error);
+    BOOST_CHECK_THROW(fe_connection_t dummy("ii"), shd::value_error);
+    BOOST_CHECK_THROW(fe_connection_t dummy("qb"), shd::value_error);
+    BOOST_CHECK_THROW(fe_connection_t dummy("IIIQ"), shd::value_error);
 }

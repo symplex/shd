@@ -15,13 +15,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_LIBUHD_TRANSPORT_LIBUSB_HPP
-#define INCLUDED_LIBUHD_TRANSPORT_LIBUSB_HPP
+#ifndef INCLUDED_LIBSHD_TRANSPORT_LIBUSB_HPP
+#define INCLUDED_LIBSHD_TRANSPORT_LIBUSB_HPP
 
-#include <uhd/config.hpp>
+#include <shd/config.hpp>
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
-#include <uhd/transport/usb_device_handle.hpp>
+#include <shd/transport/usb_device_handle.hpp>
 #include <libusb.h>
 
 //! Define LIBUSB_CALL when its missing (non-windows)
@@ -54,7 +54,7 @@
  * also store tables of already allocated structures to avoid multiple
  * occurrences of opened handles (for example).
  **********************************************************************/
-namespace uhd { namespace transport {
+namespace shd { namespace transport {
 
 namespace libusb {
 
@@ -185,4 +185,4 @@ namespace libusb {
 
 }} //namespace
 
-#endif /* INCLUDED_LIBUHD_TRANSPORT_LIBUSB_HPP */
+#endif /* INCLUDED_LIBSHD_TRANSPORT_LIBUSB_HPP */

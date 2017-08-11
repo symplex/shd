@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/nirio/nirio_driver_iface.h>
+#include <shd/transport/nirio/nirio_driver_iface.h>
 #include <stdio.h>
 #include <errno.h>
 #include <fcntl.h>

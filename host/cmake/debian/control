@@ -1,4 +1,4 @@
-Source: uhd
+Source: shd
 Section: science
 Priority: optional
 Maintainer: Ettus Research <packages@ettus.com>
@@ -15,25 +15,25 @@ Build-Depends: debhelper (>= 9), cmake (>= 2.8.4+dfsg.1-3), python-dev, python-m
  libboost-serialization-dev
 Standards-Version: 3.9.5
 Homepage: https://www.ettus.com
-Vcs-Git: git://github.com/EttusResearch/uhd.git
+Vcs-Git: git://github.com/EttusResearch/shd.git
 
-Package: uhd-host
+Package: shd-host
 Architecture: any
-Depends: libuhd003, python, adduser, python-requests, ${shlibs:Depends}, ${misc:Depends}
+Depends: libshd003, python, adduser, python-requests, ${shlibs:Depends}, ${misc:Depends}
 Recommends: python-tk, curl, procps
 Suggests: gnuradio
 Description: hardware driver for Ettus Research products
- Host utilities for the USRP Hardware Driver for Ettus Research products.
+ Host utilities for the SMINI Hardware Driver for Ettus Research products.
  .
  The supported devices provide analog radio receiver and transmitter hardware
  along with digital interfaces for getting signals to and from a software
  defined radio running on the host computer.
  .
- This package includes the uhd_find_devices application to locate and
- configure attached peripherals, and the uhd_usrp_probe application to
+ This package includes the shd_find_devices application to locate and
+ configure attached peripherals, and the shd_smini_probe application to
  display hardware configuration information.
 
-Package: libuhd003
+Package: libshd003
 Architecture: any
 Section: libs
 Pre-Depends: multiarch-support, ${misc:Pre-Depends}
@@ -41,23 +41,23 @@ Depends: python, adduser, ${shlibs:Depends}, ${misc:Depends}
 Suggests: gnuradio
 Multi-Arch: same
 Description: hardware driver for Ettus Research products
- Host library for the USRP Hardware Driver for Ettus Research products.
+ Host library for the SMINI Hardware Driver for Ettus Research products.
  .
  The supported devices provide analog radio receiver and transmitter hardware
  along with digital interfaces for getting signals to and from a software
  defined radio running on the host computer.
 
-Package: libuhd-dev
+Package: libshd-dev
 Architecture: any
 Section: libdevel
-Depends: libuhd003 (= ${binary:Version}), python, adduser, ${shlibs:Depends}, ${misc:Depends}
+Depends: libshd003 (= ${binary:Version}), python, adduser, ${shlibs:Depends}, ${misc:Depends}
 Suggests: libjs-jquery, gnuradio
 Description: universal hardware driver for Ettus Research products
- Host library for the USRP Hardware Driver for Ettus Research products.
+ Host library for the SMINI Hardware Driver for Ettus Research products.
  .
  The supported devices provide analog radio receiver and transmitter hardware
  along with digital interfaces for getting signals to and from a software
  defined radio running on the host computer.
  .
  This package contains the header files and documentation for
- developing with libuhd.
+ developing with libshd.

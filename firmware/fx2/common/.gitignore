@@ -7,12 +7,12 @@
 /*.rst
 /*.sym
 /blink_leds.asm
-/usrp_common.asm
+/smini_common.asm
 /command_loop.asm
 /fpga.asm
 /*.asm
-/usrp_gpif.c
-/usrp_gpif_inline.h
+/smini_gpif.c
+/smini_gpif_inline.h
 /*.lib
 /Makefile
 /Makefile.in

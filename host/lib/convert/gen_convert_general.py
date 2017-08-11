@@ -25,9 +25,9 @@ TMPL_HEADER = """
  **********************************************************************/
 
 #include "convert_common.hpp"
-#include <uhd/utils/byteswap.hpp>
+#include <shd/utils/byteswap.hpp>
 
-using namespace uhd::convert;
+using namespace shd::convert;
 
 
 // item32 -> item32: Just a memcpy. No scaling possible.
@@ -144,8 +144,8 @@ DECLARE_CONVERTER(s16_item32_{end}, 1, s16, 1, PRIORITY_GENERAL) {{
 }}
 """
 
-TMPL_CONV_USRP1_COMPLEX = """
-DECLARE_CONVERTER(${cpu_type}, ${width}, sc16_item16_usrp1, 1, PRIORITY_GENERAL){
+TMPL_CONV_SMINI1_COMPLEX = """
+DECLARE_CONVERTER(${cpu_type}, ${width}, sc16_item16_smini1, 1, PRIORITY_GENERAL){
     % for w in range(width):
     const ${cpu_type}_t *input${w} = reinterpret_cast<const ${cpu_type}_t *>(inputs[${w}]);
     % endfor
@@ -159,7 +159,7 @@ DECLARE_CONVERTER(${cpu_type}, ${width}, sc16_item16_usrp1, 1, PRIORITY_GENERAL)
     }
 }
 
-DECLARE_CONVERTER(sc16_item16_usrp1, 1, ${cpu_type}, ${width}, PRIORITY_GENERAL){
+DECLARE_CONVERTER(sc16_item16_smini1, 1, ${cpu_type}, ${width}, PRIORITY_GENERAL){
     const uint16_t *input = reinterpret_cast<const uint16_t *>(inputs[0]);
     % for w in range(width):
     ${cpu_type}_t *output${w} = reinterpret_cast<${cpu_type}_t *>(outputs[${w}]);
@@ -176,7 +176,7 @@ DECLARE_CONVERTER(sc16_item16_usrp1, 1, ${cpu_type}, ${width}, PRIORITY_GENERAL)
     }
 }
 
-DECLARE_CONVERTER(sc8_item16_usrp1, 1, ${cpu_type}, ${width}, PRIORITY_GENERAL){
+DECLARE_CONVERTER(sc8_item16_smini1, 1, ${cpu_type}, ${width}, PRIORITY_GENERAL){
     const uint16_t *input = reinterpret_cast<const uint16_t *>(inputs[0]);
     % for w in range(width):
     ${cpu_type}_t *output${w} = reinterpret_cast<${cpu_type}_t *>(outputs[${w}]);
@@ -208,8 +208,8 @@ if __name__ == '__main__':
     ## Generate all data types that are exactly
     ## item32 or multiples thereof:
     for end in ('be', 'le'):
-        host_to_wire = {'be': 'uhd::htonx', 'le': 'uhd::htowx'}[end]
-        wire_to_host = {'be': 'uhd::ntohx', 'le': 'uhd::wtohx'}[end]
+        host_to_wire = {'be': 'shd::htonx', 'le': 'shd::htowx'}[end]
+        wire_to_host = {'be': 'shd::ntohx', 'le': 'shd::wtohx'}[end]
         # item32 types (sc16->sc16 is a special case because it defaults
         # to Q/I order on the wire:
         for in_type, out_type, to_wire_or_host in (
@@ -234,8 +234,8 @@ if __name__ == '__main__':
 
     ## Real 16-Bit:
     for end, to_host, to_wire in (
-        ('be', 'uhd::ntohx', 'uhd::htonx'),
-        ('le', 'uhd::wtohx', 'uhd::htowx'),
+        ('be', 'shd::ntohx', 'shd::htonx'),
+        ('le', 'shd::wtohx', 'shd::htowx'),
     ):
         output += TMPL_CONV_S16.format(
             end=end, to_host=to_host, to_wire=to_wire
@@ -244,14 +244,14 @@ if __name__ == '__main__':
     ## Real 8-Bit Types:
     for us8 in ('u8', 's8'):
         for end, to_host, to_wire in (
-            ('be', 'uhd::ntohx', 'uhd::htonx'),
-            ('le', 'uhd::wtohx', 'uhd::htowx'),
+            ('be', 'shd::ntohx', 'shd::htonx'),
+            ('le', 'shd::wtohx', 'shd::htowx'),
         ):
             output += TMPL_CONV_U8S8.format(
                     us8=us8, end=end, to_host=to_host, to_wire=to_wire
             )
 
-    #generate complex converters for usrp1 format (requires Cheetah)
+    #generate complex converters for smini1 format (requires Cheetah)
     for width in 1, 2, 4:
         for cpu_type, do_scale in (
             ('fc64', '*scale_factor'),
@@ -259,8 +259,8 @@ if __name__ == '__main__':
             ('sc16', ''),
         ):
             output += parse_tmpl(
-                TMPL_CONV_USRP1_COMPLEX,
-                width=width, to_host='uhd::wtohx', to_wire='uhd::htowx',
+                TMPL_CONV_SMINI1_COMPLEX,
+                width=width, to_host='shd::wtohx', to_wire='shd::htowx',
                 cpu_type=cpu_type, do_scale=do_scale
             )
     open(sys.argv[1], 'w').write(output)

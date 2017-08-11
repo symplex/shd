@@ -15,29 +15,29 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/device.hpp>
-#include <uhd/property_tree.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/device.hpp>
+#include <shd/property_tree.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <iostream>
 //#include <cstdlib>
-#ifdef UHD_PLATFORM_LINUX
+#ifdef SHD_PLATFORM_LINUX
 #include <fstream>
 #include <unistd.h> // syscall constants
 #include <fcntl.h> // O_NONBLOCK
 #include <sys/syscall.h>
 #include <cerrno>
 #include <cstring> // for std::strerror
-#endif //UHD_PLATFORM_LINUX
+#endif //SHD_PLATFORM_LINUX
 
 const std::string FX2_VENDOR_ID("0x04b4");
 const std::string FX2_PRODUCT_ID("0x8613");
 
 namespace po = boost::program_options;
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
+int SHD_SAFE_MAIN(int argc, char *argv[]){
     std::string type;
     po::options_description desc("Allowed options");
     desc.add_options()
@@ -45,7 +45,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("image", po::value<std::string>(), "BIN image file")
         ("vid", po::value<std::string>(), "VID of device to program")
         ("pid", po::value<std::string>(), "PID of device to program")
-        ("type", po::value<std::string>(), "device type (usrp1 or b100)")
+        ("type", po::value<std::string>(), "device type (smini1 or b100)")
     ;
 
     po::variables_map vm;
@@ -54,12 +54,12 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //print the help message
     if (vm.count("help")){
-        std::cout << boost::format("USRP EEPROM initialization %s") % desc << std::endl;
+        std::cout << boost::format("SMINI EEPROM initialization %s") % desc << std::endl;
         return EXIT_FAILURE;
     }
 
-#ifdef UHD_PLATFORM_LINUX
-    //can't find an uninitialized usrp with this mystery usbtest in the way...
+#ifdef SHD_PLATFORM_LINUX
+    //can't find an uninitialized smini with this mystery usbtest in the way...
     std::string module("usbtest");
     std::ifstream modules("/proc/modules");
     bool module_found = false;
@@ -73,10 +73,10 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         if(fail)
             std::cerr << ( boost::format("Removing the '%s' module failed with error '%s'.\n") % module % std::strerror(errno) );
     }
-#endif //UHD_PLATFORM_LINUX
+#endif //SHD_PLATFORM_LINUX
 
     //load the options into the address
-    uhd::device_addr_t device_addr;
+    shd::device_addr_t device_addr;
     device_addr["type"] = type;
     if(vm.count("vid") or vm.count("pid") or vm.count("type")) {
         if(not (vm.count("vid") and vm.count("pid") and vm.count("type"))) {
@@ -93,22 +93,22 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //find and create a control transport to do the writing.
 
-    uhd::device_addrs_t found_addrs = uhd::device::find(device_addr, uhd::device::USRP);
+    shd::device_addrs_t found_addrs = shd::device::find(device_addr, shd::device::SMINI);
 
     if (found_addrs.size() == 0){
-        std::cerr << "No USRP devices found" << std::endl;
+        std::cerr << "No SMINI devices found" << std::endl;
         return EXIT_FAILURE;
     }
 
     for (size_t i = 0; i < found_addrs.size(); i++){
         std::cout << "Writing EEPROM data..." << std::endl;
-        //uhd::device_addrs_t devs = uhd::device::find(found_addrs[i]);
-        uhd::device::sptr dev = uhd::device::make(found_addrs[i], uhd::device::USRP);
-        uhd::property_tree::sptr tree = dev->get_tree();
+        //shd::device_addrs_t devs = shd::device::find(found_addrs[i]);
+        shd::device::sptr dev = shd::device::make(found_addrs[i], shd::device::SMINI);
+        shd::property_tree::sptr tree = dev->get_tree();
         tree->access<std::string>("/mboards/0/load_eeprom").set(vm["image"].as<std::string>());
     }
 
 
-    std::cout << "Power-cycle the usrp for the changes to take effect." << std::endl;
+    std::cout << "Power-cycle the smini for the changes to take effect." << std::endl;
     return EXIT_SUCCESS;
 }

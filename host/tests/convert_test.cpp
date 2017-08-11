@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/convert.hpp>
+#include <shd/convert.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 #include <stdint.h>
@@ -25,7 +25,7 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace uhd;
+using namespace shd;
 
 //typedefs for complex types
 typedef std::complex<int16_t> sc16_t;

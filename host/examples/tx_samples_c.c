@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <uhd.h>
+#include <shd.h>
 
 #include "getopt.h"
 
@@ -33,7 +33,7 @@
     }
 
 void print_help(void){
-    fprintf(stderr, "tx_samples_c - A simple TX example using UHD's C API\n\n"
+    fprintf(stderr, "tx_samples_c - A simple TX example using SHD's C API\n\n"
 
                     "Options:\n"
                     "    -a (device args)\n"
@@ -102,41 +102,41 @@ int main(int argc, char* argv[]){
         }
     }
 
-    if(uhd_set_thread_priority(uhd_default_thread_priority, true)){
+    if(shd_set_thread_priority(shd_default_thread_priority, true)){
         fprintf(stderr, "Unable to set thread priority. Continuing anyway.\n");
     }
 
     if (device_args == NULL){
         device_args = "";
     }
-    // Create USRP
-    uhd_usrp_handle usrp;
-    fprintf(stderr, "Creating USRP with args \"%s\"...\n", device_args);
+    // Create SMINI
+    shd_smini_handle smini;
+    fprintf(stderr, "Creating SMINI with args \"%s\"...\n", device_args);
     EXECUTE_OR_GOTO(free_option_strings,
-        uhd_usrp_make(&usrp, device_args)
+        shd_smini_make(&smini, device_args)
     )
 
     // Create TX streamer
-    uhd_tx_streamer_handle tx_streamer;
-    EXECUTE_OR_GOTO(free_usrp,
-        uhd_tx_streamer_make(&tx_streamer)
+    shd_tx_streamer_handle tx_streamer;
+    EXECUTE_OR_GOTO(free_smini,
+        shd_tx_streamer_make(&tx_streamer)
     )
 
     // Create TX metadata
-    uhd_tx_metadata_handle md;
+    shd_tx_metadata_handle md;
     EXECUTE_OR_GOTO(free_tx_streamer,
-        uhd_tx_metadata_make(&md, false, 0.0, 0.1, true, false)
+        shd_tx_metadata_make(&md, false, 0.0, 0.1, true, false)
     )
 
     // Create other necessary structs
-    uhd_tune_request_t tune_request = {
+    shd_tune_request_t tune_request = {
         .target_freq = freq,
-        .rf_freq_policy = UHD_TUNE_REQUEST_POLICY_AUTO,
-        .dsp_freq_policy = UHD_TUNE_REQUEST_POLICY_AUTO
+        .rf_freq_policy = SHD_TUNE_REQUEST_POLICY_AUTO,
+        .dsp_freq_policy = SHD_TUNE_REQUEST_POLICY_AUTO
     };
-    uhd_tune_result_t tune_result;
+    shd_tune_result_t tune_result;
 
-    uhd_stream_args_t stream_args = {
+    shd_stream_args_t stream_args = {
         .cpu_format = "fc32",
         .otw_format = "sc16",
         .args = "",
@@ -151,48 +151,48 @@ int main(int argc, char* argv[]){
     // Set rate
     fprintf(stderr, "Setting TX Rate: %f...\n", rate);
     EXECUTE_OR_GOTO(free_tx_metadata,
-        uhd_usrp_set_tx_rate(usrp, rate, channel)
+        shd_smini_set_tx_rate(smini, rate, channel)
     )
 
     // See what rate actually is
     EXECUTE_OR_GOTO(free_tx_metadata,
-        uhd_usrp_get_tx_rate(usrp, channel, &rate)
+        shd_smini_get_tx_rate(smini, channel, &rate)
     )
     fprintf(stderr, "Actual TX Rate: %f...\n\n", rate);
 
     // Set gain
     fprintf(stderr, "Setting TX Gain: %f db...\n", gain);
     EXECUTE_OR_GOTO(free_tx_metadata,
-        uhd_usrp_set_tx_gain(usrp, gain, 0, "")
+        shd_smini_set_tx_gain(smini, gain, 0, "")
     )
 
     // See what gain actually is
     EXECUTE_OR_GOTO(free_tx_metadata,
-        uhd_usrp_get_tx_gain(usrp, channel, "", &gain)
+        shd_smini_get_tx_gain(smini, channel, "", &gain)
     )
     fprintf(stderr, "Actual TX Gain: %f...\n", gain);
 
     // Set frequency
     fprintf(stderr, "Setting TX frequency: %f MHz...\n", freq / 1e6);
     EXECUTE_OR_GOTO(free_tx_metadata,
-        uhd_usrp_set_tx_freq(usrp, &tune_request, channel, &tune_result)
+        shd_smini_set_tx_freq(smini, &tune_request, channel, &tune_result)
     )
 
     // See what frequency actually is
     EXECUTE_OR_GOTO(free_tx_metadata,
-        uhd_usrp_get_tx_freq(usrp, channel, &freq)
+        shd_smini_get_tx_freq(smini, channel, &freq)
     )
     fprintf(stderr, "Actual TX frequency: %f MHz...\n", freq / 1e6);
 
     // Set up streamer
     stream_args.channel_list = &channel;
     EXECUTE_OR_GOTO(free_tx_streamer,
-        uhd_usrp_get_tx_stream(usrp, &stream_args, tx_streamer)
+        shd_smini_get_tx_stream(smini, &stream_args, tx_streamer)
     )
 
     // Set up buffer
     EXECUTE_OR_GOTO(free_tx_streamer,
-        uhd_tx_streamer_max_num_samps(tx_streamer, &samps_per_buff)
+        shd_tx_streamer_max_num_samps(tx_streamer, &samps_per_buff)
     )
     fprintf(stderr, "Buffer size in samples: %zu\n", samps_per_buff);
     buff = malloc(samps_per_buff * 2 * sizeof(float));
@@ -216,7 +216,7 @@ int main(int argc, char* argv[]){
         if (total_num_samps > 0 && num_acc_samps >= total_num_samps) break;
 
         EXECUTE_OR_GOTO(free_tx_streamer,
-            uhd_tx_streamer_send(tx_streamer, buffs_ptr, samps_per_buff, &md, 0.1, &num_samps_sent)
+            shd_tx_streamer_send(tx_streamer, buffs_ptr, samps_per_buff, &md, 0.1, &num_samps_sent)
         )
 
         num_acc_samps += num_samps_sent;
@@ -230,23 +230,23 @@ int main(int argc, char* argv[]){
         if(verbose){
             fprintf(stderr, "Cleaning up TX streamer.\n");
         }
-        uhd_tx_streamer_free(&tx_streamer);
+        shd_tx_streamer_free(&tx_streamer);
 
     free_tx_metadata:
         if(verbose){
             fprintf(stderr, "Cleaning up TX metadata.\n");
         }
-        uhd_tx_metadata_free(&md);
+        shd_tx_metadata_free(&md);
 
-    free_usrp:
+    free_smini:
         if(verbose){
-            fprintf(stderr, "Cleaning up USRP.\n");
+            fprintf(stderr, "Cleaning up SMINI.\n");
         }
-        if(return_code != EXIT_SUCCESS && usrp != NULL){
-            uhd_usrp_last_error(usrp, error_string, 512);
-            fprintf(stderr, "USRP reported the following error: %s\n", error_string);
+        if(return_code != EXIT_SUCCESS && smini != NULL){
+            shd_smini_last_error(smini, error_string, 512);
+            fprintf(stderr, "SMINI reported the following error: %s\n", error_string);
         }
-        uhd_usrp_free(&usrp);
+        shd_smini_free(&smini);
 
     free_option_strings:
         if(device_args != NULL){

@@ -17,9 +17,9 @@
 """ Test for gpio. """
 
 import re
-from uhd_test_base import uhd_example_test_case
+from shd_test_base import shd_example_test_case
 
-class gpio_test(uhd_example_test_case):
+class gpio_test(shd_example_test_case):
     """ Run gpio. """
     tests = {'default': {},}
 

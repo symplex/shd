@@ -19,7 +19,7 @@
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 class source_node : public test_node
 {
@@ -43,7 +43,7 @@ public:
 protected:
     size_t _request_output_port(
             const size_t,
-            const uhd::device_addr_t &
+            const shd::device_addr_t &
     ) const {
         return _output_port;
     }
@@ -74,7 +74,7 @@ public:
 protected:
     size_t _request_input_port(
             const size_t,
-            const uhd::device_addr_t &
+            const shd::device_addr_t &
     ) const {
         return _input_port;
     }
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(test_simple_connect)
     BOOST_CHECK_EQUAL(node_A->get_downstream_port(src_port), dst_port);
     BOOST_CHECK_EQUAL(node_B->get_upstream_port(dst_port), src_port);
 
-    BOOST_REQUIRE_THROW(node_A->get_downstream_port(999), uhd::value_error);
+    BOOST_REQUIRE_THROW(node_A->get_downstream_port(999), shd::value_error);
 }
 
 BOOST_AUTO_TEST_CASE(test_fail)
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(test_fail)
     MAKE_SINK_NODE(node_B, ANY_PORT);
 
     node_A->connect_downstream(node_B, 1);
-    BOOST_REQUIRE_THROW(node_B->connect_upstream(node_A, 2), uhd::type_error);
+    BOOST_REQUIRE_THROW(node_B->connect_upstream(node_A, 2), shd::type_error);
 }
 
 BOOST_AUTO_TEST_CASE(test_set_streamers)

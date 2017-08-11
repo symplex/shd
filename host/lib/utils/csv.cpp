@@ -15,10 +15,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/csv.hpp>
+#include <shd/utils/csv.hpp>
 #include <boost/foreach.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 csv::rows_type csv::to_rows(std::istream &input){
     csv::rows_type rows;

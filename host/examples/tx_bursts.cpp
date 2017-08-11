@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/smini/multi_smini.hpp>
 #include <boost/program_options.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/format.hpp>
@@ -32,8 +32,8 @@ namespace po = boost::program_options;
 static bool stop_signal_called = false;
 void sig_int_handler(int){stop_signal_called = true;}
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+int SHD_SAFE_MAIN(int argc, char *argv[]){
+    shd::set_thread_priority_safe();
 
     //variables to be set by po
     std::string args, channel_list;
@@ -49,7 +49,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "help message")
-        ("args", po::value<std::string>(&args)->default_value(""), "multi uhd device address args")
+        ("args", po::value<std::string>(&args)->default_value(""), "multi shd device address args")
         ("secs", po::value<double>(&seconds_in_future)->default_value(1.5), "delay before first burst")
         ("repeat", "repeat burst")
         ("rep-delay", po::value<double>(&rep_rate)->default_value(0.5), "delay between bursts")
@@ -60,7 +60,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("gain", po::value<double>(&gain)->default_value(0), "gain")
         ("dilv", "specify to disable inner-loop verbose")
         ("channels", po::value<std::string>(&channel_list)->default_value("0"), "which channel(s) to use (specify \"0\", \"1\", \"0,1\", etc")
-        ("int-n", "tune USRP with integer-n tuning")
+        ("int-n", "tune SMINI with integer-n tuning")
     ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -68,18 +68,18 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //print the help message
     if (vm.count("help")){
-        std::cout << boost::format("UHD TX Timed Samples %s") % desc << std::endl;
+        std::cout << boost::format("SHD TX Timed Samples %s") % desc << std::endl;
         return ~0;
     }
 
     bool verbose = vm.count("dilv") == 0;
     bool repeat = vm.count("repeat") != 0;
 
-    //create a usrp device
+    //create a smini device
     std::cout << std::endl;
-    std::cout << boost::format("Creating the usrp device with: %s...") % args << std::endl;
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
-    std::cout << boost::format("Using Device: %s") % usrp->get_pp_string() << std::endl;
+    std::cout << boost::format("Creating the smini device with: %s...") % args << std::endl;
+    shd::smini::multi_smini::sptr smini = shd::smini::multi_smini::make(args);
+    std::cout << boost::format("Using Device: %s") % smini->get_pp_string() << std::endl;
 
     //detect which channels to use
     std::vector<std::string> channel_strings;
@@ -87,7 +87,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     boost::split(channel_strings, channel_list, boost::is_any_of("\"',"));
     for(size_t ch = 0; ch < channel_strings.size(); ch++){
         size_t chan = boost::lexical_cast<int>(channel_strings[ch]);
-        if(chan >= usrp->get_tx_num_channels()){
+        if(chan >= smini->get_tx_num_channels()){
             throw std::runtime_error("Invalid channel(s) specified.");
         }
         else channel_nums.push_back(boost::lexical_cast<int>(channel_strings[ch]));
@@ -95,28 +95,28 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //set the tx sample rate
     std::cout << boost::format("Setting TX Rate: %f Msps...") % (rate/1e6) << std::endl;
-    usrp->set_tx_rate(rate);
-    std::cout << boost::format("Actual TX Rate: %f Msps...") % (usrp->get_tx_rate()/1e6) << std::endl << std::endl;
+    smini->set_tx_rate(rate);
+    std::cout << boost::format("Actual TX Rate: %f Msps...") % (smini->get_tx_rate()/1e6) << std::endl << std::endl;
 
     std::cout << boost::format("Setting TX Freq: %f MHz...") % (freq/1e6) << std::endl;
     for(size_t i=0; i < channel_nums.size(); i++){
-        uhd::tune_request_t tune_request(freq);
-        if(vm.count("int-n")) tune_request.args = uhd::device_addr_t("mode_n=integer");
-        usrp->set_tx_freq(tune_request, channel_nums[i]);
+        shd::tune_request_t tune_request(freq);
+        if(vm.count("int-n")) tune_request.args = shd::device_addr_t("mode_n=integer");
+        smini->set_tx_freq(tune_request, channel_nums[i]);
     }
-    std::cout << boost::format("Actual TX Freq: %f MHz...") % (usrp->get_tx_freq()/1e6) << std::endl << std::endl;
+    std::cout << boost::format("Actual TX Freq: %f MHz...") % (smini->get_tx_freq()/1e6) << std::endl << std::endl;
 
     std::cout << boost::format("Setting TX Gain: %f...") % (gain) << std::endl;
-    for(size_t i=0; i < channel_nums.size(); i++) usrp->set_tx_gain(gain, channel_nums[i]);
-    std::cout << boost::format("Actual TX Gain: %f...") % (usrp->get_tx_gain()) << std::endl << std::endl;
+    for(size_t i=0; i < channel_nums.size(); i++) smini->set_tx_gain(gain, channel_nums[i]);
+    std::cout << boost::format("Actual TX Gain: %f...") % (smini->get_tx_gain()) << std::endl << std::endl;
 
     std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
-    usrp->set_time_now(uhd::time_spec_t(0.0));
+    smini->set_time_now(shd::time_spec_t(0.0));
 
     //create a transmit streamer
-    uhd::stream_args_t stream_args("fc32"); //complex floats
+    shd::stream_args_t stream_args("fc32"); //complex floats
     stream_args.channels = channel_nums;
-    uhd::tx_streamer::sptr tx_stream = usrp->get_tx_stream(stream_args);
+    shd::tx_streamer::sptr tx_stream = smini->get_tx_stream(stream_args);
 
     //allocate buffer with data to send
     const size_t spb = tx_stream->get_max_num_samps();
@@ -131,11 +131,11 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     do {
         //setup metadata for the first packet
-        uhd::tx_metadata_t md;
+        shd::tx_metadata_t md;
         md.start_of_burst = true;
         md.end_of_burst = false;
         md.has_time_spec = true;
-        md.time_spec = uhd::time_spec_t(time_to_send);
+        md.time_spec = shd::time_spec_t(time_to_send);
 
         //the first call to send() will block this many seconds before sending:
         double timeout = std::max(rep_rate, seconds_in_future) + 0.1; //timeout (delay before transmit + padding)
@@ -178,12 +178,12 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         time_to_send += rep_rate;
 
         std::cout << std::endl << "Waiting for async burst ACK... " << std::flush;
-        uhd::async_metadata_t async_md;
+        shd::async_metadata_t async_md;
         size_t acks = 0;
         //loop through all messages for the ACK packets (may have underflow messages in queue)
         while (acks < channel_nums.size() and tx_stream->recv_async_msg(async_md, seconds_in_future))
         {
-            if (async_md.event_code == uhd::async_metadata_t::EVENT_CODE_BURST_ACK)
+            if (async_md.event_code == shd::async_metadata_t::EVENT_CODE_BURST_ACK)
             {
                 acks++;
             }

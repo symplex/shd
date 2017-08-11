@@ -1,4 +1,4 @@
-UHD Firmware and FPGA Images Builder
+SHD Firmware and FPGA Images Builder
 ===============================================================
 
 The images directory contains the following:
@@ -45,7 +45,7 @@ If you check out a branch or commit, you might want to use the exact same
 binaries that were used when this branch or commit was generated.
 To do this, run `populate_images.py`. This will either download the correct
 images package from a web server or from a local directory if
-`UHD_IMAGES_BASE_URL` is set.
+`SHD_IMAGES_BASE_URL` is set.
 
 ### Updating the binaries ###
 
@@ -55,7 +55,7 @@ Simply copy the new image binaries into images/. If necessary, run
 `populate_images.py` before you do any of this, so all the untouched
 images are the correct version. Then, run `create_imgs_package.py --commit "COMMIT MSG"`
 to create a new ZIP file and commit the info.
-If `UHD_IMAGES_BASE_URL` is set and is a local directory, it will move
+If `SHD_IMAGES_BASE_URL` is set and is a local directory, it will move
 the ZIP file to this directory after creating it.
 
 ### Updating the binaries ###

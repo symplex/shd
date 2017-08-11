@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/exception.hpp>
+#include <shd/exception.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/function.hpp>
@@ -23,10 +23,10 @@
 #include <vector>
 #include <map>
 
-#ifndef INCLUDED_LIBUHD_RFNOC_NOCSCRIPT_EXPR_HPP
-#define INCLUDED_LIBUHD_RFNOC_NOCSCRIPT_EXPR_HPP
+#ifndef INCLUDED_LIBSHD_RFNOC_NOCSCRIPT_EXPR_HPP
+#define INCLUDED_LIBSHD_RFNOC_NOCSCRIPT_EXPR_HPP
 
-namespace uhd { namespace rfnoc { namespace nocscript {
+namespace shd { namespace rfnoc { namespace nocscript {
 
 // Forward declaration for expression::eval()
 class expression_literal;
@@ -115,7 +115,7 @@ class expression_literal : public expression
      * Note that the current type must be TYPE_INT.
      *
      * \return C++ int representation of current literal
-     * \throws uhd::type_error if type didn't match
+     * \throws shd::type_error if type didn't match
      */
     int get_int() const;
 
@@ -124,7 +124,7 @@ class expression_literal : public expression
      * Note that the current type must be TYPE_DOUBLE.
      *
      * \return C++ double representation of current literal
-     * \throws uhd::type_error if type didn't match
+     * \throws shd::type_error if type didn't match
      */
     double get_double() const;
 
@@ -133,7 +133,7 @@ class expression_literal : public expression
      * Note that the current type must be TYPE_STRING.
      *
      * \return String representation of current literal.
-     * \throws uhd::type_error if type didn't match.
+     * \throws shd::type_error if type didn't match.
      */
     std::string get_string() const;
 
@@ -142,7 +142,7 @@ class expression_literal : public expression
      * Note that the current type must be TYPE_INT_VECTOR.
      *
      * \return String representation of current literal.
-     * \throws uhd::type_error if type didn't match.
+     * \throws shd::type_error if type didn't match.
      */
     std::vector<int> get_int_vector() const;
 
@@ -153,7 +153,7 @@ class expression_literal : public expression
      * style function.
      *
      * \return bool representation of current literal.
-     * \throws uhd::type_error if type didn't match.
+     * \throws shd::type_error if type didn't match.
      */
     bool get_bool() const;
 
@@ -182,13 +182,13 @@ class expression_literal : public expression
     expression::type_t _type;
 };
 
-UHD_INLINE std::ostream& operator<< (std::ostream& out, const expression_literal &l)
+SHD_INLINE std::ostream& operator<< (std::ostream& out, const expression_literal &l)
 {
     out << l.repr();
     return out;
 }
 
-UHD_INLINE std::ostream& operator<< (std::ostream& out, const expression_literal::sptr &l)
+SHD_INLINE std::ostream& operator<< (std::ostream& out, const expression_literal::sptr &l)
 {
     out << l->repr();
     return out;
@@ -269,7 +269,7 @@ class function_table;
  * does not affect anything).
  *
  * The actual function maps to a C++ function available through
- * a uhd::rfnoc::nocscript::function_table object.
+ * a shd::rfnoc::nocscript::function_table object.
  *
  * The recommended to use this is:
  * 1. Create a function object giving its name (e.g. ADD)
@@ -359,14 +359,14 @@ class expression_variable : public expression
     /*! Looks up the variable type in the variable table.
      *
      * \throws Depending on \p type_getter, this may throw when the variable does not exist.
-     *         Recommended behaviour is to throw uhd::syntax_error.
+     *         Recommended behaviour is to throw shd::syntax_error.
      */
     expression::type_t infer_type() const;
 
     /*! Look up a variable's value in the variable table.
      *
      * \throws Depending on \p value_getter, this may throw when the variable does not exist.
-     *         Recommended behaviour is to throw uhd::syntax_error.
+     *         Recommended behaviour is to throw shd::syntax_error.
      */
     expression_literal eval();
 
@@ -376,7 +376,7 @@ class expression_variable : public expression
     value_getter_type _value_getter;
 };
 
-}}} /* namespace uhd::rfnoc::nocscript */
+}}} /* namespace shd::rfnoc::nocscript */
 
-#endif /* INCLUDED_LIBUHD_RFNOC_NOCSCRIPT_EXPR_HPP */
+#endif /* INCLUDED_LIBSHD_RFNOC_NOCSCRIPT_EXPR_HPP */
 // vim: sw=4 et:

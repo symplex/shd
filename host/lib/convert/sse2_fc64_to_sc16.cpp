@@ -16,10 +16,10 @@
 //
 
 #include "convert_common.hpp"
-#include <uhd/utils/byteswap.hpp>
+#include <shd/utils/byteswap.hpp>
 #include <emmintrin.h>
 
-using namespace uhd::convert;
+using namespace shd::convert;
 
 DECLARE_CONVERTER(fc64, 1, sc16_item32_le, 1, PRIORITY_SIMD){
     const fc64_t *input = reinterpret_cast<const fc64_t *>(inputs[0]);
@@ -63,7 +63,7 @@ DECLARE_CONVERTER(fc64, 1, sc16_item32_le, 1, PRIORITY_SIMD){
     }
 
     //convert remainder
-    xx_to_item32_sc16<uhd::htowx>(input+i, output+i, nsamps-i, scale_factor);
+    xx_to_item32_sc16<shd::htowx>(input+i, output+i, nsamps-i, scale_factor);
 }
 
 DECLARE_CONVERTER(fc64, 1, sc16_item32_be, 1, PRIORITY_SIMD){
@@ -107,5 +107,5 @@ DECLARE_CONVERTER(fc64, 1, sc16_item32_be, 1, PRIORITY_SIMD){
     }
 
     //convert remainder
-    xx_to_item32_sc16<uhd::htonx>(input+i, output+i, nsamps-i, scale_factor);
+    xx_to_item32_sc16<shd::htonx>(input+i, output+i, nsamps-i, scale_factor);
 }

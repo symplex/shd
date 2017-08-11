@@ -3,10 +3,10 @@
 \tableofcontents
 
 Radio transport protocols are used to exchange samples (or other items) between host and devices.
-If one were to sniff Ethernet traffic between a USRP and a PC, the packets would conform to a
+If one were to sniff Ethernet traffic between a SMINI and a PC, the packets would conform to a
 radio transport protocol.
 
-For USRP devices, two radio transport protocols are relevant: VRT (the VITA Radio Transport protocol)
+For SMINI devices, two radio transport protocols are relevant: VRT (the VITA Radio Transport protocol)
 and CHDR (compressed header, an Ettus-specific protocol).
 Generation-3 devices and the B200 use CHDR, the rest use VRT.
 
@@ -15,7 +15,7 @@ Generation-3 devices and the B200 use CHDR, the rest use VRT.
 VRT is an open protocol defined by the VITA-49 standard. It was designed for interoperability,
 and to allow different device types to work with different software stacks.
 
-VRT is a very verbose standard, and only a subset is implemented in UHD/USRPs.
+VRT is a very verbose standard, and only a subset is implemented in SHD/SMINIs.
 The full standard is available from the VITA website: http://www.vita.com .
 
 
@@ -30,7 +30,7 @@ By compressing all information into a 64-bit line, the header can efficiently be
 in newer FPGAs, where the common streaming protocol is 64-Bit AXI. The first line in a
 packet already provides all necessary information to proceed.
 
-Some CHDR-specific functions can be found in: uhd::transport::vrt::chdr.
+Some CHDR-specific functions can be found in: shd::transport::vrt::chdr.
 
 The form of a CHDR packet is the following:
 
@@ -51,7 +51,7 @@ Bits   | Meaning
 60     | End-of-burst or error flag
 59:48  | 12-bit sequence number
 47:32  | Total packet length in Bytes
-31:0   | Stream ID (SID). For the format of SID, see uhd::sid_t.
+31:0   | Stream ID (SID). For the format of SID, see shd::sid_t.
 
 The packet type is determined mainly by the first two bits, although
 the EOB or error flag are also taken into consideration (the third bit does not
@@ -74,9 +74,9 @@ for Ethernet links as well as USB (e.g., for the B210).
 \section vrt_code Code
 
 Relevant code sections for the radio transport layer are:
-* uhd::transport::vrt - Namespace for radio transport protocol related functions and definitions
-* uhd::transport::vrt::chdr - Sub-namespace specifically for CHDR
-* uhd::sid_t - Datatype to represent SIDs
+* shd::transport::vrt - Namespace for radio transport protocol related functions and definitions
+* shd::transport::vrt::chdr - Sub-namespace specifically for CHDR
+* shd::sid_t - Datatype to represent SIDs
 
 */
 // vim:ft=doxygen:

@@ -20,10 +20,10 @@
 ########################################################################
 
 ########################################################################
-# Append to the list of sources for lib uhd
+# Append to the list of sources for lib shd
 ########################################################################
 
-LIBUHD_APPEND_SOURCES(
+LIBSHD_APPEND_SOURCES(
     ${CMAKE_CURRENT_SOURCE_DIR}/rpc_client.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/usrprio_rpc_client.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sminirio_rpc_client.cpp
 )

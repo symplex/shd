@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/nirio/nirio_driver_iface.h>
+#include <shd/transport/nirio/nirio_driver_iface.h>
 #include <process.h>
 
 #define NIRIO_IOCTL_MAP_MEMORY CTL_CODE(FILE_DEVICE_UNKNOWN, 0xF00, METHOD_BUFFERED, (FILE_READ_ACCESS | FILE_WRITE_ACCESS))
@@ -66,7 +66,7 @@ nirio_status rio_ioctl(
             read_buf, static_cast<DWORD>(read_buf_len),
             &outLen, &zeroedOverlapped )))
     {
-        UHD_UNUSED(int_fast32_t lastError) = GetLastError();
+        SHD_UNUSED(int_fast32_t lastError) = GetLastError();
         return NiRio_Status_SoftwareFault;
     }
 

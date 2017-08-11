@@ -16,7 +16,7 @@
 //
 
 #include "convert_common.hpp"
-#include <uhd/utils/byteswap.hpp>
+#include <shd/utils/byteswap.hpp>
 #include <arm_neon.h>
 
 extern "C" {
@@ -25,7 +25,7 @@ void neon_item32_sc16_swap_16n(void *, void *, int iter);
 
 static const int SIMD_WIDTH = 16;
 
-using namespace uhd::convert;
+using namespace shd::convert;
 
 DECLARE_CONVERTER(fc32, 1, sc16_item32_le, 1, PRIORITY_SIMD){
     const fc32_t *input = reinterpret_cast<const fc32_t *>(inputs[0]);
@@ -65,7 +65,7 @@ DECLARE_CONVERTER(fc32, 1, sc16_item32_le, 1, PRIORITY_SIMD){
         vst1_s16((reinterpret_cast<int16_t *>(&output[i+6])), D15);
     }
 
-    xx_to_item32_sc16<uhd::htowx>(input+i, output+i, nsamps-i, scale_factor);
+    xx_to_item32_sc16<shd::htowx>(input+i, output+i, nsamps-i, scale_factor);
 }
 
 DECLARE_CONVERTER(sc16_item32_le, 1, fc32, 1, PRIORITY_SIMD){
@@ -106,7 +106,7 @@ DECLARE_CONVERTER(sc16_item32_le, 1, fc32, 1, PRIORITY_SIMD){
         vst1q_f32((reinterpret_cast<float *>(&output[i+6])), Q13);
     }
 
-    item32_sc16_to_xx<uhd::htowx>(input+i, output+i, nsamps-i, scale_factor);
+    item32_sc16_to_xx<shd::htowx>(input+i, output+i, nsamps-i, scale_factor);
 }
 
 DECLARE_CONVERTER(sc16, 1, sc16_item32_le, 1, PRIORITY_SIMD){
@@ -120,7 +120,7 @@ DECLARE_CONVERTER(sc16, 1, sc16_item32_le, 1, PRIORITY_SIMD){
 
     i *= SIMD_WIDTH;
 
-    xx_to_item32_sc16<uhd::htowx>(input+i, output+i, nsamps-i, scale_factor);
+    xx_to_item32_sc16<shd::htowx>(input+i, output+i, nsamps-i, scale_factor);
 }
 
 DECLARE_CONVERTER(sc16_item32_le, 1, sc16, 1, PRIORITY_SIMD){
@@ -134,5 +134,5 @@ DECLARE_CONVERTER(sc16_item32_le, 1, sc16, 1, PRIORITY_SIMD){
 
     i *= SIMD_WIDTH;
 
-    item32_sc16_to_xx<uhd::wtohx>(input+i, output+i, nsamps-i, scale_factor);
+    item32_sc16_to_xx<shd::wtohx>(input+i, output+i, nsamps-i, scale_factor);
 }

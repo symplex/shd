@@ -16,7 +16,7 @@
 //
 
 
-#include <uhd/transport/nirio/niriok_proxy_impl_v2.h>
+#include <shd/transport/nirio/niriok_proxy_impl_v2.h>
 #include <cstring>
 
 // "push" and "pop" introduced in GCC 4.6; works with all clang
@@ -50,7 +50,7 @@
 #define IOCTL_TRANSPORT_POST_OPEN                   IOCTL(8, 0, IOCTL_ACCESS_ANY)
 #define IOCTL_TRANSPORT_PRE_CLOSE                   IOCTL(8, 1, IOCTL_ACCESS_ANY)
 
-namespace uhd { namespace niusrprio
+namespace shd { namespace nisminirio
 {
     //-------------------------------------------------------
     // ioctl param typedefs
@@ -726,9 +726,9 @@ namespace uhd { namespace niusrprio
                sizeof(out));
         if (nirio_status_fatal(ioctl_status)) return ioctl_status;
 
-        UHD_ASSERT_THROW(out.actualDepth <= std::numeric_limits<uint32_t>::max());
+        SHD_ASSERT_THROW(out.actualDepth <= std::numeric_limits<uint32_t>::max());
         actual_depth = static_cast<uint32_t>(out.actualDepth);
-        UHD_ASSERT_THROW(out.actualSize <= std::numeric_limits<uint32_t>::max());
+        SHD_ASSERT_THROW(out.actualSize <= std::numeric_limits<uint32_t>::max());
         actual_size = static_cast<uint32_t>(out.actualSize);
         return out.status;
     }
@@ -770,9 +770,9 @@ namespace uhd { namespace niusrprio
         if (nirio_status_fatal(ioctl_status)) return ioctl_status;
 
         data_pointer = reinterpret_cast<void*>(out.elements);
-        UHD_ASSERT_THROW(out.elementsAcquired <= std::numeric_limits<uint32_t>::max());
+        SHD_ASSERT_THROW(out.elementsAcquired <= std::numeric_limits<uint32_t>::max());
         elements_acquired = static_cast<uint32_t>(out.elementsAcquired);
-        UHD_ASSERT_THROW(out.elementsRemaining <= std::numeric_limits<uint32_t>::max());
+        SHD_ASSERT_THROW(out.elementsRemaining <= std::numeric_limits<uint32_t>::max());
         elements_remaining = static_cast<uint32_t>(out.elementsRemaining);
         return out.status;
     }

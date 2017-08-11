@@ -16,7 +16,7 @@
 //
 
 #include <boost/test/unit_test.hpp>
-#include <uhd/usrp/subdev_spec.hpp>
+#include <shd/smini/subdev_spec.hpp>
 #include <boost/foreach.hpp>
 #include <iostream>
 
@@ -24,15 +24,15 @@ BOOST_AUTO_TEST_CASE(test_subdevice_spec){
     std::cout << "Testing subdevice specification..." << std::endl;
 
     //load the subdev spec with something
-    uhd::usrp::subdev_spec_t sd_spec;
-    sd_spec.push_back(uhd::usrp::subdev_spec_pair_t("A", "AB"));
-    sd_spec.push_back(uhd::usrp::subdev_spec_pair_t("B", "AB"));
+    shd::smini::subdev_spec_t sd_spec;
+    sd_spec.push_back(shd::smini::subdev_spec_pair_t("A", "AB"));
+    sd_spec.push_back(shd::smini::subdev_spec_pair_t("B", "AB"));
 
     //convert to and from args string
     std::cout << "Pretty Print: " << std::endl << sd_spec.to_pp_string();
     std::string markup_str = sd_spec.to_string();
     std::cout << "Markup String: " << markup_str << std::endl;
-    uhd::usrp::subdev_spec_t new_sd_spec(markup_str);
+    shd::smini::subdev_spec_t new_sd_spec(markup_str);
 
     //they should be the same size
     BOOST_REQUIRE_EQUAL(sd_spec.size(), new_sd_spec.size());

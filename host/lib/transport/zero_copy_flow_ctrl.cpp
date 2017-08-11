@@ -15,20 +15,20 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/zero_copy_flow_ctrl.hpp>
-#include <uhd/transport/bounded_buffer.hpp>
-#include <uhd/transport/buffer_pool.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/utils/log.hpp>
-#include <uhd/utils/safe_call.hpp>
+#include <shd/transport/zero_copy_flow_ctrl.hpp>
+#include <shd/transport/bounded_buffer.hpp>
+#include <shd/transport/buffer_pool.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/utils/log.hpp>
+#include <shd/utils/safe_call.hpp>
 #include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
-using namespace uhd;
-using namespace uhd::transport;
+using namespace shd;
+using namespace shd::transport;
 
 typedef bounded_buffer<managed_send_buffer::sptr> bounded_buffer_t;
 
@@ -59,7 +59,7 @@ public:
         }
     }
 
-    UHD_INLINE sptr get(sptr &mb)
+    SHD_INLINE sptr get(sptr &mb)
     {
         _mb = mb;
         return make(this, _mb->cast<void *>(), _mb->size());
@@ -97,7 +97,7 @@ public:
         }
     }
 
-    UHD_INLINE sptr get(sptr &mb)
+    SHD_INLINE sptr get(sptr &mb)
     {
         _mb = mb;
         return make(this, _mb->cast<void *>(), _mb->size());
@@ -128,7 +128,7 @@ public:
         _send_flow_ctrl(send_flow_ctrl),
         _recv_flow_ctrl(recv_flow_ctrl)
     {
-        UHD_LOG << "Created zero_copy_flow_ctrl" << std::endl;
+        SHD_LOG << "Created zero_copy_flow_ctrl" << std::endl;
 
         for (size_t i = 0; i < transport->get_num_send_frames(); i++)
         {
@@ -148,7 +148,7 @@ public:
      * Receive implementation:
      * Pop the receive buffer pointer from the underlying transport
      ******************************************************************/
-    UHD_INLINE managed_recv_buffer::sptr get_recv_buff(double timeout)
+    SHD_INLINE managed_recv_buffer::sptr get_recv_buff(double timeout)
     {
         managed_recv_buffer::sptr ptr;
         managed_recv_buffer::sptr buff = _transport->get_recv_buff(timeout);
@@ -161,12 +161,12 @@ public:
         return ptr;
     }
 
-    UHD_INLINE size_t get_num_recv_frames() const
+    SHD_INLINE size_t get_num_recv_frames() const
     {
         return _transport->get_num_recv_frames();
     }
 
-    UHD_INLINE size_t get_recv_frame_size() const
+    SHD_INLINE size_t get_recv_frame_size() const
     {
         return _transport->get_recv_frame_size();
     }
@@ -188,12 +188,12 @@ public:
         return ptr;
     }
 
-    UHD_INLINE size_t get_num_send_frames() const
+    SHD_INLINE size_t get_num_send_frames() const
     {
         return _transport->get_num_send_frames();
     }
 
-    UHD_INLINE size_t get_send_frame_size() const
+    SHD_INLINE size_t get_send_frame_size() const
     {
         return _transport->get_send_frame_size();
     }

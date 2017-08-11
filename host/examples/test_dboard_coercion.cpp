@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/smini/multi_smini.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 #include <boost/thread/thread.hpp>
@@ -42,9 +42,9 @@ std::string MHz_str(double freq){
     return std::string(str(boost::format("%5.2f MHz") % (freq / 1e6)));
 }
 
-std::string return_usrp_config_string(uhd::usrp::multi_usrp::sptr usrp, int chan, bool test_tx, bool test_rx, bool is_b2xx){
-    uhd::dict<std::string, std::string> tx_info = usrp->get_usrp_tx_info(chan);
-    uhd::dict<std::string, std::string> rx_info = usrp->get_usrp_rx_info(chan);
+std::string return_smini_config_string(shd::smini::multi_smini::sptr smini, int chan, bool test_tx, bool test_rx, bool is_b2xx){
+    shd::dict<std::string, std::string> tx_info = smini->get_smini_tx_info(chan);
+    shd::dict<std::string, std::string> rx_info = smini->get_smini_rx_info(chan);
     std::string info_string;
     std::string mboard_id, mboard_serial;
     std::string tx_serial, tx_subdev_name, tx_subdev_spec;
@@ -83,26 +83,26 @@ std::string return_usrp_config_string(uhd::usrp::multi_usrp::sptr usrp, int chan
     return info_string;
 }
 
-std::string coercion_test(uhd::usrp::multi_usrp::sptr usrp, std::string type, int chan,
+std::string coercion_test(shd::smini::multi_smini::sptr smini, std::string type, int chan,
                           bool test_gain, double freq_step, double gain_step, bool verbose){
 
-    //Getting USRP info
-    uhd::dict<std::string, std::string> usrp_info = (type == "TX") ? usrp->get_usrp_tx_info(chan)
-                                                                   : usrp->get_usrp_rx_info(chan);
-    std::string subdev_name = (type == "TX") ? usrp_info.get("tx_subdev_name")
-                                             : usrp_info.get("rx_subdev_name");
-    std::string subdev_spec = (type == "TX") ? usrp_info.get("tx_subdev_spec")
-                                             : usrp_info.get("rx_subdev_spec");
+    //Getting SMINI info
+    shd::dict<std::string, std::string> smini_info = (type == "TX") ? smini->get_smini_tx_info(chan)
+                                                                   : smini->get_smini_rx_info(chan);
+    std::string subdev_name = (type == "TX") ? smini_info.get("tx_subdev_name")
+                                             : smini_info.get("rx_subdev_name");
+    std::string subdev_spec = (type == "TX") ? smini_info.get("tx_subdev_spec")
+                                             : smini_info.get("rx_subdev_spec");
 
     //Establish frequency range
     std::vector<double> freqs;
     std::vector<double> xcvr_freqs; //XCVR2450 has two ranges
-    uhd::freq_range_t freq_ranges  = (type == "TX") ? usrp->get_fe_tx_freq_range(chan)
-                                                    : usrp->get_fe_rx_freq_range(chan);
+    shd::freq_range_t freq_ranges  = (type == "TX") ? smini->get_fe_tx_freq_range(chan)
+                                                    : smini->get_fe_rx_freq_range(chan);
 
     std::cout << boost::format("\nTesting %s coercion...") % type << std::endl;
 
-    BOOST_FOREACH(const uhd::range_t &range, freq_ranges){
+    BOOST_FOREACH(const shd::range_t &range, freq_ranges){
         double freq_begin = range.start();
         double freq_end = range.stop();
 
@@ -123,8 +123,8 @@ std::string coercion_test(uhd::usrp::multi_usrp::sptr usrp, std::string type, in
 
     if(test_gain){
         //Establish gain range
-        uhd::gain_range_t gain_range = (type == "TX") ? usrp->get_tx_gain_range(chan)
-                                                      : usrp->get_rx_gain_range(chan);
+        shd::gain_range_t gain_range = (type == "TX") ? smini->get_tx_gain_range(chan)
+                                                      : smini->get_rx_gain_range(chan);
 
         double gain_begin = gain_range.start();
         //Start gain at 0 if range begins negative
@@ -146,21 +146,21 @@ std::string coercion_test(uhd::usrp::multi_usrp::sptr usrp, std::string type, in
     pair_vector bad_gain_vals;
 
     //Sensor names
-    std::vector<std::string> dboard_sensor_names = (type == "TX") ? usrp->get_tx_sensor_names(chan)
-                                                                  : usrp->get_rx_sensor_names(chan);
-    std::vector<std::string> mboard_sensor_names = usrp->get_mboard_sensor_names();
+    std::vector<std::string> dboard_sensor_names = (type == "TX") ? smini->get_tx_sensor_names(chan)
+                                                                  : smini->get_rx_sensor_names(chan);
+    std::vector<std::string> mboard_sensor_names = smini->get_mboard_sensor_names();
 
     bool has_sensor = (std::find(dboard_sensor_names.begin(), dboard_sensor_names.end(), "lo_locked")) != dboard_sensor_names.end();
 
     BOOST_FOREACH(double freq, freqs){
 
         //Testing for successful frequency tune
-        if(type == "TX") usrp->set_tx_freq(freq,chan);
-        else usrp->set_rx_freq(freq,chan);
+        if(type == "TX") smini->set_tx_freq(freq,chan);
+        else smini->set_rx_freq(freq,chan);
 
         boost::this_thread::sleep(boost::posix_time::microseconds(long(1000)));
-        double actual_freq = (type == "TX") ? usrp->get_tx_freq(chan)
-                                            : usrp->get_rx_freq(chan);
+        double actual_freq = (type == "TX") ? smini->get_tx_freq(chan)
+                                            : smini->get_rx_freq(chan);
 
         if(freq == 0.0){
             if(floor(actual_freq + 0.5) == 0.0){
@@ -190,8 +190,8 @@ std::string coercion_test(uhd::usrp::multi_usrp::sptr usrp, std::string type, in
             bool is_locked = false;
             for(int i = 0; i < 1000; i++){
                 is_locked = (type == "TX") ?
-                    usrp->get_tx_sensor("lo_locked", 0).to_bool() :
-                    usrp->get_rx_sensor("lo_locked", 0).to_bool();
+                    smini->get_tx_sensor("lo_locked", 0).to_bool() :
+                    smini->get_rx_sensor("lo_locked", 0).to_bool();
                 if (is_locked) {
                     break;
                 }
@@ -213,13 +213,13 @@ std::string coercion_test(uhd::usrp::multi_usrp::sptr usrp, std::string type, in
             //Testing for successful gain tune
 
             BOOST_FOREACH(double gain, gains){
-                if(type == "TX") usrp->set_tx_gain(gain,chan);
-                else usrp->set_rx_gain(gain,chan);
+                if(type == "TX") smini->set_tx_gain(gain,chan);
+                else smini->set_rx_gain(gain,chan);
 
                 boost::this_thread::sleep(boost::posix_time::microseconds(1000));
 
-                double actual_gain = (type == "TX") ? usrp->get_tx_gain(chan)
-                                                    : usrp->get_rx_gain(chan);
+                double actual_gain = (type == "TX") ? smini->get_tx_gain(chan)
+                                                    : smini->get_rx_gain(chan);
 
                 if(gain == 0.0){
                     if(actual_gain == 0.0){
@@ -258,14 +258,14 @@ std::string coercion_test(uhd::usrp::multi_usrp::sptr usrp, std::string type, in
     if(test_gain) results += str(boost::format("Gain Range:%5.2f - %5.2f (Step:%5.2f)\n")
                              % gains.front() % gains.back() % gain_step);
 
-    if(bad_tune_freqs.empty()) results += "USRP successfully tuned to all frequencies.";
+    if(bad_tune_freqs.empty()) results += "SMINI successfully tuned to all frequencies.";
     else if(bad_tune_freqs.size() > 10 and not verbose){
         //If tuning fails at many values, don't print them all
-        results += str(boost::format("USRP did not successfully tune at %d frequencies.")
+        results += str(boost::format("SMINI did not successfully tune at %d frequencies.")
                        % bad_tune_freqs.size());
     }
     else{
-        results += "USRP did not successfully tune to the following frequencies: ";
+        results += "SMINI did not successfully tune to the following frequencies: ";
         BOOST_FOREACH(double bad_freq, bad_tune_freqs){
             if(bad_freq != *bad_tune_freqs.begin()) results += ", ";
             results += MHz_str(bad_freq);
@@ -277,7 +277,7 @@ std::string coercion_test(uhd::usrp::multi_usrp::sptr usrp, std::string type, in
         if(no_lock_freqs.empty()) results += "LO successfully locked at all frequencies.";
         else if(no_lock_freqs.size() > 10 and not verbose){
             //If locking fails at many values, don't print them all
-            results += str(boost::format("USRP did not successfully lock at %d frequencies.")
+            results += str(boost::format("SMINI did not successfully lock at %d frequencies.")
                            % no_lock_freqs.size());
         }
         else{
@@ -290,14 +290,14 @@ std::string coercion_test(uhd::usrp::multi_usrp::sptr usrp, std::string type, in
     }
     if(test_gain){
         results += "\n";
-        if(bad_gain_vals.empty()) results += "USRP successfully set all specified gain values at all frequencies.";
+        if(bad_gain_vals.empty()) results += "SMINI successfully set all specified gain values at all frequencies.";
         else if(bad_gain_vals.size() > 10 and not verbose){
             //If gain fails at many values, don't print them all
-            results += str(boost::format("USRP did not successfully set gain at %d values.")
+            results += str(boost::format("SMINI did not successfully set gain at %d values.")
                            % bad_gain_vals.size());
         }
         else{
-            results += "USRP did not successfully set gain under the following circumstances:";
+            results += "SMINI did not successfully set gain under the following circumstances:";
             BOOST_FOREACH(double_pair bad_pair, bad_gain_vals){
                 double bad_freq = bad_pair.first;
                 double bad_gain = bad_pair.second;
@@ -313,7 +313,7 @@ std::string coercion_test(uhd::usrp::multi_usrp::sptr usrp, std::string type, in
  * Initial Setup
 ************************************************************************/
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
+int SHD_SAFE_MAIN(int argc, char *argv[]){
 
     //Variables
     int chan;
@@ -322,14 +322,14 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     std::string ref;
     std::string tx_results;
     std::string rx_results;
-    std::string usrp_config;
+    std::string smini_config;
 
     //Set up the program options
     po::options_description desc("Allowed Options");
     desc.add_options()
         ("help", "help message")
-        ("args", po::value<std::string>(&args)->default_value(""), "Specify the UHD device")
-        ("chan", po::value<int>(&chan)->default_value(0), "Specify multi_usrp channel")
+        ("args", po::value<std::string>(&args)->default_value(""), "Specify the SHD device")
+        ("chan", po::value<int>(&chan)->default_value(0), "Specify multi_smini channel")
         ("freq-step", po::value<double>(&freq_step)->default_value(100e6), "Specify the delta between frequency scans")
         ("gain-step", po::value<double>(&gain_step)->default_value(1.0), "Specify the delta between gain scans")
         ("tx", "Specify to test TX frequency and gain coercion")
@@ -345,8 +345,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //Help messages, errors
     if(vm.count("help") > 0){
-        std::cout << "UHD Daughterboard Coercion Test\n"
-                     "This program tests your USRP daughterboard(s) to\n"
+        std::cout << "SHD Daughterboard Coercion Test\n"
+                     "This program tests your SMINI daughterboard(s) to\n"
                      "make sure that they can successfully tune to all\n"
                      "frequencies and gains in their advertised ranges.\n\n";
         std::cout << desc << std::endl;
@@ -360,20 +360,20 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         return EXIT_FAILURE;
     }
 
-    //Create a USRP device
+    //Create a SMINI device
     std::cout << std::endl;
-    uhd::device_addrs_t device_addrs = uhd::device::find(args, uhd::device::USRP);
-    std::cout << boost::format("Creating the USRP device with: %s...") % args << std::endl;
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
-    std::cout << std::endl << boost::format("Using Device: %s") % usrp->get_pp_string() << std::endl;
-    usrp->set_tx_rate(SAMP_RATE);
-    usrp->set_rx_rate(SAMP_RATE);
+    shd::device_addrs_t device_addrs = shd::device::find(args, shd::device::SMINI);
+    std::cout << boost::format("Creating the SMINI device with: %s...") % args << std::endl;
+    shd::smini::multi_smini::sptr smini = shd::smini::multi_smini::make(args);
+    std::cout << std::endl << boost::format("Using Device: %s") % smini->get_pp_string() << std::endl;
+    smini->set_tx_rate(SAMP_RATE);
+    smini->set_rx_rate(SAMP_RATE);
 
     //Boolean variables based on command line input
     bool test_tx = vm.count("tx") > 0;
     bool test_rx = vm.count("rx") > 0;
-    bool test_tx_gain = !(vm.count("no-tx-gain") > 0) and (usrp->get_tx_gain_range().stop() > 0);
-    bool test_rx_gain = !(vm.count("no-rx-gain") > 0) and (usrp->get_rx_gain_range().stop() > 0);
+    bool test_tx_gain = !(vm.count("no-tx-gain") > 0) and (smini->get_tx_gain_range().stop() > 0);
+    bool test_rx_gain = !(vm.count("no-rx-gain") > 0) and (smini->get_rx_gain_range().stop() > 0);
     bool verbose = vm.count("verbose") > 0;
 
     if(ref != "internal" and ref != "external" and ref != "mimo"){
@@ -383,12 +383,12 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     }
 
     //Use TX mboard ID to determine if this is a B2xx, will still return value if there is no TX
-    std::string tx_mboard_id = usrp->get_usrp_tx_info(chan).get("mboard_id");
+    std::string tx_mboard_id = smini->get_smini_tx_info(chan).get("mboard_id");
     bool is_b2xx = (tx_mboard_id == "B200" or tx_mboard_id == "B210");
 
     //Don't perform daughterboard validity checks for B200/B210
     if((not is_b2xx) and test_tx){
-        std::string tx_dboard_name = usrp->get_usrp_tx_info(chan).get("tx_id");
+        std::string tx_dboard_name = smini->get_smini_tx_info(chan).get("tx_id");
         if(tx_dboard_name == "Basic TX (0x0000)" or tx_dboard_name == "LF TX (0x000e)"){
             std::cout << desc << std::endl;
             std::cout << boost::format("This test does not work with the %s daughterboard.")
@@ -404,7 +404,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //Don't perform daughterboard validity checks for B200/B210
     if((not is_b2xx) and test_rx){
-        std::string rx_dboard_name = usrp->get_usrp_rx_info(chan).get("rx_id");
+        std::string rx_dboard_name = smini->get_smini_rx_info(chan).get("rx_id");
         if(rx_dboard_name == "Basic RX (0x0001)" or rx_dboard_name == "LF RX (0x000f)"){
             std::cout << desc << std::endl;
             std::cout << boost::format("This test does not work with the %s daughterboard.")
@@ -419,25 +419,25 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     }
 
     //Setting clock source
-    usrp->set_clock_source(ref);
+    smini->set_clock_source(ref);
     boost::this_thread::sleep(boost::posix_time::seconds(1));
 
-    std::vector<std::string> sensor_names = usrp->get_mboard_sensor_names(0);
+    std::vector<std::string> sensor_names = smini->get_mboard_sensor_names(0);
     if ((ref == "mimo") and (std::find(sensor_names.begin(), sensor_names.end(), "mimo_locked") != sensor_names.end())) {
-        uhd::sensor_value_t mimo_locked = usrp->get_mboard_sensor("mimo_locked",0);
+        shd::sensor_value_t mimo_locked = smini->get_mboard_sensor("mimo_locked",0);
         std::cout << boost::format("Checking MIMO lock: %s ...") % mimo_locked.to_pp_string() << std::endl;
-        UHD_ASSERT_THROW(mimo_locked.to_bool());
+        SHD_ASSERT_THROW(mimo_locked.to_bool());
     }
     if ((ref == "external") and (std::find(sensor_names.begin(), sensor_names.end(), "ref_locked") != sensor_names.end())) {
-        uhd::sensor_value_t ref_locked = usrp->get_mboard_sensor("ref_locked",0);
+        shd::sensor_value_t ref_locked = smini->get_mboard_sensor("ref_locked",0);
         std::cout << boost::format("Checking REF lock: %s ...") % ref_locked.to_pp_string() << std::endl;
-        UHD_ASSERT_THROW(ref_locked.to_bool());
+        SHD_ASSERT_THROW(ref_locked.to_bool());
     }
-    usrp_config = return_usrp_config_string(usrp, chan, test_tx, test_rx, is_b2xx);
-    if(test_tx) tx_results = coercion_test(usrp, "TX", chan, test_tx_gain, freq_step, gain_step, verbose);
-    if(test_rx) rx_results = coercion_test(usrp, "RX", chan, test_rx_gain, freq_step, gain_step, verbose);
+    smini_config = return_smini_config_string(smini, chan, test_tx, test_rx, is_b2xx);
+    if(test_tx) tx_results = coercion_test(smini, "TX", chan, test_tx_gain, freq_step, gain_step, verbose);
+    if(test_rx) rx_results = coercion_test(smini, "RX", chan, test_rx_gain, freq_step, gain_step, verbose);
 
-    std::cout << std::endl << usrp_config << std::endl << std::endl;
+    std::cout << std::endl << smini_config << std::endl << std::endl;
     if(test_tx) std::cout << tx_results << std::endl;
     if(test_tx and test_rx) std::cout << std::endl;
     if(test_rx) std::cout << rx_results << std::endl;

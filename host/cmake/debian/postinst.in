@@ -17,7 +17,7 @@
 #
 
 if [ "$1" = "configure" ]; then
-    cp @CMAKE_INSTALL_PREFIX@/lib/uhd/utils/uhd-usrp.rules /etc/udev/rules.d/uhd-usrp.rules
+    cp @CMAKE_INSTALL_PREFIX@/lib/shd/utils/shd-smini.rules /etc/udev/rules.d/shd-smini.rules
     udevadm control --reload-rules
     udevadm trigger
     ldconfig

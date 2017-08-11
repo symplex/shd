@@ -15,17 +15,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_LIBUHD_RFNOC_TERMINATOR_RECV_HPP
-#define INCLUDED_LIBUHD_RFNOC_TERMINATOR_RECV_HPP
+#ifndef INCLUDED_LIBSHD_RFNOC_TERMINATOR_RECV_HPP
+#define INCLUDED_LIBSHD_RFNOC_TERMINATOR_RECV_HPP
 
-#include <uhd/rfnoc/sink_node_ctrl.hpp>
-#include <uhd/rfnoc/rate_node_ctrl.hpp>
-#include <uhd/rfnoc/tick_node_ctrl.hpp>
-#include <uhd/rfnoc/scalar_node_ctrl.hpp>
-#include <uhd/rfnoc/terminator_node_ctrl.hpp>
-#include <uhd/rfnoc/block_ctrl_base.hpp> // For the block macros
+#include <shd/rfnoc/sink_node_ctrl.hpp>
+#include <shd/rfnoc/rate_node_ctrl.hpp>
+#include <shd/rfnoc/tick_node_ctrl.hpp>
+#include <shd/rfnoc/scalar_node_ctrl.hpp>
+#include <shd/rfnoc/terminator_node_ctrl.hpp>
+#include <shd/rfnoc/block_ctrl_base.hpp> // For the block macros
 
-namespace uhd {
+namespace shd {
     namespace rfnoc {
 
 /*! \brief Terminator node for Rx streamers.
@@ -41,7 +41,7 @@ class rx_stream_terminator :
     public terminator_node_ctrl
 {
 public:
-    UHD_RFNOC_BLOCK_OBJECT(rx_stream_terminator)
+    SHD_RFNOC_BLOCK_OBJECT(rx_stream_terminator)
 
     static sptr make()
     {
@@ -63,7 +63,7 @@ public:
 
     virtual ~rx_stream_terminator();
 
-    void handle_overrun(boost::weak_ptr<uhd::rx_streamer>, const size_t);
+    void handle_overrun(boost::weak_ptr<shd::rx_streamer>, const size_t);
 
 protected:
     rx_stream_terminator();
@@ -80,7 +80,7 @@ private:
 
 }; /* class rx_stream_terminator */
 
-}} /* namespace uhd::rfnoc */
+}} /* namespace shd::rfnoc */
 
-#endif /* INCLUDED_LIBUHD_RFNOC_TERMINATOR_RECV_HPP */
+#endif /* INCLUDED_LIBSHD_RFNOC_TERMINATOR_RECV_HPP */
 // vim: sw=4 et:

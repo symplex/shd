@@ -1,10 +1,10 @@
-/*! \page page_gpsdo_x3x0 Internal GPSDO Application Notes (USRP-X3x0 Models)
+/*! \page page_gpsdo_x3x0 Internal GPSDO Application Notes (SMINI-X3x0 Models)
 
 \tableofcontents
 
 This application note describes the use of the board-mounted GPS
-Disciplined OCXO, as used with the USRP X300/X310. For information
-regarding the GPSDO that is compatible with the USRP N2xx or E1xx,
+Disciplined OCXO, as used with the SMINI X300/X310. For information
+regarding the GPSDO that is compatible with the SMINI N2xx or E1xx,
 please see \ref page_gpsdo.
 
 \section gpsdox_specs Specifications
@@ -35,7 +35,7 @@ supporting passive antennas.
 To install the GPSDO, you must insert it into the slot on the board near
 the 10 MHz Reference SMA. Keep in mind that the two sides of the GPSDO
 have a different number of pins. When inserting the GPSDO, make sure to
-press down firmly and evenly. When turning on the USRP X3x0 device, a
+press down firmly and evenly. When turning on the SMINI X3x0 device, a
 green LED should illuminate on the GPSDO. This signifies that the unit
 has successfully been placed.
 
@@ -46,18 +46,18 @@ pins.</b>
 
 \section gpsdox_using Using the GPSDO in Your Application
 
-If a GPSDO is detected at startup, the USRP will have `gpsdo` clock and time
+If a GPSDO is detected at startup, the SMINI will have `gpsdo` clock and time
 source options.
 
-Select these by using UHD's
+Select these by using SHD's
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-    usrp->set_clock_source("gpsdo");
-    usrp->set_time_source("gpsdo");
+    smini->set_clock_source("gpsdo");
+    smini->set_time_source("gpsdo");
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 That will lock the reference clock to the disciplined 10MHz oscillator, and
-will make the USRP listen for time signal pulses coming from the GPSDO.
+will make the SMINI listen for time signal pulses coming from the GPSDO.
 
 However, you will still need to explicitly set the device time on such a PPS
 edge, using the `set_time_next_pps` or `set_time_unknown_pps`
@@ -67,7 +67,7 @@ GPS data is obtained through the **mboard_sensors** interface. To
 retrieve the current GPS time, use the **gps_time** sensor:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-    usrp->get_mboard_sensor("gps_time");
+    smini->get_mboard_sensor("gps_time");
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The returned value will be the current epoch time, in seconds since
@@ -82,29 +82,29 @@ sure you don't encounter timing problems while doing so:
 
 1. Wait for GPS lock, and then set the time source to GPSDO,
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-    while(! (usrp->get_mboard_sensor("gps_locked",0).to_bool()) ) {
+    while(! (smini->get_mboard_sensor("gps_locked",0).to_bool()) ) {
        boost::this_thread::sleep(boost::posix_time::seconds(2));
     }
-    usrp->set_time_source("gpsdo");
+    smini->set_time_source("gpsdo");
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-2. poll on `usrp->get_time_last_pps()` until a change is seen, and then sleep 200ms to allow new time data coming from the GPSDO to propagate through the system,
+2. poll on `smini->get_time_last_pps()` until a change is seen, and then sleep 200ms to allow new time data coming from the GPSDO to propagate through the system,
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-    uhd::time_spec_t last = usrp->get_time_last_pps();
-    uhd::time_spec_t next = usrp->get_time_last_pps();
+    shd::time_spec_t last = smini->get_time_last_pps();
+    shd::time_spec_t next = smini->get_time_last_pps();
     while(next == last) {
        boost::this_thread::sleep(boost::posix_time::seconds(0.05));
        last = next;
-       next = usrp->get_time_last_pps();
+       next = smini->get_time_last_pps();
     }
     boost::this_thread::sleep(boost::posix_time::seconds(0.2));
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 3.  use
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-usrp->set_time_next_pps(uhd::time_spec_t(usrp->get_mboard_sensor("gps_time").to_int()+1));
+smini->set_time_next_pps(shd::time_spec_t(smini->get_mboard_sensor("gps_time").to_int()+1));
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 to set the time,
-4.  poll on `usrp->get_time_last_pps()` until a change is seen and sleep 200ms (allow NMEA string to propagate),
-5.  Verify that `usrp->get_time_last_pps()` and `usrp->get_mboard_sensor("gps_time")` return the same time.
+4.  poll on `smini->get_time_last_pps()` until a change is seen and sleep 200ms (allow NMEA string to propagate),
+5.  Verify that `smini->get_time_last_pps()` and `smini->get_mboard_sensor("gps_time")` return the same time.
 
 \subsection Further GPS sensors
 

@@ -16,11 +16,11 @@
 //
 
 #include <boost/test/unit_test.hpp>
-#include <uhd/transport/bounded_buffer.hpp>
+#include <shd/transport/bounded_buffer.hpp>
 #include <boost/assign/list_of.hpp>
 
 using namespace boost::assign;
-using namespace uhd::transport;
+using namespace shd::transport;
 
 static const double timeout = 0.01/*secs*/;
 

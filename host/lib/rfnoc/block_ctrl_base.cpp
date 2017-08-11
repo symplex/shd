@@ -20,19 +20,19 @@
 
 #include "ctrl_iface.hpp"
 #include "nocscript/block_iface.hpp"
-#include <uhd/utils/msg.hpp>
-#include <uhd/utils/log.hpp>
-#include <uhd/convert.hpp>
-#include <uhd/rfnoc/block_ctrl_base.hpp>
-#include <uhd/rfnoc/constants.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/utils/log.hpp>
+#include <shd/convert.hpp>
+#include <shd/rfnoc/block_ctrl_base.hpp>
+#include <shd/rfnoc/constants.hpp>
 #include <boost/format.hpp>
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
 
-#define UHD_BLOCK_LOG() UHD_LOGV(never)
+#define SHD_BLOCK_LOG() SHD_LOGV(never)
 
-using namespace uhd;
-using namespace uhd::rfnoc;
+using namespace shd;
+using namespace shd::rfnoc;
 using std::string;
 
 /***********************************************************************
@@ -52,23 +52,23 @@ block_ctrl_base::block_ctrl_base(
     _ctrl_ifaces(make_args.ctrl_ifaces),
     _base_address(make_args.base_address & 0xFFF0)
 {
-    UHD_BLOCK_LOG() << "block_ctrl_base()" << std::endl;
+    SHD_BLOCK_LOG() << "block_ctrl_base()" << std::endl;
 
     /*** Identify this block (NoC-ID, block-ID, and block definition) *******/
     // Read NoC-ID (name is passed in through make_args):
     uint64_t noc_id = sr_read64(SR_READBACK_REG_ID);
     _block_def = blockdef::make_from_noc_id(noc_id);
-    if (_block_def) UHD_BLOCK_LOG() <<  "Found valid blockdef" << std::endl;
+    if (_block_def) SHD_BLOCK_LOG() <<  "Found valid blockdef" << std::endl;
     if (not _block_def)
         _block_def = blockdef::make_from_noc_id(DEFAULT_NOC_ID);
-    UHD_ASSERT_THROW(_block_def);
+    SHD_ASSERT_THROW(_block_def);
     // For the block ID, we start with block count 0 and increase until
     // we get a block ID that's not already registered:
     _block_id.set(make_args.device_index, make_args.block_name, 0);
     while (_tree->exists("xbar/" + _block_id.get_local())) {
         _block_id++;
     }
-    UHD_BLOCK_LOG()
+    SHD_BLOCK_LOG()
         << "NOC ID: " << str(boost::format("0x%016X  ") % noc_id)
         << "Block ID: " << _block_id << std::endl;
 
@@ -97,7 +97,7 @@ block_ctrl_base::block_ctrl_base(
     blockdef::registers_t sregs = _block_def->get_settings_registers();
     BOOST_FOREACH(const std::string &reg_name, sregs.keys()) {
         if (DEFAULT_NAMED_SR.has_key(reg_name)) {
-            throw uhd::runtime_error(str(
+            throw shd::runtime_error(str(
                     boost::format("Register name %s is already defined!")
                     % reg_name
             ));
@@ -116,7 +116,7 @@ block_ctrl_base::block_ctrl_base(
     _init_port_defs("out", _block_def->get_output_ports());
     // FIXME this warning always fails until the input buffer code above is fixed
     if (_tree->list(_root_path / "ports/in").size() != n_valid_input_buffers) {
-        UHD_MSG(warning) <<
+        SHD_MSG(warning) <<
             boost::format("[%s] defines %d input buffer sizes, but %d input ports")
             % get_block_id().get() % n_valid_input_buffers % _tree->list(_root_path / "ports/in").size()
             << std::endl;
@@ -143,7 +143,7 @@ void block_ctrl_base::_init_port_defs(
         if (not _tree->exists(port_path)) {
             _tree->create<blockdef::port_t>(port_path);
         }
-        UHD_RFNOC_BLOCK_TRACE()  << "Adding port definition at " << port_path
+        SHD_RFNOC_BLOCK_TRACE()  << "Adding port definition at " << port_path
             << boost::format(": type = '%s' pkt_size = '%s' vlen = '%s'") % port_def["type"] % port_def["pkt_size"] % port_def["vlen"]
             << std::endl;
         _tree->access<blockdef::port_t>(port_path).set(port_def);
@@ -164,11 +164,11 @@ void block_ctrl_base::_init_block_args()
         fs_path arg_type_path = arg_path / arg["port"] / arg["name"] / "type";
         _tree->create<std::string>(arg_type_path).set(arg["type"]);
         fs_path arg_val_path  = arg_path / arg["port"] / arg["name"] / "value";
-        if (arg["type"] == "int_vector") { throw uhd::runtime_error("not yet implemented: int_vector"); }
+        if (arg["type"] == "int_vector") { throw shd::runtime_error("not yet implemented: int_vector"); }
         else if (arg["type"] == "int") { _tree->create<int>(arg_val_path); }
         else if (arg["type"] == "double") { _tree->create<double>(arg_val_path); }
         else if (arg["type"] == "string") { _tree->create<string>(arg_val_path); }
-        else { UHD_THROW_INVALID_CODE_PATH(); }
+        else { SHD_THROW_INVALID_CODE_PATH(); }
     }
     // Next: Create all the subscribers and coercers.
     // TODO: Add coercer
@@ -180,15 +180,15 @@ void block_ctrl_base::_init_block_args()
             if (arg["type"] == "string") { _SUBSCRIBE_CHECK_AND_RUN(string, check, arg["check_message"]); }
             else if (arg["type"] == "int") { _SUBSCRIBE_CHECK_AND_RUN(int, check, arg["check_message"]); }
             else if (arg["type"] == "double") { _SUBSCRIBE_CHECK_AND_RUN(double, check, arg["check_message"]); }
-            else if (arg["type"] == "int_vector") { throw uhd::runtime_error("not yet implemented: int_vector"); }
-            else { UHD_THROW_INVALID_CODE_PATH(); }
+            else if (arg["type"] == "int_vector") { throw shd::runtime_error("not yet implemented: int_vector"); }
+            else { SHD_THROW_INVALID_CODE_PATH(); }
         }
         if (not arg["action"].empty()) {
             if (arg["type"] == "string") { _SUBSCRIBE_CHECK_AND_RUN(string, action, ""); }
             else if (arg["type"] == "int") { _SUBSCRIBE_CHECK_AND_RUN(int, action, ""); }
             else if (arg["type"] == "double") { _SUBSCRIBE_CHECK_AND_RUN(double, action, ""); }
-            else if (arg["type"] == "int_vector") { throw uhd::runtime_error("not yet implemented: int_vector"); }
-            else { UHD_THROW_INVALID_CODE_PATH(); }
+            else if (arg["type"] == "int_vector") { throw shd::runtime_error("not yet implemented: int_vector"); }
+            else { SHD_THROW_INVALID_CODE_PATH(); }
         }
     }
 
@@ -196,11 +196,11 @@ void block_ctrl_base::_init_block_args()
     BOOST_FOREACH(const blockdef::arg_t &arg, args) {
         fs_path arg_val_path = arg_path / arg["port"] / arg["name"] / "value";
         if (not arg["value"].empty()) {
-            if (arg["type"] == "int_vector") { throw uhd::runtime_error("not yet implemented: int_vector"); }
+            if (arg["type"] == "int_vector") { throw shd::runtime_error("not yet implemented: int_vector"); }
             else if (arg["type"] == "int") { _tree->access<int>(arg_val_path).set(boost::lexical_cast<int>(arg["value"])); }
             else if (arg["type"] == "double") { _tree->access<double>(arg_val_path).set(boost::lexical_cast<double>(arg["value"])); }
             else if (arg["type"] == "string") { _tree->access<string>(arg_val_path).set(arg["value"]); }
-            else { UHD_THROW_INVALID_CODE_PATH(); }
+            else { SHD_THROW_INVALID_CODE_PATH(); }
         }
     }
 }
@@ -226,16 +226,16 @@ std::vector<size_t> block_ctrl_base::get_ctrl_ports() const
 
 void block_ctrl_base::sr_write(const uint32_t reg, const uint32_t data, const size_t port)
 {
-    //UHD_BLOCK_LOG() << "  ";
-    //UHD_RFNOC_BLOCK_TRACE() << boost::format("sr_write(%d, %08X, %d)") % reg % data % port << std::endl;
+    //SHD_BLOCK_LOG() << "  ";
+    //SHD_RFNOC_BLOCK_TRACE() << boost::format("sr_write(%d, %08X, %d)") % reg % data % port << std::endl;
     if (not _ctrl_ifaces.count(port)) {
-        throw uhd::key_error(str(boost::format("[%s] sr_write(): No such port: %d") % get_block_id().get() % port));
+        throw shd::key_error(str(boost::format("[%s] sr_write(): No such port: %d") % get_block_id().get() % port));
     }
     try {
         _ctrl_ifaces[port]->poke32(_sr_to_addr(reg), data);
     }
     catch(const std::exception &ex) {
-        throw uhd::io_error(str(boost::format("[%s] sr_write() failed: %s") % get_block_id().get() % ex.what()));
+        throw shd::io_error(str(boost::format("[%s] sr_write() failed: %s") % get_block_id().get() % ex.what()));
     }
 }
 
@@ -246,41 +246,41 @@ void block_ctrl_base::sr_write(const std::string &reg, const uint32_t data, cons
         reg_addr = DEFAULT_NAMED_SR[reg];
     } else {
         if (not _tree->exists(_root_path / "registers" / "sr" / reg)) {
-            throw uhd::key_error(str(
+            throw shd::key_error(str(
                     boost::format("Unknown settings register name: %s")
                     % reg
             ));
         }
         reg_addr = uint32_t(_tree->access<size_t>(_root_path / "registers" / "sr" / reg).get());
     }
-    UHD_BLOCK_LOG() << "  ";
-    UHD_RFNOC_BLOCK_TRACE() << boost::format("sr_write(%s, %08X) ==> ") % reg % data << std::endl;
+    SHD_BLOCK_LOG() << "  ";
+    SHD_RFNOC_BLOCK_TRACE() << boost::format("sr_write(%s, %08X) ==> ") % reg % data << std::endl;
     return sr_write(reg_addr, data, port);
 }
 
 uint64_t block_ctrl_base::sr_read64(const settingsbus_reg_t reg, const size_t port)
 {
     if (not _ctrl_ifaces.count(port)) {
-        throw uhd::key_error(str(boost::format("[%s] sr_read64(): No such port: %d") % get_block_id().get() % port));
+        throw shd::key_error(str(boost::format("[%s] sr_read64(): No such port: %d") % get_block_id().get() % port));
     }
     try {
         return _ctrl_ifaces[port]->peek64(_sr_to_addr64(reg));
     }
     catch(const std::exception &ex) {
-        throw uhd::io_error(str(boost::format("[%s] sr_read64() failed: %s") % get_block_id().get() % ex.what()));
+        throw shd::io_error(str(boost::format("[%s] sr_read64() failed: %s") % get_block_id().get() % ex.what()));
     }
 }
 
 uint32_t block_ctrl_base::sr_read32(const settingsbus_reg_t reg, const size_t port)
 {
     if (not _ctrl_ifaces.count(port)) {
-        throw uhd::key_error(str(boost::format("[%s] sr_read32(): No such port: %d") % get_block_id().get() % port));
+        throw shd::key_error(str(boost::format("[%s] sr_read32(): No such port: %d") % get_block_id().get() % port));
     }
     try {
         return _ctrl_ifaces[port]->peek32(_sr_to_addr64(reg));
     }
     catch(const std::exception &ex) {
-        throw uhd::io_error(str(boost::format("[%s] sr_read32() failed: %s") % get_block_id().get() % ex.what()));
+        throw shd::io_error(str(boost::format("[%s] sr_read32() failed: %s") % get_block_id().get() % ex.what()));
     }
 }
 
@@ -293,14 +293,14 @@ uint64_t block_ctrl_base::user_reg_read64(const uint32_t addr, const size_t port
         return sr_read64(SR_READBACK_REG_USER, port);
     }
     catch(const std::exception &ex) {
-        throw uhd::io_error(str(boost::format("%s user_reg_read64() failed: %s") % get_block_id().get() % ex.what()));
+        throw shd::io_error(str(boost::format("%s user_reg_read64() failed: %s") % get_block_id().get() % ex.what()));
     }
 }
 
 uint64_t block_ctrl_base::user_reg_read64(const std::string &reg, const size_t port)
 {
     if (not _tree->exists(_root_path / "registers" / "rb" / reg)) {
-        throw uhd::key_error(str(
+        throw shd::key_error(str(
                 boost::format("Invalid readback register name: %s")
                 % reg
         ));
@@ -319,14 +319,14 @@ uint32_t block_ctrl_base::user_reg_read32(const uint32_t addr, const size_t port
         return sr_read32(SR_READBACK_REG_USER, port);
     }
     catch(const std::exception &ex) {
-        throw uhd::io_error(str(boost::format("[%s] user_reg_read32() failed: %s") % get_block_id().get() % ex.what()));
+        throw shd::io_error(str(boost::format("[%s] user_reg_read32() failed: %s") % get_block_id().get() % ex.what()));
     }
 }
 
 uint32_t block_ctrl_base::user_reg_read32(const std::string &reg, const size_t port)
 {
     if (not _tree->exists(_root_path / "registers" / "rb" / reg)) {
-        throw uhd::key_error(str(
+        throw shd::key_error(str(
                 boost::format("Invalid readback register name: %s")
                 % reg
         ));
@@ -349,7 +349,7 @@ void block_ctrl_base::set_command_time(
     boost::shared_ptr<ctrl_iface> iface_sptr =
         boost::dynamic_pointer_cast<ctrl_iface>(get_ctrl_iface(port));
     if (not iface_sptr) {
-        throw uhd::assertion_error(str(
+        throw shd::assertion_error(str(
             boost::format("[%s] Cannot set command time on port '%d'")
             % unique_id() % port
         ));
@@ -365,7 +365,7 @@ time_spec_t block_ctrl_base::get_command_time(
     boost::shared_ptr<ctrl_iface> iface_sptr =
         boost::dynamic_pointer_cast<ctrl_iface>(get_ctrl_iface(port));
     if (not iface_sptr) {
-        throw uhd::assertion_error(str(
+        throw shd::assertion_error(str(
             boost::format("[%s] Cannot get command time on port '%d'")
             % unique_id() % port
         ));
@@ -387,7 +387,7 @@ void block_ctrl_base::set_command_tick_rate(
     boost::shared_ptr<ctrl_iface> iface_sptr =
         boost::dynamic_pointer_cast<ctrl_iface>(get_ctrl_iface(port));
     if (not iface_sptr) {
-        throw uhd::assertion_error(str(
+        throw shd::assertion_error(str(
             boost::format("[%s] Cannot set command time on port '%d'")
             % unique_id() % port
         ));
@@ -401,7 +401,7 @@ void block_ctrl_base::clear_command_time(const size_t port)
     boost::shared_ptr<ctrl_iface> iface_sptr =
         boost::dynamic_pointer_cast<ctrl_iface>(get_ctrl_iface(port));
     if (not iface_sptr) {
-        throw uhd::assertion_error(str(
+        throw shd::assertion_error(str(
             boost::format("[%s] Cannot set command time on port '%d'")
             % unique_id() % port
         ));
@@ -412,7 +412,7 @@ void block_ctrl_base::clear_command_time(const size_t port)
 
 void block_ctrl_base::clear()
 {
-    UHD_RFNOC_BLOCK_TRACE() << "block_ctrl_base::clear() " << std::endl;
+    SHD_RFNOC_BLOCK_TRACE() << "block_ctrl_base::clear() " << std::endl;
     // Call parent...
     node_ctrl_base::clear();
     // ...then child
@@ -422,14 +422,14 @@ void block_ctrl_base::clear()
 }
 
 uint32_t block_ctrl_base::get_address(size_t block_port) {
-    UHD_ASSERT_THROW(block_port < 16);
+    SHD_ASSERT_THROW(block_port < 16);
     return (_base_address & 0xFFF0) | (block_port & 0xF);
 }
 
 /***********************************************************************
  * Argument handling
  **********************************************************************/
-void block_ctrl_base::set_args(const uhd::device_addr_t &args, const size_t port)
+void block_ctrl_base::set_args(const shd::device_addr_t &args, const size_t port)
 {
     BOOST_FOREACH(const std::string &key, args.keys()) {
         if (_tree->exists(get_arg_path(key, port))) {
@@ -442,7 +442,7 @@ void block_ctrl_base::set_arg(const std::string &key, const std::string &val, co
 {
     fs_path arg_path = get_arg_path(key, port);
     if (not _tree->exists(arg_path / "value")) {
-        throw uhd::runtime_error(str(
+        throw shd::runtime_error(str(
                 boost::format("Attempting to set uninitialized argument '%s' on block '%s'")
                 % key % unique_id()
         ));
@@ -461,10 +461,10 @@ void block_ctrl_base::set_arg(const std::string &key, const std::string &val, co
             _tree->access<double>(arg_val_path).set(boost::lexical_cast<double>(val));
         }
         else if (type == "int_vector") {
-            throw uhd::runtime_error("not yet implemented: int_vector");
+            throw shd::runtime_error("not yet implemented: int_vector");
         }
     } catch (const boost::bad_lexical_cast &) {
-        throw uhd::value_error(str(
+        throw shd::value_error(str(
                     boost::format("Error trying to cast value %s == '%s' to type '%s'")
                     % key % val % type
         ));
@@ -484,7 +484,7 @@ std::string block_ctrl_base::get_arg(const std::string &key, const size_t port) 
 {
     fs_path arg_path = get_arg_path(key, port);
     if (not _tree->exists(arg_path / "value")) {
-        throw uhd::runtime_error(str(
+        throw shd::runtime_error(str(
                 boost::format("Attempting to get uninitialized argument '%s' on block '%s'")
                 % key % unique_id()
         ));
@@ -502,10 +502,10 @@ std::string block_ctrl_base::get_arg(const std::string &key, const size_t port) 
         return boost::lexical_cast<std::string>(_tree->access<double>(arg_val_path).get());
     }
     else if (type == "int_vector") {
-        throw uhd::runtime_error("not yet implemented: int_vector");
+        throw shd::runtime_error("not yet implemented: int_vector");
     }
 
-    UHD_THROW_INVALID_CODE_PATH();
+    SHD_THROW_INVALID_CODE_PATH();
 }
 
 std::string block_ctrl_base::get_arg_type(const std::string &key, const size_t port) const
@@ -517,7 +517,7 @@ std::string block_ctrl_base::get_arg_type(const std::string &key, const size_t p
 stream_sig_t block_ctrl_base::_resolve_port_def(const blockdef::port_t &port_def) const
 {
     if (not port_def.is_valid()) {
-        throw uhd::runtime_error(str(
+        throw shd::runtime_error(str(
                 boost::format("Invalid port definition: %s") % port_def.to_string()
         ));
     }
@@ -531,22 +531,22 @@ stream_sig_t block_ctrl_base::_resolve_port_def(const blockdef::port_t &port_def
         // TODO check this is even a string
         stream_sig.item_type = get_arg(var_name);
     } else if (port_def.is_keyword("type")) {
-        throw uhd::runtime_error("keywords resolution for type not yet implemented");
+        throw shd::runtime_error("keywords resolution for type not yet implemented");
     } else {
         stream_sig.item_type = port_def["type"];
     }
-    //UHD_RFNOC_BLOCK_TRACE() << "  item type: " << stream_sig.item_type << std::endl;
+    //SHD_RFNOC_BLOCK_TRACE() << "  item type: " << stream_sig.item_type << std::endl;
 
     // Vector length
     if (port_def.is_variable("vlen")) {
         std::string var_name = port_def["vlen"].substr(1);
         stream_sig.vlen = boost::lexical_cast<size_t>(get_arg(var_name));
     } else if (port_def.is_keyword("vlen")) {
-        throw uhd::runtime_error("keywords resolution for vlen not yet implemented");
+        throw shd::runtime_error("keywords resolution for vlen not yet implemented");
     } else {
         stream_sig.vlen = boost::lexical_cast<size_t>(port_def["vlen"]);
     }
-    //UHD_RFNOC_BLOCK_TRACE() << "  vector length: " << stream_sig.vlen << std::endl;
+    //SHD_RFNOC_BLOCK_TRACE() << "  vector length: " << stream_sig.vlen << std::endl;
 
     // Packet size
     if (port_def.is_variable("pkt_size")) {
@@ -554,21 +554,21 @@ stream_sig_t block_ctrl_base::_resolve_port_def(const blockdef::port_t &port_def
         stream_sig.packet_size = boost::lexical_cast<size_t>(get_arg(var_name));
     } else if (port_def.is_keyword("pkt_size")) {
         if (port_def["pkt_size"] != "%vlen") {
-            throw uhd::runtime_error("generic keywords resolution for pkt_size not yet implemented");
+            throw shd::runtime_error("generic keywords resolution for pkt_size not yet implemented");
         }
         if (stream_sig.vlen == 0) {
             stream_sig.packet_size = 0;
         } else {
             if (stream_sig.item_type.empty()) {
-                throw uhd::runtime_error("cannot resolve pkt_size if item type is not given");
+                throw shd::runtime_error("cannot resolve pkt_size if item type is not given");
             }
-            size_t bpi = uhd::convert::get_bytes_per_item(stream_sig.item_type);
+            size_t bpi = shd::convert::get_bytes_per_item(stream_sig.item_type);
             stream_sig.packet_size = stream_sig.vlen * bpi;
         }
     } else {
         stream_sig.packet_size = boost::lexical_cast<size_t>(port_def["pkt_size"]);
     }
-    //UHD_RFNOC_BLOCK_TRACE() << "  packet size: " << stream_sig.vlen << std::endl;
+    //SHD_RFNOC_BLOCK_TRACE() << "  packet size: " << stream_sig.vlen << std::endl;
 
     return stream_sig;
 }
@@ -579,13 +579,13 @@ stream_sig_t block_ctrl_base::_resolve_port_def(const blockdef::port_t &port_def
  **********************************************************************/
 void block_ctrl_base::_clear(const size_t port)
 {
-    UHD_RFNOC_BLOCK_TRACE() << "block_ctrl_base::_clear() " << std::endl;
+    SHD_RFNOC_BLOCK_TRACE() << "block_ctrl_base::_clear() " << std::endl;
     sr_write(SR_CLEAR_TX_FC, 0x00C1EA12, port); // 'CLEAR', but we can write anything, really
     sr_write(SR_CLEAR_RX_FC, 0x00C1EA12, port); // 'CLEAR', but we can write anything, really
 }
 
 void block_ctrl_base::_set_command_time(const time_spec_t & /*time_spec*/, const size_t /*port*/)
 {
-    UHD_RFNOC_BLOCK_TRACE() << "block_ctrl_base::_set_command_time() ";
+    SHD_RFNOC_BLOCK_TRACE() << "block_ctrl_base::_set_command_time() ";
 }
 // vim: sw=4 et:

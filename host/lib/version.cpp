@@ -15,27 +15,27 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/version.hpp>
-#include <uhd/utils/static.hpp>
+#include <shd/version.hpp>
+#include <shd/utils/static.hpp>
 #include <boost/version.hpp>
 #include <iostream>
 
-#ifndef UHD_DONT_PRINT_SYSTEM_INFO
-UHD_STATIC_BLOCK(print_system_info){
+#ifndef SHD_DONT_PRINT_SYSTEM_INFO
+SHD_STATIC_BLOCK(print_system_info){
     std::cout
         << BOOST_PLATFORM << "; "
         << BOOST_COMPILER << "; "
         << "Boost_" << BOOST_VERSION << "; "
-        << "UHD_" << uhd::get_version_string()
+        << "SHD_" << shd::get_version_string()
         << std::endl << std::endl
     ;
 }
 #endif
 
-std::string uhd::get_version_string(void){
-    return "@UHD_VERSION@";
+std::string shd::get_version_string(void){
+    return "@SHD_VERSION@";
 }
 
-std::string uhd::get_abi_string(void){
-    return UHD_VERSION_ABI_STRING;
+std::string shd::get_abi_string(void){
+    return SHD_VERSION_ABI_STRING;
 }

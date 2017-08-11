@@ -129,7 +129,7 @@ BOOL IS_PWR_OF_2(INT)
 INT LOG2(INT)
 {
     if (${args[0]} < 0) {
-        throw uhd::runtime_error(str(
+        throw shd::runtime_error(str(
             boost::format("In NocScript function ${func_name}: Cannot calculate log2() of negative number.")
         ));
     }
@@ -286,22 +286,22 @@ HEADER = """<% import time %>//
 
 #include "expression.hpp"
 #include "function_table.hpp"
-#include <uhd/exception.hpp>
+#include <shd/exception.hpp>
 #include <boost/format.hpp>
 #include <boost/assign/list_of.hpp>
 ${INCLUDE_LIST}
 
-#ifndef INCLUDED_LIBUHD_RFNOC_NOCSCRIPT_BASICFUNCS_HPP
-#define INCLUDED_LIBUHD_RFNOC_NOCSCRIPT_BASICFUNCS_HPP
+#ifndef INCLUDED_LIBSHD_RFNOC_NOCSCRIPT_BASICFUNCS_HPP
+#define INCLUDED_LIBSHD_RFNOC_NOCSCRIPT_BASICFUNCS_HPP
 
-namespace uhd { namespace rfnoc { namespace nocscript {
+namespace shd { namespace rfnoc { namespace nocscript {
 """
 
 # Not a Mako template:
 FOOTER="""
-}}} /* namespace uhd::rfnoc::nocscript */
+}}} /* namespace shd::rfnoc::nocscript */
 
-#endif /* INCLUDED_LIBUHD_RFNOC_NOCSCRIPT_BASICFUNCS_HPP */
+#endif /* INCLUDED_LIBSHD_RFNOC_NOCSCRIPT_BASICFUNCS_HPP */
 """
 
 # Not a Mako template:

@@ -16,16 +16,16 @@
 //
 
 
-#include <uhd/transport/nirio/status.h>
+#include <shd/transport/nirio/status.h>
 #include <boost/format.hpp>
 
-namespace uhd { namespace niusrprio {
+namespace shd { namespace nisminirio {
 
 #define NIRIO_ERR_INFO(CONST_NAME, ERR_CODE, ERR_MSG) \
     nirio_err_info(ERR_CODE, ERR_MSG),
 
 const nirio_err_info nirio_err_info::NIRIO_ERROR_TABLE[] = {
-    #include "../../../include/uhd/transport/nirio/nirio_err_template.h"
+    #include "../../../include/shd/transport/nirio/nirio_err_template.h"
 };
 
 #undef NIRIO_ERR_INFO
@@ -45,7 +45,7 @@ const std::string lookup_err_msg(nirio_status code) {
 
 void nirio_status_to_exception(const nirio_status& status, const std::string& message) {
     if (nirio_status_fatal(status)) {
-        throw uhd::runtime_error((boost::format("%s %s") % message % lookup_err_msg(status)).str());
+        throw shd::runtime_error((boost::format("%s %s") % message % lookup_err_msg(status)).str());
     }
 }
 

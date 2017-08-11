@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/smini/multi_smini.hpp>
 #include "ascii_art_dft.hpp" //implementation
 #include <boost/program_options.hpp>
 #include <boost/thread/thread.hpp> //gets time
@@ -29,8 +29,8 @@
 
 namespace po = boost::program_options;
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+int SHD_SAFE_MAIN(int argc, char *argv[]){
+    shd::set_thread_priority_safe();
 
     //variables to be set by po
     std::string args, ant, subdev, ref;
@@ -42,7 +42,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "help message")
-        ("args", po::value<std::string>(&args)->default_value(""), "multi uhd device address args")
+        ("args", po::value<std::string>(&args)->default_value(""), "multi shd device address args")
         // hardware parameters
         ("rate", po::value<double>(&rate), "rate of incoming samples (sps)")
         ("freq", po::value<double>(&freq), "RF center frequency in Hz")
@@ -56,7 +56,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("ref-lvl", po::value<float>(&ref_lvl)->default_value(0), "reference level for the display (dB)")
         ("dyn-rng", po::value<float>(&dyn_rng)->default_value(60), "dynamic range for the display (dB)")
         ("ref", po::value<std::string>(&ref)->default_value("internal"), "reference source (internal, external, mimo)")
-        ("int-n", "tune USRP with integer-N tuning")
+        ("int-n", "tune SMINI with integer-N tuning")
     ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -64,22 +64,22 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //print the help message
     if (vm.count("help") or not vm.count("rate")){
-        std::cout << boost::format("UHD RX ASCII Art DFT %s") % desc << std::endl;
+        std::cout << boost::format("SHD RX ASCII Art DFT %s") % desc << std::endl;
         return EXIT_FAILURE;
     }
 
-    //create a usrp device
+    //create a smini device
     std::cout << std::endl;
-    std::cout << boost::format("Creating the usrp device with: %s...") % args << std::endl;
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
+    std::cout << boost::format("Creating the smini device with: %s...") % args << std::endl;
+    shd::smini::multi_smini::sptr smini = shd::smini::multi_smini::make(args);
 
     //Lock mboard clocks
-    usrp->set_clock_source(ref);
+    smini->set_clock_source(ref);
 
      //always select the subdevice first, the channel mapping affects the other settings
-    if (vm.count("subdev")) usrp->set_rx_subdev_spec(subdev);
+    if (vm.count("subdev")) smini->set_rx_subdev_spec(subdev);
 
-    std::cout << boost::format("Using Device: %s") % usrp->get_pp_string() << std::endl;
+    std::cout << boost::format("Using Device: %s") % smini->get_pp_string() << std::endl;
 
     //set the sample rate
     if (not vm.count("rate")){
@@ -87,8 +87,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         return EXIT_FAILURE;
     }
     std::cout << boost::format("Setting RX Rate: %f Msps...") % (rate/1e6) << std::endl;
-    usrp->set_rx_rate(rate);
-    std::cout << boost::format("Actual RX Rate: %f Msps...") % (usrp->get_rx_rate()/1e6) << std::endl << std::endl;
+    smini->set_rx_rate(rate);
+    std::cout << boost::format("Actual RX Rate: %f Msps...") % (smini->get_rx_rate()/1e6) << std::endl << std::endl;
 
     //set the center frequency
     if (not vm.count("freq")){
@@ -96,62 +96,62 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         return EXIT_FAILURE;
     }
     std::cout << boost::format("Setting RX Freq: %f MHz...") % (freq/1e6) << std::endl;
-    uhd::tune_request_t tune_request(freq);
-    if(vm.count("int-n")) tune_request.args = uhd::device_addr_t("mode_n=integer");
-    usrp->set_rx_freq(tune_request);
-    std::cout << boost::format("Actual RX Freq: %f MHz...") % (usrp->get_rx_freq()/1e6) << std::endl << std::endl;
+    shd::tune_request_t tune_request(freq);
+    if(vm.count("int-n")) tune_request.args = shd::device_addr_t("mode_n=integer");
+    smini->set_rx_freq(tune_request);
+    std::cout << boost::format("Actual RX Freq: %f MHz...") % (smini->get_rx_freq()/1e6) << std::endl << std::endl;
 
     //set the rf gain
     if (vm.count("gain")){
         std::cout << boost::format("Setting RX Gain: %f dB...") % gain << std::endl;
-        usrp->set_rx_gain(gain);
-        std::cout << boost::format("Actual RX Gain: %f dB...") % usrp->get_rx_gain() << std::endl << std::endl;
+        smini->set_rx_gain(gain);
+        std::cout << boost::format("Actual RX Gain: %f dB...") % smini->get_rx_gain() << std::endl << std::endl;
     }
 
     //set the analog frontend filter bandwidth
     if (vm.count("bw")){
         std::cout << boost::format("Setting RX Bandwidth: %f MHz...") % (bw/1e6) << std::endl;
-        usrp->set_rx_bandwidth(bw);
-        std::cout << boost::format("Actual RX Bandwidth: %f MHz...") % (usrp->get_rx_bandwidth()/1e6) << std::endl << std::endl;
+        smini->set_rx_bandwidth(bw);
+        std::cout << boost::format("Actual RX Bandwidth: %f MHz...") % (smini->get_rx_bandwidth()/1e6) << std::endl << std::endl;
     }
 
     //set the antenna
-    if (vm.count("ant")) usrp->set_rx_antenna(ant);
+    if (vm.count("ant")) smini->set_rx_antenna(ant);
 
     boost::this_thread::sleep(boost::posix_time::seconds(1)); //allow for some setup time
 
     //Check Ref and LO Lock detect
     std::vector<std::string> sensor_names;
-    sensor_names = usrp->get_rx_sensor_names(0);
+    sensor_names = smini->get_rx_sensor_names(0);
     if (std::find(sensor_names.begin(), sensor_names.end(), "lo_locked") != sensor_names.end()) {
-        uhd::sensor_value_t lo_locked = usrp->get_rx_sensor("lo_locked",0);
+        shd::sensor_value_t lo_locked = smini->get_rx_sensor("lo_locked",0);
         std::cout << boost::format("Checking RX: %s ...") % lo_locked.to_pp_string() << std::endl;
-        UHD_ASSERT_THROW(lo_locked.to_bool());
+        SHD_ASSERT_THROW(lo_locked.to_bool());
     }
-    sensor_names = usrp->get_mboard_sensor_names(0);
+    sensor_names = smini->get_mboard_sensor_names(0);
     if ((ref == "mimo") and (std::find(sensor_names.begin(), sensor_names.end(), "mimo_locked") != sensor_names.end())) {
-        uhd::sensor_value_t mimo_locked = usrp->get_mboard_sensor("mimo_locked",0);
+        shd::sensor_value_t mimo_locked = smini->get_mboard_sensor("mimo_locked",0);
         std::cout << boost::format("Checking RX: %s ...") % mimo_locked.to_pp_string() << std::endl;
-        UHD_ASSERT_THROW(mimo_locked.to_bool());
+        SHD_ASSERT_THROW(mimo_locked.to_bool());
     }
     if ((ref == "external") and (std::find(sensor_names.begin(), sensor_names.end(), "ref_locked") != sensor_names.end())) {
-        uhd::sensor_value_t ref_locked = usrp->get_mboard_sensor("ref_locked",0);
+        shd::sensor_value_t ref_locked = smini->get_mboard_sensor("ref_locked",0);
         std::cout << boost::format("Checking RX: %s ...") % ref_locked.to_pp_string() << std::endl;
-        UHD_ASSERT_THROW(ref_locked.to_bool());
+        SHD_ASSERT_THROW(ref_locked.to_bool());
     }
 
     //create a receive streamer
-    uhd::stream_args_t stream_args("fc32"); //complex floats
-    uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(stream_args);
+    shd::stream_args_t stream_args("fc32"); //complex floats
+    shd::rx_streamer::sptr rx_stream = smini->get_rx_stream(stream_args);
 
     //allocate recv buffer and metatdata
-    uhd::rx_metadata_t md;
+    shd::rx_metadata_t md;
     std::vector<std::complex<float> > buff(num_bins);
     //------------------------------------------------------------------
     //-- Initialize
     //------------------------------------------------------------------
     initscr(); //curses init
-    rx_stream->issue_stream_cmd(uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS);
+    rx_stream->issue_stream_cmd(shd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS);
     boost::system_time next_refresh = boost::get_system_time();
 
     //------------------------------------------------------------------
@@ -174,8 +174,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         );
         std::string frame = ascii_art_dft::dft_to_plot(
             lpdft, COLS, LINES,
-            usrp->get_rx_rate(),
-            usrp->get_rx_freq(),
+            smini->get_rx_rate(),
+            smini->get_rx_freq(),
             dyn_rng, ref_lvl
         );
 
@@ -192,7 +192,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     //------------------------------------------------------------------
     //-- Cleanup
     //------------------------------------------------------------------
-    rx_stream->issue_stream_cmd(uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS);
+    rx_stream->issue_stream_cmd(shd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS);
     endwin(); //curses done
 
     //finished

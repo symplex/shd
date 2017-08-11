@@ -45,7 +45,7 @@ def convert_version_string(version, to_debian=True):
 # to upload packages replaces it anyway.
 #
 def get_header(version):
-    return "uhd ({0}-0ubuntu1) trusty; urgency=low\n\n".format(convert_version_string(version))
+    return "shd ({0}-0ubuntu1) trusty; urgency=low\n\n".format(convert_version_string(version))
 
 def get_footer(uploader_name, uploader_email):
     return " -- {0} <{1}>  {2}\n\n".format(uploader_name, uploader_email, datetime.datetime.now().strftime("%a, %d %b %Y %I:%M:%S %Z-0800"))
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option(
         "--input-file",     type="string", default='CHANGELOG',
-        help="Input UHD top-level changelog file"
+        help="Input SHD top-level changelog file"
     )
     parser.add_option("--output-file",
         type="string", default='host/cmake/debian/changelog',

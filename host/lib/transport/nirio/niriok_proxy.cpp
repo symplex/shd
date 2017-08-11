@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/nirio/niriok_proxy.h>
-#include <uhd/transport/nirio/niriok_proxy_impl_v1.h>
-#include <uhd/transport/nirio/niriok_proxy_impl_v2.h>
+#include <shd/transport/nirio/niriok_proxy.h>
+#include <shd/transport/nirio/niriok_proxy_impl_v1.h>
+#include <shd/transport/nirio/niriok_proxy_impl_v2.h>
 #include <cstring>
 
 // "push" and "pop" introduced in GCC 4.6; works with all clang
@@ -28,7 +28,7 @@
     #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 
-namespace uhd { namespace niusrprio
+namespace shd { namespace nisminirio
 {
     // initialization of static members
     boost::shared_mutex niriok_proxy::_synchronization;
@@ -70,7 +70,7 @@ namespace uhd { namespace niusrprio
       if (nirio_status_not_fatal(status))
          return proxy_v2;
 
-      throw uhd::runtime_error("Unable to detect a supported version of the NI-RIO kernel interface.");
+      throw shd::runtime_error("Unable to detect a supported version of the NI-RIO kernel interface.");
       
    }
 }}

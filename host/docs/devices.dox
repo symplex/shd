@@ -11,28 +11,28 @@
 \li \subpage page_sync
 \li \subpage page_calibration
 
-## USRP N-Series Devices
+## SMINI N-Series Devices
 
-\li \subpage page_usrp2 "USRP N2x0 Series"
+\li \subpage page_smini2 "SMINI N2x0 Series"
 
-## USRP B-Series Devices
+## SMINI B-Series Devices
 
-\li \subpage page_usrp_b100
-\li \subpage page_usrp_b200
-\li \subpage page_usrp1
+\li \subpage page_smini_b100
+\li \subpage page_smini_b200
+\li \subpage page_smini1
 
-## USRP E-Series Devices
+## SMINI E-Series Devices
 
-\li \subpage page_usrp_e1x0
-\li \subpage page_usrp_e3x0
+\li \subpage page_smini_e1x0
+\li \subpage page_smini_e3x0
 
-## USRP X-Series Devices
+## SMINI X-Series Devices
 
-\li \subpage page_usrp_x3x0
+\li \subpage page_smini_x3x0
 
-## USRP Legacy Series
+## SMINI Legacy Series
 
-\li \ref page_usrp2 "USRP2 Series"
+\li \ref page_smini2 "SMINI2 Series"
 
 ## Daughterboards
 

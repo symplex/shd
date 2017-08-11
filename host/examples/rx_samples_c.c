@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <uhd.h>
+#include <shd.h>
 
 #include "getopt.h"
 
@@ -30,7 +30,7 @@
     }
 
 void print_help(void){
-    fprintf(stderr, "rx_samples_c - A simple RX example using UHD's C API\n\n"
+    fprintf(stderr, "rx_samples_c - A simple RX example using SHD's C API\n\n"
 
                     "Options:\n"
                     "    -a (device args)\n"
@@ -45,7 +45,7 @@ void print_help(void){
 
 int main(int argc, char* argv[])
 {
-    if(uhd_set_thread_priority(uhd_default_thread_priority, true)){
+    if(shd_set_thread_priority(shd_default_thread_priority, true)){
         fprintf(stderr, "Unable to set thread priority. Continuing anyway.\n");
     }
 
@@ -105,34 +105,34 @@ int main(int argc, char* argv[])
         }
     }
 
-    // Create USRP
-    uhd_usrp_handle usrp;
-    fprintf(stderr, "Creating USRP with args \"%s\"...\n", device_args);
+    // Create SMINI
+    shd_smini_handle smini;
+    fprintf(stderr, "Creating SMINI with args \"%s\"...\n", device_args);
     EXECUTE_OR_GOTO(free_option_strings,
-        uhd_usrp_make(&usrp, device_args)
+        shd_smini_make(&smini, device_args)
     )
 
     // Create RX streamer
-    uhd_rx_streamer_handle rx_streamer;
-    EXECUTE_OR_GOTO(free_usrp,
-        uhd_rx_streamer_make(&rx_streamer)
+    shd_rx_streamer_handle rx_streamer;
+    EXECUTE_OR_GOTO(free_smini,
+        shd_rx_streamer_make(&rx_streamer)
     )
 
     // Create RX metadata
-    uhd_rx_metadata_handle md;
+    shd_rx_metadata_handle md;
     EXECUTE_OR_GOTO(free_rx_streamer,
-        uhd_rx_metadata_make(&md)
+        shd_rx_metadata_make(&md)
     )
 
     // Create other necessary structs
-    uhd_tune_request_t tune_request = {
+    shd_tune_request_t tune_request = {
         .target_freq = freq,
-        .rf_freq_policy = UHD_TUNE_REQUEST_POLICY_AUTO,
-        .dsp_freq_policy = UHD_TUNE_REQUEST_POLICY_AUTO,
+        .rf_freq_policy = SHD_TUNE_REQUEST_POLICY_AUTO,
+        .dsp_freq_policy = SHD_TUNE_REQUEST_POLICY_AUTO,
     };
-    uhd_tune_result_t tune_result;
+    shd_tune_result_t tune_result;
 
-    uhd_stream_args_t stream_args = {
+    shd_stream_args_t stream_args = {
         .cpu_format = "fc32",
         .otw_format = "sc16",
         .args = "",
@@ -140,8 +140,8 @@ int main(int argc, char* argv[])
         .n_channels = 1
     };
 
-    uhd_stream_cmd_t stream_cmd = {
-        .stream_mode = UHD_STREAM_MODE_NUM_SAMPS_AND_DONE,
+    shd_stream_cmd_t stream_cmd = {
+        .stream_mode = SHD_STREAM_MODE_NUM_SAMPS_AND_DONE,
         .num_samps = n_samples,
         .stream_now = true
     };
@@ -155,48 +155,48 @@ int main(int argc, char* argv[])
     // Set rate
     fprintf(stderr, "Setting RX Rate: %f...\n", rate);
     EXECUTE_OR_GOTO(free_rx_metadata,
-        uhd_usrp_set_rx_rate(usrp, rate, channel)
+        shd_smini_set_rx_rate(smini, rate, channel)
     )
 
     // See what rate actually is
     EXECUTE_OR_GOTO(free_rx_metadata,
-        uhd_usrp_get_rx_rate(usrp, channel, &rate)
+        shd_smini_get_rx_rate(smini, channel, &rate)
     )
     fprintf(stderr, "Actual RX Rate: %f...\n", rate);
 
     // Set gain
     fprintf(stderr, "Setting RX Gain: %f dB...\n", gain);
     EXECUTE_OR_GOTO(free_rx_metadata,
-        uhd_usrp_set_rx_gain(usrp, gain, channel, "")
+        shd_smini_set_rx_gain(smini, gain, channel, "")
     )
 
     // See what gain actually is
     EXECUTE_OR_GOTO(free_rx_metadata,
-        uhd_usrp_get_rx_gain(usrp, channel, "", &gain)
+        shd_smini_get_rx_gain(smini, channel, "", &gain)
     )
     fprintf(stderr, "Actual RX Gain: %f...\n", gain);
 
     // Set frequency
     fprintf(stderr, "Setting RX frequency: %f MHz...\n", freq/1e6);
     EXECUTE_OR_GOTO(free_rx_metadata,
-        uhd_usrp_set_rx_freq(usrp, &tune_request, channel, &tune_result)
+        shd_smini_set_rx_freq(smini, &tune_request, channel, &tune_result)
     )
 
     // See what frequency actually is
     EXECUTE_OR_GOTO(free_rx_metadata,
-        uhd_usrp_get_rx_freq(usrp, channel, &freq)
+        shd_smini_get_rx_freq(smini, channel, &freq)
     )
     fprintf(stderr, "Actual RX frequency: %f MHz...\n", freq / 1e6);
 
     // Set up streamer
     stream_args.channel_list = &channel;
     EXECUTE_OR_GOTO(free_rx_streamer,
-        uhd_usrp_get_rx_stream(usrp, &stream_args, rx_streamer)
+        shd_smini_get_rx_stream(smini, &stream_args, rx_streamer)
     )
 
     // Set up buffer
     EXECUTE_OR_GOTO(free_rx_streamer,
-        uhd_rx_streamer_max_num_samps(rx_streamer, &samps_per_buff)
+        shd_rx_streamer_max_num_samps(rx_streamer, &samps_per_buff)
     )
     fprintf(stderr, "Buffer size in samples: %zu\n", samps_per_buff);
     buff = malloc(samps_per_buff * 2 * sizeof(float));
@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
     // Issue stream command
     fprintf(stderr, "Issuing stream command.\n");
     EXECUTE_OR_GOTO(free_buffer,
-        uhd_rx_streamer_issue_stream_cmd(rx_streamer, &stream_cmd)
+        shd_rx_streamer_issue_stream_cmd(rx_streamer, &stream_cmd)
     )
 
     // Set up file output
@@ -215,14 +215,14 @@ int main(int argc, char* argv[])
     while (num_acc_samps < n_samples) {
         size_t num_rx_samps = 0;
         EXECUTE_OR_GOTO(close_file,
-            uhd_rx_streamer_recv(rx_streamer, buffs_ptr, samps_per_buff, &md, 3.0, false, &num_rx_samps)
+            shd_rx_streamer_recv(rx_streamer, buffs_ptr, samps_per_buff, &md, 3.0, false, &num_rx_samps)
         )
 
-        uhd_rx_metadata_error_code_t error_code;
+        shd_rx_metadata_error_code_t error_code;
         EXECUTE_OR_GOTO(close_file,
-            uhd_rx_metadata_error_code(md, &error_code)
+            shd_rx_metadata_error_code(md, &error_code)
         )
-        if(error_code != UHD_RX_METADATA_ERROR_CODE_NONE){
+        if(error_code != SHD_RX_METADATA_ERROR_CODE_NONE){
             fprintf(stderr, "Error code 0x%x was returned during streaming. Aborting.\n", return_code);
             goto close_file;
         }
@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
         if (verbose) {
             time_t full_secs;
             double frac_secs;
-            uhd_rx_metadata_time_spec(md, &full_secs, &frac_secs);
+            shd_rx_metadata_time_spec(md, &full_secs, &frac_secs);
             fprintf(stderr, "Received packet: %zu samples, %.f full secs, %f frac secs\n",
                     num_rx_samps,
                     difftime(full_secs, (time_t) 0),
@@ -260,23 +260,23 @@ int main(int argc, char* argv[])
         if(verbose){
             fprintf(stderr, "Cleaning up RX streamer.\n");
         }
-        uhd_rx_streamer_free(&rx_streamer);
+        shd_rx_streamer_free(&rx_streamer);
 
     free_rx_metadata:
         if(verbose){
             fprintf(stderr, "Cleaning up RX metadata.\n");
         }
-        uhd_rx_metadata_free(&md);
+        shd_rx_metadata_free(&md);
 
-    free_usrp:
+    free_smini:
         if(verbose){
-            fprintf(stderr, "Cleaning up USRP.\n");
+            fprintf(stderr, "Cleaning up SMINI.\n");
         }
-        if(return_code != EXIT_SUCCESS && usrp != NULL){
-            uhd_usrp_last_error(usrp, error_string, 512);
-            fprintf(stderr, "USRP reported the following error: %s\n", error_string);
+        if(return_code != EXIT_SUCCESS && smini != NULL){
+            shd_smini_last_error(smini, error_string, 512);
+            fprintf(stderr, "SMINI reported the following error: %s\n", error_string);
         }
-        uhd_usrp_free(&usrp);
+        shd_smini_free(&smini);
 
     free_option_strings:
         if(strcmp(device_args,"")){

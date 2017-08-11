@@ -17,7 +17,7 @@
 
 #include "xport_benchmarker.hpp"
 
-namespace uhd { namespace transport {
+namespace shd { namespace transport {
 
 const device_addr_t& xport_benchmarker::benchmark_throughput_chdr
 (

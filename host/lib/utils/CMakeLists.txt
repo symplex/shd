@@ -54,7 +54,7 @@ CHECK_CXX_SOURCE_COMPILES("
 IF(HAVE_PTHREAD_SETSCHEDPARAM)
     MESSAGE(STATUS "  Priority scheduling supported through pthread_setschedparam.")
     SET(THREAD_PRIO_DEFS HAVE_PTHREAD_SETSCHEDPARAM)
-    LIBUHD_APPEND_LIBS(pthread)
+    LIBSHD_APPEND_LIBS(pthread)
 ELSEIF(HAVE_WIN_SETTHREADPRIORITY)
     MESSAGE(STATUS "  Priority scheduling supported through windows SetThreadPriority.")
     SET(THREAD_PRIO_DEFS HAVE_WIN_SETTHREADPRIORITY)
@@ -99,7 +99,7 @@ CHECK_CXX_SOURCE_COMPILES("
 IF(HAVE_DLOPEN)
     MESSAGE(STATUS "  Module loading supported through dlopen.")
     SET(LOAD_MODULES_DEFS HAVE_DLOPEN)
-    LIBUHD_APPEND_LIBS(${CMAKE_DL_LIBS})
+    LIBSHD_APPEND_LIBS(${CMAKE_DL_LIBS})
 ELSEIF(HAVE_LOAD_LIBRARY)
     MESSAGE(STATUS "  Module loading supported through LoadLibrary.")
     SET(LOAD_MODULES_DEFS HAVE_LOAD_LIBRARY)
@@ -114,29 +114,29 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 ########################################################################
-# Define UHD_PKG_DATA_PATH for paths.cpp
+# Define SHD_PKG_DATA_PATH for paths.cpp
 ########################################################################
-FILE(TO_NATIVE_PATH "${CMAKE_INSTALL_PREFIX}" UHD_PKG_PATH)
-STRING(REPLACE "\\" "\\\\" UHD_PKG_PATH "${UHD_PKG_PATH}")
+FILE(TO_NATIVE_PATH "${CMAKE_INSTALL_PREFIX}" SHD_PKG_PATH)
+STRING(REPLACE "\\" "\\\\" SHD_PKG_PATH "${SHD_PKG_PATH}")
 
 STRING(REGEX MATCH ".*/.*" SLASH "${LIB_SUFFIX}")
 IF(SLASH STREQUAL "")
-    SET(UHD_LIB_DIR "lib${LIB_SUFFIX}")
+    SET(SHD_LIB_DIR "lib${LIB_SUFFIX}")
 ELSE()
-    SET(UHD_LIB_DIR "lib")
+    SET(SHD_LIB_DIR "lib")
 ENDIF(SLASH STREQUAL "")
 
 SET_SOURCE_FILES_PROPERTIES(
     ${CMAKE_CURRENT_SOURCE_DIR}/paths.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/images.cpp
     PROPERTIES COMPILE_DEFINITIONS
-    "UHD_PKG_PATH=\"${UHD_PKG_PATH}\";UHD_LIB_DIR=\"${UHD_LIB_DIR}\""
+    "SHD_PKG_PATH=\"${SHD_PKG_PATH}\";SHD_LIB_DIR=\"${SHD_LIB_DIR}\""
 )
 
 ########################################################################
 # Append sources
 ########################################################################
-LIBUHD_APPEND_SOURCES(
+LIBSHD_APPEND_SOURCES(
     ${CMAKE_CURRENT_SOURCE_DIR}/csv.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gain_group.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ihex.cpp
@@ -151,7 +151,7 @@ LIBUHD_APPEND_SOURCES(
 )
 
 IF(ENABLE_C_API)
-    LIBUHD_APPEND_SOURCES(
+    LIBSHD_APPEND_SOURCES(
         ${CMAKE_CURRENT_SOURCE_DIR}/thread_priority_c.cpp
     )
 ENDIF(ENABLE_C_API)

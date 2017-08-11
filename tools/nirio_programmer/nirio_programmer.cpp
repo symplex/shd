@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/nirio/niusrprio_session.h>
-#include <uhd/transport/nirio/niriok_proxy.h>
-#include <uhd/transport/nirio/nifpga_lvbitx.h>
+#include <shd/transport/nirio/nisminirio_session.h>
+#include <shd/transport/nirio/niriok_proxy.h>
+#include <shd/transport/nirio/nifpga_lvbitx.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -31,8 +31,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 
-using namespace uhd::niusrprio;
-using namespace uhd::usrprio_rpc;
+using namespace shd::nisminirio;
+using namespace shd::sminirio_rpc;
 
 class dummy_lvbitx : public nifpga_lvbitx {
 public:
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 
     //Print the help message
     if (vm.count("help")){
-        std::cout << boost::format("USRP-NIRIO-Programmer\n\n %s") % desc << std::endl;
+        std::cout << boost::format("SMINI-NIRIO-Programmer\n\n %s") % desc << std::endl;
         return ~0;
     }
 
@@ -128,8 +128,8 @@ int main(int argc, char *argv[])
     {
         printf("Downloading image %s to FPGA as %s...", fpga_lvbitx_path.c_str(), resource_name.c_str());
         fflush(stdout);
-        uhd::niusrprio::niusrprio_session fpga_session(resource_name, rpc_port);
-        uhd::niusrprio::nifpga_lvbitx::sptr lvbitx(new dummy_lvbitx(fpga_lvbitx_path));
+        shd::nisminirio::nisminirio_session fpga_session(resource_name, rpc_port);
+        shd::nisminirio::nifpga_lvbitx::sptr lvbitx(new dummy_lvbitx(fpga_lvbitx_path));
         nirio_status_chain(fpga_session.open(lvbitx, true), status);
         //Download BIN to flash or erase
         if (flash_path != "erase") {
@@ -150,9 +150,9 @@ int main(int argc, char *argv[])
     }
 
     fflush(stdout);
-    usrprio_rpc_client temp_rpc_client("localhost", rpc_port);
+    sminirio_rpc_client temp_rpc_client("localhost", rpc_port);
     std::string interface_path;
-    nirio_status_chain(temp_rpc_client.niusrprio_get_interface_path(resource_name, interface_path), status);
+    nirio_status_chain(temp_rpc_client.nisminirio_get_interface_path(resource_name, interface_path), status);
     if (interface_path.empty()) {
         printf("ERROR: Could not open a proxy to interface %u. If it exists, try downloading an LVBITX to the FPGA first.\n", interface_num);
         exit(EXIT_FAILURE);

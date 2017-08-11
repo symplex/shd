@@ -22,9 +22,9 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/format.hpp>
 #include <boost/foreach.hpp>
-#include <uhd/rfnoc/blockdef.hpp>
+#include <shd/rfnoc/blockdef.hpp>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 BOOST_AUTO_TEST_CASE(test_lookup) {
     std::map<uint64_t, std::string> blocknames = boost::assign::list_of< std::pair<uint64_t, std::string> >

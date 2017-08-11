@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/smini/multi_smini.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -26,8 +26,8 @@
 
 namespace po = boost::program_options;
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+int SHD_SAFE_MAIN(int argc, char *argv[]){
+    shd::set_thread_priority_safe();
 
     //variables to be set by po
     std::string args;
@@ -41,7 +41,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "help message")
-        ("args", po::value<std::string>(&args)->default_value(""), "single uhd device address args")
+        ("args", po::value<std::string>(&args)->default_value(""), "single shd device address args")
         ("wire", po::value<std::string>(&wire)->default_value(""), "the over the wire type, sc16, sc8, etc")
         ("secs", po::value<double>(&seconds_in_future)->default_value(1.5), "number of seconds in the future to receive")
         ("nsamps", po::value<size_t>(&total_num_samps)->default_value(10000), "total number of samples to receive")
@@ -55,17 +55,17 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //print the help message
     if (vm.count("help")){
-        std::cout << boost::format("UHD RX Timed Samples %s") % desc << std::endl;
+        std::cout << boost::format("SHD RX Timed Samples %s") % desc << std::endl;
         return ~0;
     }
 
     bool verbose = vm.count("dilv") == 0;
 
-    //create a usrp device
+    //create a smini device
     std::cout << std::endl;
-    std::cout << boost::format("Creating the usrp device with: %s...") % args << std::endl;
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
-    std::cout << boost::format("Using Device: %s") % usrp->get_pp_string() << std::endl;
+    std::cout << boost::format("Creating the smini device with: %s...") % args << std::endl;
+    shd::smini::multi_smini::sptr smini = shd::smini::multi_smini::make(args);
+    std::cout << boost::format("Using Device: %s") % smini->get_pp_string() << std::endl;
 
    //detect which channels to use
     std::vector<std::string> channel_strings;
@@ -73,7 +73,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     boost::split(channel_strings, channel_list, boost::is_any_of("\"',"));
     for(size_t ch = 0; ch < channel_strings.size(); ch++){
         size_t chan = boost::lexical_cast<int>(channel_strings[ch]);
-        if(chan >= usrp->get_tx_num_channels() or chan >= usrp->get_rx_num_channels()){
+        if(chan >= smini->get_tx_num_channels() or chan >= smini->get_rx_num_channels()){
             throw std::runtime_error("Invalid channel(s) specified.");
         }
         else channel_nums.push_back(boost::lexical_cast<int>(channel_strings[ch]));
@@ -81,30 +81,30 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //set the rx sample rate
     std::cout << boost::format("Setting RX Rate: %f Msps...") % (rate/1e6) << std::endl;
-    usrp->set_rx_rate(rate);
-    std::cout << boost::format("Actual RX Rate: %f Msps...") % (usrp->get_rx_rate()/1e6) << std::endl << std::endl;
+    smini->set_rx_rate(rate);
+    std::cout << boost::format("Actual RX Rate: %f Msps...") % (smini->get_rx_rate()/1e6) << std::endl << std::endl;
 
     std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
-    usrp->set_time_now(uhd::time_spec_t(0.0));
+    smini->set_time_now(shd::time_spec_t(0.0));
 
     //create a receive streamer
-    uhd::stream_args_t stream_args("fc32", wire); //complex floats
+    shd::stream_args_t stream_args("fc32", wire); //complex floats
     stream_args.channels = channel_nums;
-    uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(stream_args);
+    shd::rx_streamer::sptr rx_stream = smini->get_rx_stream(stream_args);
 
     //setup streaming
     std::cout << std::endl;
     std::cout << boost::format(
         "Begin streaming %u samples, %f seconds in the future..."
     ) % total_num_samps % seconds_in_future << std::endl;
-    uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
+    shd::stream_cmd_t stream_cmd(shd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
     stream_cmd.num_samps = total_num_samps;
     stream_cmd.stream_now = false;
-    stream_cmd.time_spec = uhd::time_spec_t(seconds_in_future);
+    stream_cmd.time_spec = shd::time_spec_t(seconds_in_future);
     rx_stream->issue_stream_cmd(stream_cmd);
 
     //meta-data will be filled in by recv()
-    uhd::rx_metadata_t md;
+    shd::rx_metadata_t md;
 
     //allocate buffer to receive with samples
     std::vector<std::complex<float> > buff(rx_stream->get_max_num_samps());
@@ -126,8 +126,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         timeout = 0.1;
 
         //handle the error code
-        if (md.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) break;
-        if (md.error_code != uhd::rx_metadata_t::ERROR_CODE_NONE){
+        if (md.error_code == shd::rx_metadata_t::ERROR_CODE_TIMEOUT) break;
+        if (md.error_code != shd::rx_metadata_t::ERROR_CODE_NONE){
             throw std::runtime_error(str(boost::format(
                 "Receiver error %s"
             ) % md.strerror()));

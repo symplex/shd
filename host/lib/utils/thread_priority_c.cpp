@@ -15,19 +15,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/error.h>
-#include <uhd/utils/thread_priority.h>
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/exception.hpp>
+#include <shd/error.h>
+#include <shd/utils/thread_priority.h>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/exception.hpp>
 #include <boost/format.hpp>
 #include <iostream>
 
-uhd_error uhd_set_thread_priority(
+shd_error shd_set_thread_priority(
     float priority,
     bool realtime
 ){
-    UHD_SAFE_C(
-        uhd::set_thread_priority(priority, realtime);
+    SHD_SAFE_C(
+        shd::set_thread_priority(priority, realtime);
     )
 }

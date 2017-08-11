@@ -16,7 +16,7 @@
 //
 
 #include "convert_common.hpp"
-#include <uhd/utils/byteswap.hpp>
+#include <shd/utils/byteswap.hpp>
 
 #define __DECLARE_ITEM32_CONVERTER(cpu_type, wire_type, xe, htoxx, xxtoh) \
     DECLARE_CONVERTER(cpu_type, 1, wire_type ## _item32_ ## xe, 1, PRIORITY_GENERAL){ \
@@ -31,8 +31,8 @@
     }
 
 #define _DECLARE_ITEM32_CONVERTER(cpu_type, wire_type) \
-    __DECLARE_ITEM32_CONVERTER(cpu_type, wire_type, be, uhd::htonx, uhd::ntohx) \
-    __DECLARE_ITEM32_CONVERTER(cpu_type, wire_type, le, uhd::htowx, uhd::wtohx)
+    __DECLARE_ITEM32_CONVERTER(cpu_type, wire_type, be, shd::htonx, shd::ntohx) \
+    __DECLARE_ITEM32_CONVERTER(cpu_type, wire_type, le, shd::htowx, shd::wtohx)
 
 #define DECLARE_ITEM32_CONVERTER(cpu_type) \
     _DECLARE_ITEM32_CONVERTER(cpu_type, sc8) \

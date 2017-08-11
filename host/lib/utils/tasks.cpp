@@ -15,16 +15,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/tasks.hpp>
-#include <uhd/utils/msg_task.hpp>
-#include <uhd/utils/msg.hpp>
+#include <shd/utils/tasks.hpp>
+#include <shd/utils/msg_task.hpp>
+#include <shd/utils/msg.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/barrier.hpp>
 #include <exception>
 #include <iostream>
 #include <vector>
 
-using namespace uhd;
+using namespace shd;
 
 class task_impl : public task{
 public:
@@ -67,7 +67,7 @@ private:
     }
 
     void do_error_msg(const std::string &msg){
-        UHD_MSG(error)
+        SHD_MSG(error)
             << "An unexpected exception was caught in a task loop." << std::endl
             << "The task loop will now exit, things may not work." << std::endl
             << msg << std::endl
@@ -162,7 +162,7 @@ private:
     }
 
     void do_error_msg(const std::string &msg){
-        UHD_MSG(error)
+        SHD_MSG(error)
             << "An unexpected exception was caught in a task loop." << std::endl
             << "The task loop will now exit, things may not work." << std::endl
             << msg << std::endl

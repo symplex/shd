@@ -18,11 +18,11 @@
 #include <boost/format.hpp>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/types/sid.hpp>
-#include <uhd/utils/cast.hpp>
+#include <shd/exception.hpp>
+#include <shd/types/sid.hpp>
+#include <shd/utils/cast.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 sid_t::sid_t()
     : _sid(0x0000), _set(false)
@@ -97,14 +97,14 @@ void sid_t::set_from_str(const std::string &sid_str)
     }
 
     if (boost::regex_match(sid_str.c_str(), matches, boost::regex(hex_regex))) {
-        set_src_addr(uhd::cast::hexstr_cast<size_t>(matches[1]));
-        set_src_endpoint(uhd::cast::hexstr_cast<size_t>(matches[2]));
-        set_dst_addr(uhd::cast::hexstr_cast<size_t>(matches[3]));
-        set_dst_endpoint(uhd::cast::hexstr_cast<size_t>(matches[4]));
+        set_src_addr(shd::cast::hexstr_cast<size_t>(matches[1]));
+        set_src_endpoint(shd::cast::hexstr_cast<size_t>(matches[2]));
+        set_dst_addr(shd::cast::hexstr_cast<size_t>(matches[3]));
+        set_dst_endpoint(shd::cast::hexstr_cast<size_t>(matches[4]));
         return;
     }
 
-    throw uhd::value_error(str(boost::format("Invalid SID representation: %s") % sid_str));
+    throw shd::value_error(str(boost::format("Invalid SID representation: %s") % sid_str));
 }
 
 void sid_t::set_src(uint32_t new_addr) {

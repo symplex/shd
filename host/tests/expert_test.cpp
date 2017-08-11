@@ -20,10 +20,10 @@
 #include <boost/make_shared.hpp>
 #include "../lib/experts/expert_container.hpp"
 #include "../lib/experts/expert_factory.hpp"
-#include <uhd/property_tree.hpp>
+#include <shd/property_tree.hpp>
 #include <fstream>
 
-using namespace uhd::experts;
+using namespace shd::experts;
 
 class worker1_t : public worker_node_t {
 public:
@@ -172,17 +172,17 @@ private:
 BOOST_AUTO_TEST_CASE(test_experts){
     //Initialize container object
     expert_container::sptr container = expert_factory::create_container("example");
-    uhd::property_tree::sptr tree = uhd::property_tree::make();
+    shd::property_tree::sptr tree = shd::property_tree::make();
 
     //Output of expert tree
     boost::shared_ptr<int> final_output = boost::make_shared<int>();
 
     //Add data nodes to container
-    expert_factory::add_dual_prop_node<int>(container, tree, "A", 0, uhd::experts::AUTO_RESOLVE_ON_WRITE);
+    expert_factory::add_dual_prop_node<int>(container, tree, "A", 0, shd::experts::AUTO_RESOLVE_ON_WRITE);
     expert_factory::add_prop_node<int>(container, tree, "B", 0);
     expert_factory::add_data_node<int>(container, "C", 0);
     expert_factory::add_data_node<int>(container, "D", 1);
-    expert_factory::add_prop_node<int>(container, tree, "E", 0, uhd::experts::AUTO_RESOLVE_ON_READ);
+    expert_factory::add_prop_node<int>(container, tree, "E", 0, shd::experts::AUTO_RESOLVE_ON_READ);
     expert_factory::add_data_node<int>(container, "F", 0);
     expert_factory::add_data_node<int>(container, "G", 0);
 

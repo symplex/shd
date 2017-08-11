@@ -1,0 +1,8 @@
+etc/security/limits.d
+etc/sysctl.d
+usr/bin
+usr/include/shd
+usr/lib
+usr/lib/shd/examples
+usr/lib/shd/tests
+usr/lib/shd/utils

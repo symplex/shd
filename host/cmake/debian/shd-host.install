@@ -1,0 +1,4 @@
+usr/bin
+usr/lib/shd
+usr/share/doc/shd/doxygen /usr/share/doc/shd-host/
+debian/NetworkManager-SMINI /etc/NetworkManager/system-connections/SMINI

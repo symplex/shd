@@ -15,10 +15,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/log.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/utils/static.hpp>
-#include <uhd/utils/paths.hpp>
+#include <shd/utils/log.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/utils/static.hpp>
+#include <shd/utils/paths.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/thread/mutex.hpp>
@@ -37,7 +37,7 @@ namespace ip = boost::interprocess;
  **********************************************************************/
 class log_resource_type{
 public:
-    uhd::_log::verbosity_t level;
+    shd::_log::verbosity_t level;
 
     log_resource_type(void){
 
@@ -45,15 +45,15 @@ public:
         _file_lock = NULL;
 
         //set the default log level
-        level = uhd::_log::never;
+        level = shd::_log::never;
 
         //allow override from macro definition
-        #ifdef UHD_LOG_LEVEL
-        _set_log_level(BOOST_STRINGIZE(UHD_LOG_LEVEL));
+        #ifdef SHD_LOG_LEVEL
+        _set_log_level(BOOST_STRINGIZE(SHD_LOG_LEVEL));
         #endif
 
         //allow override from environment variable
-        const char * log_level_env = std::getenv("UHD_LOG_LEVEL");
+        const char * log_level_env = std::getenv("SHD_LOG_LEVEL");
         if (log_level_env != NULL) _set_log_level(log_level_env);
     }
 
@@ -66,7 +66,7 @@ public:
     void log_to_file(const std::string &log_msg){
         boost::lock_guard<boost::mutex> lock(_mutex);
         if (_file_lock == NULL){
-            const std::string log_path = (fs::path(uhd::get_tmp_path()) / "uhd.log").string();
+            const std::string log_path = (fs::path(shd::get_tmp_path()) / "shd.log").string();
             _file_stream.open(log_path.c_str(), std::fstream::out | std::fstream::app);
             _file_lock = new ip::file_lock(log_path.c_str());
         }
@@ -78,12 +78,12 @@ public:
 private:
     //! set the log level from a string that is either a digit or an enum name
     void _set_log_level(const std::string &log_level_str){
-        const uhd::_log::verbosity_t log_level_num = uhd::_log::verbosity_t(log_level_str[0]-'0');
-        if (std::isdigit(log_level_str[0]) and log_level_num >= uhd::_log::always and log_level_num <= uhd::_log::never){
+        const shd::_log::verbosity_t log_level_num = shd::_log::verbosity_t(log_level_str[0]-'0');
+        if (std::isdigit(log_level_str[0]) and log_level_num >= shd::_log::always and log_level_num <= shd::_log::never){
             this->level = log_level_num;
             return;
         }
-        #define if_lls_equal(name) else if(log_level_str == #name) this->level = uhd::_log::name
+        #define if_lls_equal(name) else if(log_level_str == #name) this->level = shd::_log::name
         if_lls_equal(always);
         if_lls_equal(often);
         if_lls_equal(regularly);
@@ -98,7 +98,7 @@ private:
     boost::mutex _mutex;
 };
 
-UHD_SINGLETON_FCN(log_resource_type, log_rs);
+SHD_SINGLETON_FCN(log_resource_type, log_rs);
 
 /***********************************************************************
  * The logger object implementation
@@ -115,7 +115,7 @@ static std::string get_rel_file_path(const fs::path &file){
 }
 
 
-uhd::_log::log::log(
+shd::_log::log::log(
     const verbosity_t verbosity,
     const std::string &file,
     const unsigned int line,
@@ -140,7 +140,7 @@ uhd::_log::log::log(
     }
 }
 
-uhd::_log::log::~log(void)
+shd::_log::log::~log(void)
 {
     if (not _log_it)
         return;
@@ -157,7 +157,7 @@ uhd::_log::log::~log(void)
          * Therefore we must disable the logger (level = never) before messaging.
          */
         log_rs().level = never;
-        UHD_MSG(error)
+        SHD_MSG(error)
             << "Logging failed: " << e.what() << std::endl
             << "Logging has been disabled for this process" << std::endl
         ;

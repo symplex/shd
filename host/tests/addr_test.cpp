@@ -16,9 +16,9 @@
 //
 
 #include <boost/test/unit_test.hpp>
-#include <uhd/types/mac_addr.hpp>
-#include <uhd/types/device_addr.hpp>
-#include <uhd/usrp/dboard_id.hpp>
+#include <shd/types/mac_addr.hpp>
+#include <shd/types/device_addr.hpp>
+#include <shd/smini/dboard_id.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 #include <algorithm>
@@ -27,7 +27,7 @@
 BOOST_AUTO_TEST_CASE(test_mac_addr){
     std::cout << "Testing mac addr..." << std::endl;
     const std::string mac_addr_str("00:01:23:45:67:89");
-    uhd::mac_addr_t mac_addr = uhd::mac_addr_t::from_string(mac_addr_str);
+    shd::mac_addr_t mac_addr = shd::mac_addr_t::from_string(mac_addr_str);
     std::cout << "Input: " << mac_addr_str << std::endl;
     std::cout << "Output: " << mac_addr.to_string() << std::endl;
     BOOST_CHECK_EQUAL(mac_addr_str, mac_addr.to_string());
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(test_device_addr){
     std::cout << "Testing device addr..." << std::endl;
 
     //load the device address with something
-    uhd::device_addr_t dev_addr;
+    shd::device_addr_t dev_addr;
     dev_addr["key1"] = "val1";
     dev_addr["key1"] = "val1";
     dev_addr["key3"] = "";
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(test_device_addr){
     std::cout << "Pretty Print: " << std::endl << dev_addr.to_pp_string();
     std::string args_str = dev_addr.to_string();
     std::cout << "Args String: " << args_str << std::endl;
-    uhd::device_addr_t new_dev_addr(args_str);
+    shd::device_addr_t new_dev_addr(args_str);
 
     //they should be the same size
     BOOST_REQUIRE_EQUAL(dev_addr.size(), new_dev_addr.size());
@@ -67,8 +67,8 @@ BOOST_AUTO_TEST_CASE(test_device_addr){
         new_dev_addr_vals.begin(), new_dev_addr_vals.end()
     );
 
-    uhd::device_addr_t dev_addr_lhs1("key1=val1,key2=val2");
-    dev_addr_lhs1.update(uhd::device_addr_t("key2=val2x,key3=val3"), false);
+    shd::device_addr_t dev_addr_lhs1("key1=val1,key2=val2");
+    dev_addr_lhs1.update(shd::device_addr_t("key2=val2x,key3=val3"), false);
     BOOST_CHECK_EQUAL(dev_addr_lhs1["key1"], "val1");
     BOOST_CHECK_EQUAL(dev_addr_lhs1["key2"], "val2x");
     BOOST_CHECK_EQUAL(dev_addr_lhs1["key3"], "val3");
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(test_device_addr){
 BOOST_AUTO_TEST_CASE(test_dboard_id){
     std::cout << "Testing dboard id..." << std::endl;
 
-    using namespace uhd::usrp;
+    using namespace shd::smini;
 
     BOOST_CHECK(dboard_id_t() == dboard_id_t::none());
     BOOST_CHECK_EQUAL(dboard_id_t().to_uint16(), dboard_id_t::none().to_uint16());

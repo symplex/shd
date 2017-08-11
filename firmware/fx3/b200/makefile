@@ -2,7 +2,7 @@
 # Copyright 2013-2014 Ettus Research LLC
 #
 
-HEX_OUT = usrp_b200_fw.hex
+HEX_OUT = smini_b200_fw.hex
 
 all:$(HEX_OUT)
 

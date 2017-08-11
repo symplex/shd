@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-namespace uhd {
+namespace shd {
 
 class ihex_reader
 {
@@ -43,7 +43,7 @@ public:
      *
      * \param record_handler The functor that will handle the records.
      *
-     * \throws uhd::io_error if the HEX file is corrupted or unreadable.
+     * \throws shd::io_error if the HEX file is corrupted or unreadable.
      */
     void read(record_handle_type record_handler);
 
@@ -54,7 +54,7 @@ public:
      *
      * \param bin_filename Output filename.
      *
-     * \throws uhd::io_error if the HEX file is corrupted or unreadable.
+     * \throws shd::io_error if the HEX file is corrupted or unreadable.
      */
     void to_bin_file(const std::string &bin_filename);
 
@@ -65,7 +65,7 @@ public:
      * *Note:* This function makes the assumption that the hex file is
      * contiguous, and starts at address zero.
      *
-     * \throws uhd::io_error if the HEX file is corrupted or unreadable.
+     * \throws shd::io_error if the HEX file is corrupted or unreadable.
      */
     std::vector<uint8_t> to_vector(const size_t size_estimate = 0);
 
@@ -73,7 +73,7 @@ private:
     const std::string _ihex_filename;
 };
 
-}; /* namespace uhd */
+}; /* namespace shd */
 
 #endif /* INCLUDED_IHEX_READER_HPP */
 

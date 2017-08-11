@@ -23,7 +23,7 @@
 #ifndef INCLUDED_SPI_H
 #define INCLUDED_SPI_H
 
-#include "usrp_spi_defs.h"
+#include "smini_spi_defs.h"
 
 void init_spi (void);		// one time call to init
 

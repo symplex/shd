@@ -16,10 +16,10 @@
 //
 
 #include "libusb1_base.hpp"
-#include <uhd/transport/usb_control.hpp>
+#include <shd/transport/usb_control.hpp>
 #include <boost/thread/mutex.hpp>
 
-using namespace uhd::transport;
+using namespace shd::transport;
 
 usb_control::~usb_control(void){
     /* NOP */

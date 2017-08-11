@@ -15,10 +15,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/rfnoc/rate_node_ctrl.hpp>
+#include <shd/rfnoc/rate_node_ctrl.hpp>
 #include <boost/bind.hpp>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 const double rate_node_ctrl::RATE_UNDEFINED = -1.0;
 
@@ -42,8 +42,8 @@ double rate_node_ctrl::get_input_samp_rate(
                 boost::bind(_get_input_samp_rate, _1, _2),
                 RATE_UNDEFINED
         );
-    } catch (const uhd::runtime_error &ex) {
-        throw uhd::runtime_error(str(
+    } catch (const shd::runtime_error &ex) {
+        throw shd::runtime_error(str(
             boost::format("Multiple sampling rates downstream of %s: %s.")
             % unique_id() % ex.what()
         ));
@@ -58,8 +58,8 @@ double rate_node_ctrl::get_output_samp_rate(
                 boost::bind(_get_output_samp_rate, _1, _2),
                 RATE_UNDEFINED
         );
-    } catch (const uhd::runtime_error &ex) {
-        throw uhd::runtime_error(str(
+    } catch (const shd::runtime_error &ex) {
+        throw shd::runtime_error(str(
             boost::format("Multiple sampling rates upstream of %s: %s.")
             % unique_id() % ex.what()
         ));

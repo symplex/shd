@@ -18,21 +18,21 @@
 #ifndef INCLUDED_TEST_GRAPH_HPP
 #define INCLUDED_TEST_GRAPH_HPP
 
-#include <uhd/rfnoc/node_ctrl_base.hpp>
-#include <uhd/rfnoc/sink_node_ctrl.hpp>
-#include <uhd/rfnoc/source_node_ctrl.hpp>
+#include <shd/rfnoc/node_ctrl_base.hpp>
+#include <shd/rfnoc/sink_node_ctrl.hpp>
+#include <shd/rfnoc/source_node_ctrl.hpp>
 
 #define MAKE_NODE(name) test_node::sptr name(new test_node(#name));
 
 // Smallest possible test class
-class test_node : virtual public uhd::rfnoc::sink_node_ctrl, virtual public uhd::rfnoc::source_node_ctrl
+class test_node : virtual public shd::rfnoc::sink_node_ctrl, virtual public shd::rfnoc::source_node_ctrl
 {
 public:
     typedef boost::shared_ptr<test_node> sptr;
 
     test_node(const std::string &test_id) : _test_id(test_id) {};
 
-    void issue_stream_cmd(const uhd::stream_cmd_t &, const size_t) {/* nop */};
+    void issue_stream_cmd(const shd::stream_cmd_t &, const size_t) {/* nop */};
 
     std::string get_test_id() const { return _test_id; };
 
@@ -41,7 +41,7 @@ private:
 
 }; /* class test_node */
 
-void connect_nodes(uhd::rfnoc::source_node_ctrl::sptr A, uhd::rfnoc::sink_node_ctrl::sptr B)
+void connect_nodes(shd::rfnoc::source_node_ctrl::sptr A, shd::rfnoc::sink_node_ctrl::sptr B)
 {
     const size_t actual_src_port = A->connect_downstream(B);
     const size_t actual_dst_port = B->connect_upstream(A);

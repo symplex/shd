@@ -15,11 +15,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/rfnoc/node_ctrl_base.hpp>
-#include <uhd/utils/msg.hpp>
+#include <shd/rfnoc/node_ctrl_base.hpp>
+#include <shd/utils/msg.hpp>
 #include <boost/range/adaptor/map.hpp>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 std::string node_ctrl_base::unique_id() const
 {
@@ -30,7 +30,7 @@ std::string node_ctrl_base::unique_id() const
 
 void node_ctrl_base::clear()
 {
-    UHD_RFNOC_BLOCK_TRACE() << "node_ctrl_base::clear() " << std::endl;
+    SHD_RFNOC_BLOCK_TRACE() << "node_ctrl_base::clear() " << std::endl;
     // Reset connections:
     _upstream_nodes.clear();
     _downstream_nodes.clear();
@@ -40,14 +40,14 @@ void node_ctrl_base::_register_downstream_node(
     node_ctrl_base::sptr,
     size_t
 ) {
-    throw uhd::runtime_error("Attempting to register a downstream block on a non-source node.");
+    throw shd::runtime_error("Attempting to register a downstream block on a non-source node.");
 }
 
 void node_ctrl_base::_register_upstream_node(
     node_ctrl_base::sptr,
     size_t
 ) {
-    throw uhd::runtime_error("Attempting to register an upstream block on a non-sink node.");
+    throw shd::runtime_error("Attempting to register an upstream block on a non-sink node.");
 }
 
 void node_ctrl_base::set_downstream_port(
@@ -55,7 +55,7 @@ void node_ctrl_base::set_downstream_port(
         const size_t remote_port
 ) {
     if (not _downstream_nodes.count(this_port) and remote_port != ANY_PORT) {
-        throw uhd::value_error(str(
+        throw shd::value_error(str(
             boost::format("[%s] Cannot set remote downstream port: Port %d not connected.")
             % unique_id() % this_port
         ));
@@ -68,7 +68,7 @@ size_t node_ctrl_base::get_downstream_port(const size_t this_port)
     if (not _downstream_ports.count(this_port)
         or not _downstream_nodes.count(this_port)
         or _downstream_ports[this_port] == ANY_PORT) {
-        throw uhd::value_error(str(
+        throw shd::value_error(str(
             boost::format("[%s] Cannot retrieve remote downstream port: Port %d not connected.")
             % unique_id() % this_port
         ));
@@ -81,7 +81,7 @@ void node_ctrl_base::set_upstream_port(
         const size_t remote_port
 ) {
     if (not _upstream_nodes.count(this_port) and remote_port != ANY_PORT) {
-        throw uhd::value_error(str(
+        throw shd::value_error(str(
             boost::format("[%s] Cannot set remote upstream port: Port %d not connected.")
             % unique_id() % this_port
         ));
@@ -94,7 +94,7 @@ size_t node_ctrl_base::get_upstream_port(const size_t this_port)
     if (not _upstream_ports.count(this_port)
         or not _upstream_nodes.count(this_port)
         or _upstream_ports[this_port] == ANY_PORT) {
-        throw uhd::value_error(str(
+        throw shd::value_error(str(
             boost::format("[%s] Cannot retrieve remote upstream port: Port %d not connected.")
             % unique_id() % this_port
         ));
@@ -132,7 +132,7 @@ void node_ctrl_base::disconnect_output_port(const size_t output_port)
 {
     if (_downstream_nodes.count(output_port) == 0 or
         _downstream_ports.count(output_port) == 0) {
-        throw uhd::assertion_error(str(boost::format("[%s] Attempting to disconnect output port %u, which is not registered as connected!") % unique_id() % output_port));
+        throw shd::assertion_error(str(boost::format("[%s] Attempting to disconnect output port %u, which is not registered as connected!") % unique_id() % output_port));
     }
     _downstream_nodes.erase(output_port);
     _downstream_ports.erase(output_port);
@@ -142,7 +142,7 @@ void node_ctrl_base::disconnect_input_port(const size_t input_port)
 {
     if (_upstream_nodes.count(input_port) == 0 or
         _upstream_ports.count(input_port) == 0) {
-        throw uhd::assertion_error(str(boost::format("[%s] Attempting to disconnect input port %u, which is not registered as connected!") % unique_id() % input_port));
+        throw shd::assertion_error(str(boost::format("[%s] Attempting to disconnect input port %u, which is not registered as connected!") % unique_id() % input_port));
     }
     _upstream_nodes.erase(input_port);
     _upstream_ports.erase(input_port);

@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/rfnoc/tick_node_ctrl.hpp>
+#include <shd/rfnoc/tick_node_ctrl.hpp>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 const double tick_node_ctrl::RATE_UNDEFINED = 0;
 
@@ -61,7 +61,7 @@ double tick_node_ctrl::get_tick_rate(
             continue;
         }
         if (tick_rate != ret_val) {
-            throw uhd::runtime_error(
+            throw shd::runtime_error(
                 str(
                     // TODO add node names
                     boost::format("Conflicting tick rates: One neighbouring block specifies %d MHz, another %d MHz.")

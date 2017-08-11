@@ -20,10 +20,10 @@
 #include <boost/function.hpp>
 #include <vector>
 
-#ifndef INCLUDED_LIBUHD_RFNOC_NOCSCRIPT_FUNCTABLE_HPP
-#define INCLUDED_LIBUHD_RFNOC_NOCSCRIPT_FUNCTABLE_HPP
+#ifndef INCLUDED_LIBSHD_RFNOC_NOCSCRIPT_FUNCTABLE_HPP
+#define INCLUDED_LIBSHD_RFNOC_NOCSCRIPT_FUNCTABLE_HPP
 
-namespace uhd { namespace rfnoc { namespace nocscript {
+namespace shd { namespace rfnoc { namespace nocscript {
 
 class function_table
 {
@@ -52,7 +52,7 @@ class function_table
     /*! Get the return type of a function with given name and argument type list
      *
      * \returns The function's return type
-     * \throws uhd::syntax_error if no such function is registered
+     * \throws shd::syntax_error if no such function is registered
      */
     virtual expression::type_t get_type(
             const std::string &name,
@@ -64,7 +64,7 @@ class function_table
      * \param arg_types A list of types for each argument
      * \param arguments An expression list of the arguments
      * \returns The return value of the called function
-     * \throws uhd::syntax_error if no such function is found
+     * \throws shd::syntax_error if no such function is found
      */
     virtual expression_literal eval(
             const std::string &name,
@@ -87,7 +87,7 @@ class function_table
     ) = 0;
 };
 
-}}} /* namespace uhd::rfnoc::nocscript */
+}}} /* namespace shd::rfnoc::nocscript */
 
-#endif /* INCLUDED_LIBUHD_RFNOC_NOCSCRIPT_FUNCTABLE_HPP */
+#endif /* INCLUDED_LIBSHD_RFNOC_NOCSCRIPT_FUNCTABLE_HPP */
 // vim: sw=4 et:

@@ -21,28 +21,28 @@
 #include <boost/program_options.hpp>
 #include <boost/thread/thread.hpp>
 
-#include <uhd/device.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/usrp_clock/multi_usrp_clock.hpp>
-#include <uhd/types/time_spec.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/utils/thread_priority.hpp>
+#include <shd/device.hpp>
+#include <shd/exception.hpp>
+#include <shd/smini_clock/multi_smini_clock.hpp>
+#include <shd/types/time_spec.hpp>
+#include <shd/smini/multi_smini.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/utils/thread_priority.hpp>
 
 namespace po = boost::program_options;
 
-using namespace uhd::usrp_clock;
-using namespace uhd::usrp;
+using namespace shd::smini_clock;
+using namespace shd::smini;
 
-void get_usrp_time(multi_usrp::sptr usrp, size_t mboard, std::vector<time_t> *times){
-    (*times)[mboard] = usrp->get_time_now(mboard).get_full_secs();
+void get_smini_time(multi_smini::sptr smini, size_t mboard, std::vector<time_t> *times){
+    (*times)[mboard] = smini->get_time_now(mboard).get_full_secs();
 }
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+int SHD_SAFE_MAIN(int argc, char *argv[]){
+    shd::set_thread_priority_safe();
 
     //Variables to be set by command line options
-    std::string clock_args, usrp_args;
+    std::string clock_args, smini_args;
     uint32_t max_interval, num_tests;
 
     //Set up program options
@@ -50,7 +50,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     desc.add_options()
         ("help", "Display this help message")
         ("clock-args", po::value<std::string>(&clock_args), "Clock device arguments")
-        ("usrp-args", po::value<std::string>(&usrp_args), "USRP device arguments")
+        ("smini-args", po::value<std::string>(&smini_args), "SMINI device arguments")
         ("max-interval", po::value<uint32_t>(&max_interval)->default_value(10000), "Maximum interval between comparisons (in ms)")
         ("num-tests", po::value<uint32_t>(&num_tests)->default_value(10), "Number of times to compare device times")
     ;
@@ -63,48 +63,48 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         std::cout << std::endl << "Test Clock Synchronization" << std::endl << std::endl;
 
         std::cout << "This example shows how to use a clock device to" << std::endl
-                  << "synchronize the time on multiple USRP devices." << std::endl << std::endl;
+                  << "synchronize the time on multiple SMINI devices." << std::endl << std::endl;
 
         std::cout << desc << std::endl;
         return EXIT_SUCCESS;
     }
 
-    //Create a Multi-USRP-Clock device (currently OctoClock only)
+    //Create a Multi-SMINI-Clock device (currently OctoClock only)
     std::cout << boost::format("\nCreating the Clock device with: %s") % clock_args << std::endl;
-    multi_usrp_clock::sptr clock = multi_usrp_clock::make(clock_args);
+    multi_smini_clock::sptr clock = multi_smini_clock::make(clock_args);
 
     //Make sure Clock configuration is correct
     if(clock->get_sensor("gps_detected").value == "false"){
-        throw uhd::runtime_error("No GPSDO detected on Clock.");
+        throw shd::runtime_error("No GPSDO detected on Clock.");
     }
     if(clock->get_sensor("using_ref").value != "internal"){
-        throw uhd::runtime_error("Clock must be using an internal reference.");
+        throw shd::runtime_error("Clock must be using an internal reference.");
     }
 
-    //Create a Multi-USRP device
-    std::cout << boost::format("\nCreating the USRP device with: %s") % usrp_args << std::endl;
-    multi_usrp::sptr usrp = multi_usrp::make(usrp_args);
+    //Create a Multi-SMINI device
+    std::cout << boost::format("\nCreating the SMINI device with: %s") % smini_args << std::endl;
+    multi_smini::sptr smini = multi_smini::make(smini_args);
 
-    //Store USRP device serials for useful output
+    //Store SMINI device serials for useful output
     std::vector<std::string> serials;
-    for(size_t ch = 0; ch < usrp->get_num_mboards(); ch++){
-        serials.push_back(usrp->get_usrp_tx_info(ch)["mboard_serial"]);
+    for(size_t ch = 0; ch < smini->get_num_mboards(); ch++){
+        serials.push_back(smini->get_smini_tx_info(ch)["mboard_serial"]);
     }
 
-    std::cout << std::endl << "Checking USRP devices for lock." << std::endl;
+    std::cout << std::endl << "Checking SMINI devices for lock." << std::endl;
     bool all_locked = true;
-    for(size_t ch = 0; ch < usrp->get_num_mboards(); ch++){
-        std::string ref_locked = usrp->get_mboard_sensor("ref_locked",ch).value;
+    for(size_t ch = 0; ch < smini->get_num_mboards(); ch++){
+        std::string ref_locked = smini->get_mboard_sensor("ref_locked",ch).value;
         std::cout << boost::format(" * %s: %s") % serials[ch] % ref_locked << std::endl;
 
         if(ref_locked != "true") all_locked = false;
     }
     if(not all_locked) std::cout << std::endl << "WARNING: One or more devices not locked." << std::endl;
 
-    //Get GPS time to initially set USRP devices
-    std::cout << std::endl << "Querying Clock for time and setting USRP times..." << std::endl << std::endl;
+    //Get GPS time to initially set SMINI devices
+    std::cout << std::endl << "Querying Clock for time and setting SMINI times..." << std::endl << std::endl;
     time_t clock_time = clock->get_time();
-    usrp->set_time_next_pps(uhd::time_spec_t(double(clock_time+1)));
+    smini->set_time_next_pps(shd::time_spec_t(double(clock_time+1)));
     srand((unsigned int)time(NULL));
 
     std::cout << boost::format("Running %d comparisons at random intervals.") % num_tests << std::endl;
@@ -115,11 +115,11 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         boost::this_thread::sleep(boost::posix_time::milliseconds(wait_time));
 
         //Get all times before output
-        std::vector<time_t> usrp_times(usrp->get_num_mboards());
+        std::vector<time_t> smini_times(smini->get_num_mboards());
         boost::thread_group thread_group;
         clock_time = clock->get_time();
-        for(size_t j = 0; j < usrp->get_num_mboards(); j++){
-            thread_group.create_thread(boost::bind(&get_usrp_time, usrp, j, &usrp_times));
+        for(size_t j = 0; j < smini->get_num_mboards(); j++){
+            thread_group.create_thread(boost::bind(&get_smini_time, smini, j, &smini_times));
         }
         //Wait for threads to complete
         thread_group.join_all();
@@ -127,9 +127,9 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         std::cout << boost::format("Comparison #%d") % (i+1) << std::endl;
         bool all_match = true;
         std::cout << boost::format(" * Clock time: %d") % clock_time << std::endl;
-        for(size_t j = 0; j < usrp->get_num_mboards(); j++){
-            std::cout << boost::format(" * %s time: %d") % serials[j] % usrp_times[j] << std::endl;
-            if(usrp_times[j] != clock_time) all_match = false;
+        for(size_t j = 0; j < smini->get_num_mboards(); j++){
+            std::cout << boost::format(" * %s time: %d") % serials[j] % smini_times[j] << std::endl;
+            if(smini_times[j] != clock_time) all_match = false;
         }
         if(all_match) num_matches++;
     }

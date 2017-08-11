@@ -20,15 +20,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "usrp_common.h"
-#include "usrp_commands.h"
+#include "smini_common.h"
+#include "smini_commands.h"
 
 /*
  * the host side fpga loader code pushes an MD5 hash of the bitstream
  * into hash1.
  */
-#define	  USRP_HASH_SIZE      16
-xdata at USRP_HASH_SLOT_0_ADDR unsigned char hash0[USRP_HASH_SIZE];
+#define	  SMINI_HASH_SIZE      16
+xdata at SMINI_HASH_SLOT_0_ADDR unsigned char hash0[SMINI_HASH_SIZE];
 
 
 #define REG_RX_PWR_DN		 1
@@ -56,15 +56,15 @@ void eeprom_init (void)
   // USBCS &= ~bmRENUM;		// chip firmware handles commands
   USBCS = 0;			// chip firmware handles commands
 
-  //USRP_PC &= ~bmPC_nRESET;	// active low reset
-  //USRP_PC |=  bmPC_nRESET;
+  //SMINI_PC &= ~bmPC_nRESET;	// active low reset
+  //SMINI_PC |=  bmPC_nRESET;
 
   // zero firmware hash slot
   i = 0;
   do {
     hash0[i] = 0;
     i++;
-  } while (i != USRP_HASH_SIZE);
+  } while (i != SMINI_HASH_SIZE);
 
   counter = 0;
   while (1){

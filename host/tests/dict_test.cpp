@@ -16,11 +16,11 @@
 //
 
 #include <boost/test/unit_test.hpp>
-#include <uhd/types/dict.hpp>
+#include <shd/types/dict.hpp>
 #include <boost/assign/list_of.hpp>
 
 BOOST_AUTO_TEST_CASE(test_dict_init){
-    uhd::dict<int, int> d;
+    shd::dict<int, int> d;
     d[-1] = 3;
     d[0] = 4;
     d[1] = 5;
@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(test_dict_init){
 }
 
 BOOST_AUTO_TEST_CASE(test_dict_assign){
-    uhd::dict<int, int> d = boost::assign::map_list_of
+    shd::dict<int, int> d = boost::assign::map_list_of
         (-1, 3)
         (0, 4)
         (1, 5)
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(test_dict_assign){
 }
 
 BOOST_AUTO_TEST_CASE(test_const_dict){
-    const uhd::dict<int, int> d = boost::assign::map_list_of
+    const shd::dict<int, int> d = boost::assign::map_list_of
         (-1, 3)
         (0, 4)
         (1, 5)
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(test_const_dict){
 }
 
 BOOST_AUTO_TEST_CASE(test_dict_pop){
-    uhd::dict<int, int> d = boost::assign::map_list_of
+    shd::dict<int, int> d = boost::assign::map_list_of
         (-1, 3)
         (0, 4)
         (1, 5)
@@ -73,11 +73,11 @@ BOOST_AUTO_TEST_CASE(test_dict_pop){
 
 BOOST_AUTO_TEST_CASE(test_dict_update)
 {
-    uhd::dict<std::string, std::string> d1 = boost::assign::map_list_of
+    shd::dict<std::string, std::string> d1 = boost::assign::map_list_of
         ("key1", "val1")
         ("key2", "val2")
     ;
-    uhd::dict<std::string, std::string> d2 = boost::assign::map_list_of
+    shd::dict<std::string, std::string> d2 = boost::assign::map_list_of
         ("key2", "val2x")
         ("key3", "val3")
     ;
@@ -87,11 +87,11 @@ BOOST_AUTO_TEST_CASE(test_dict_update)
     BOOST_CHECK_EQUAL(d1["key2"], "val2x");
     BOOST_CHECK_EQUAL(d1["key3"], "val3");
 
-    uhd::dict<std::string, std::string> d3 = boost::assign::map_list_of
+    shd::dict<std::string, std::string> d3 = boost::assign::map_list_of
         ("key1", "val1")
         ("key2", "val2")
     ;
-    BOOST_CHECK_THROW(d3.update(d2), uhd::value_error);
+    BOOST_CHECK_THROW(d3.update(d2), shd::value_error);
 }
 
 

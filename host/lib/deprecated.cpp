@@ -2,14 +2,14 @@
 //-- deprecated interfaces below, to be removed when the API is changed
 //----------------------------------------------------------------------
 
-#include <uhd/types/otw_type.hpp>
-#include <uhd/types/io_type.hpp>
+#include <shd/types/otw_type.hpp>
+#include <shd/types/io_type.hpp>
 #include <stdint.h>
 #include <stdexcept>
 #include <complex>
 #include <vector>
 
-using namespace uhd;
+using namespace shd;
 
 /***********************************************************************
  * otw type
@@ -52,9 +52,9 @@ io_type_t::io_type_t(size_t size):
     /* NOP */
 }
 
-#include <uhd/types/clock_config.hpp>
+#include <shd/types/clock_config.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 clock_config_t clock_config_t::external(void){
     clock_config_t clock_config;

@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/smini/multi_smini.hpp>
 #include <boost/format.hpp>
 #include <boost/program_options.hpp>
 #include <boost/thread.hpp>
@@ -35,9 +35,9 @@ void print_notes(void)
     std::cout << boost::format("****************************************************************************************************************\n");
 }
 
-int UHD_SAFE_MAIN(int argc, char *argv[])
+int SHD_SAFE_MAIN(int argc, char *argv[])
 {
-    uhd::set_thread_priority_safe();
+    shd::set_thread_priority_safe();
 
     std::string args;
 
@@ -45,7 +45,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[])
     po::options_description desc("Allowed options");
     desc.add_options()
     ("help", "help message")
-    ("args", po::value<std::string>(&args)->default_value(""), "USRP device arguments")
+    ("args", po::value<std::string>(&args)->default_value(""), "SMINI device arguments")
     ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -54,40 +54,40 @@ int UHD_SAFE_MAIN(int argc, char *argv[])
     //Print the help message
     if (vm.count("help"))
     {
-        std::cout << boost::format("Synchronize USRP to GPS %s") % desc << std::endl;
+        std::cout << boost::format("Synchronize SMINI to GPS %s") % desc << std::endl;
         return EXIT_FAILURE;
     }
 
-    //Create a USRP device
-    std::cout << boost::format("\nCreating the USRP device with: %s...\n") % args;
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
-    std::cout << boost::format("Using Device: %s\n") % usrp->get_pp_string();
+    //Create a SMINI device
+    std::cout << boost::format("\nCreating the SMINI device with: %s...\n") % args;
+    shd::smini::multi_smini::sptr smini = shd::smini::multi_smini::make(args);
+    std::cout << boost::format("Using Device: %s\n") % smini->get_pp_string();
 
     try
     {
-        size_t num_mboards = usrp->get_num_mboards();
+        size_t num_mboards = smini->get_num_mboards();
         size_t num_gps_locked = 0;
         for (size_t mboard = 0; mboard < num_mboards; mboard++)
         {
-            std::cout << "Synchronizing mboard " << mboard << ": " << usrp->get_mboard_name(mboard) << std::endl;
+            std::cout << "Synchronizing mboard " << mboard << ": " << smini->get_mboard_name(mboard) << std::endl;
 
             //Set references to GPSDO
-            usrp->set_clock_source("gpsdo", mboard);
-            usrp->set_time_source("gpsdo", mboard);
+            smini->set_clock_source("gpsdo", mboard);
+            smini->set_time_source("gpsdo", mboard);
 
             std::cout << std::endl;
             print_notes();
             std::cout << std::endl;
 
             //Check for 10 MHz lock
-            std::vector<std::string> sensor_names = usrp->get_mboard_sensor_names(mboard);
+            std::vector<std::string> sensor_names = smini->get_mboard_sensor_names(mboard);
             if(std::find(sensor_names.begin(), sensor_names.end(), "ref_locked") != sensor_names.end())
             {
                 std::cout << "Waiting for reference lock..." << std::flush;
                 bool ref_locked = false;
                 for (int i = 0; i < 30 and not ref_locked; i++)
                 {
-                    ref_locked = usrp->get_mboard_sensor("ref_locked", mboard).to_bool();
+                    ref_locked = smini->get_mboard_sensor("ref_locked", mboard).to_bool();
                     if (not ref_locked)
                     {
                         std::cout << "." << std::flush;
@@ -109,7 +109,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[])
             }
 
             //Wait for GPS lock
-            bool gps_locked = usrp->get_mboard_sensor("gps_locked", mboard).to_bool();
+            bool gps_locked = smini->get_mboard_sensor("gps_locked", mboard).to_bool();
             if(gps_locked)
             {
                 num_gps_locked++;
@@ -121,8 +121,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[])
             }
 
             //Set to GPS time
-            uhd::time_spec_t gps_time = uhd::time_spec_t(time_t(usrp->get_mboard_sensor("gps_time", mboard).to_int()));
-            usrp->set_time_next_pps(gps_time+1.0, mboard);
+            shd::time_spec_t gps_time = shd::time_spec_t(time_t(smini->get_mboard_sensor("gps_time", mboard).to_int()));
+            smini->set_time_next_pps(gps_time+1.0, mboard);
 
             //Wait for it to apply
             //The wait is 2 seconds because N-Series has a known issue where
@@ -131,22 +131,22 @@ int UHD_SAFE_MAIN(int argc, char *argv[])
             boost::this_thread::sleep(boost::posix_time::seconds(2));
 
             //Check times
-            gps_time = uhd::time_spec_t(time_t(usrp->get_mboard_sensor("gps_time", mboard).to_int()));
-            uhd::time_spec_t time_last_pps = usrp->get_time_last_pps(mboard);
-            std::cout << "USRP time: " << (boost::format("%0.9f") % time_last_pps.get_real_secs()) << std::endl;
+            gps_time = shd::time_spec_t(time_t(smini->get_mboard_sensor("gps_time", mboard).to_int()));
+            shd::time_spec_t time_last_pps = smini->get_time_last_pps(mboard);
+            std::cout << "SMINI time: " << (boost::format("%0.9f") % time_last_pps.get_real_secs()) << std::endl;
             std::cout << "GPSDO time: " << (boost::format("%0.9f") % gps_time.get_real_secs()) << std::endl;
             if (gps_time.get_real_secs() == time_last_pps.get_real_secs())
-                std::cout << std::endl << "SUCCESS: USRP time synchronized to GPS time" << std::endl << std::endl;
+                std::cout << std::endl << "SUCCESS: SMINI time synchronized to GPS time" << std::endl << std::endl;
             else
-                std::cerr << std::endl << "ERROR: Failed to synchronize USRP time to GPS time" << std::endl << std::endl;
+                std::cerr << std::endl << "ERROR: Failed to synchronize SMINI time to GPS time" << std::endl << std::endl;
         }
 
         if (num_gps_locked == num_mboards and num_mboards > 1)
         {
-            //Check to see if all USRP times are aligned
+            //Check to see if all SMINI times are aligned
             //First, wait for PPS.
-            uhd::time_spec_t time_last_pps = usrp->get_time_last_pps();
-            while (time_last_pps == usrp->get_time_last_pps())
+            shd::time_spec_t time_last_pps = smini->get_time_last_pps();
+            while (time_last_pps == smini->get_time_last_pps())
             {
                 boost::this_thread::sleep(boost::posix_time::milliseconds(1));
             }
@@ -156,14 +156,14 @@ int UHD_SAFE_MAIN(int argc, char *argv[])
 
             //Compare times across all mboards
             bool all_matched = true;
-            uhd::time_spec_t mboard0_time = usrp->get_time_last_pps(0);
+            shd::time_spec_t mboard0_time = smini->get_time_last_pps(0);
             for (size_t mboard = 1; mboard < num_mboards; mboard++)
             {
-                uhd::time_spec_t mboard_time = usrp->get_time_last_pps(mboard);
+                shd::time_spec_t mboard_time = smini->get_time_last_pps(mboard);
                 if (mboard_time != mboard0_time)
                 {
                     all_matched = false;
-                    std::cerr << (boost::format("ERROR: Times are not aligned: USRP 0=%0.9f, USRP %d=%0.9f")
+                    std::cerr << (boost::format("ERROR: Times are not aligned: SMINI 0=%0.9f, SMINI %d=%0.9f")
                                   % mboard0_time.get_real_secs()
                                   % mboard
                                   % mboard_time.get_real_secs()) << std::endl;
@@ -171,9 +171,9 @@ int UHD_SAFE_MAIN(int argc, char *argv[])
             }
             if (all_matched)
             {
-                std::cout << "SUCCESS: USRP times aligned" << std::endl << std::endl;
+                std::cout << "SUCCESS: SMINI times aligned" << std::endl << std::endl;
             } else {
-                std::cout << "ERROR: USRP times are not aligned" << std::endl << std::endl;
+                std::cout << "ERROR: SMINI times are not aligned" << std::endl << std::endl;
             }
         }
     }
@@ -184,7 +184,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[])
         std::cout << boost::format("Visit one of these pages if the problem persists:\n");
         std::cout << boost::format(" * N2X0/E1X0: http://files.ettus.com/manual/page_gpsdo.html");
         std::cout << boost::format(" * X3X0: http://files.ettus.com/manual/page_gpsdo_x3x0.html\n\n");
-        std::cout << boost::format(" * E3X0: http://files.ettus.com/manual/page_usrp_e3x0.html#e3x0_hw_gps\n\n");
+        std::cout << boost::format(" * E3X0: http://files.ettus.com/manual/page_smini_e3x0.html#e3x0_hw_gps\n\n");
         exit(EXIT_FAILURE);
     }
 

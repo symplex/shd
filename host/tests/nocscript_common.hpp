@@ -18,7 +18,7 @@
 #include "../lib/rfnoc/nocscript/expression.hpp"
 #include <boost/assign/list_of.hpp>
 
-using namespace uhd::rfnoc::nocscript;
+using namespace shd::rfnoc::nocscript;
 
 // Some global defs to make tests easier to write
 expression_function::argtype_list_type one_int_arg  = boost::assign::list_of(expression::TYPE_INT);

@@ -16,11 +16,11 @@
 //
 
 #include "convert_common.hpp"
-#include <uhd/utils/byteswap.hpp>
+#include <shd/utils/byteswap.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <vector>
 
-using namespace uhd::convert;
+using namespace shd::convert;
 
 static const size_t sc16_table_len = size_t(1 << 16);
 
@@ -180,43 +180,43 @@ private:
 #endif
 
 static converter::sptr make_convert_sc16_item32_be_1_to_fc32_1(void){
-    return converter::sptr(new convert_sc16_item32_1_to_fcxx_1<float, uhd::ntohx, SHIFT_PAIR0>());
+    return converter::sptr(new convert_sc16_item32_1_to_fcxx_1<float, shd::ntohx, SHIFT_PAIR0>());
 }
 
 static converter::sptr make_convert_sc16_item32_be_1_to_fc64_1(void){
-    return converter::sptr(new convert_sc16_item32_1_to_fcxx_1<double, uhd::ntohx, SHIFT_PAIR0>());
+    return converter::sptr(new convert_sc16_item32_1_to_fcxx_1<double, shd::ntohx, SHIFT_PAIR0>());
 }
 
 static converter::sptr make_convert_sc16_item32_le_1_to_fc32_1(void){
-    return converter::sptr(new convert_sc16_item32_1_to_fcxx_1<float, uhd::wtohx, SHIFT_PAIR1>());
+    return converter::sptr(new convert_sc16_item32_1_to_fcxx_1<float, shd::wtohx, SHIFT_PAIR1>());
 }
 
 static converter::sptr make_convert_sc16_item32_le_1_to_fc64_1(void){
-    return converter::sptr(new convert_sc16_item32_1_to_fcxx_1<double, uhd::wtohx, SHIFT_PAIR1>());
+    return converter::sptr(new convert_sc16_item32_1_to_fcxx_1<double, shd::wtohx, SHIFT_PAIR1>());
 }
 
 static converter::sptr make_convert_sc8_item32_be_1_to_fc32_1(void){
-    return converter::sptr(new convert_sc8_item32_1_to_fcxx_1<float, uhd::ntohx, SHIFT_PAIR0>());
+    return converter::sptr(new convert_sc8_item32_1_to_fcxx_1<float, shd::ntohx, SHIFT_PAIR0>());
 }
 
 static converter::sptr make_convert_sc8_item32_be_1_to_fc64_1(void){
-    return converter::sptr(new convert_sc8_item32_1_to_fcxx_1<double, uhd::ntohx, SHIFT_PAIR0>());
+    return converter::sptr(new convert_sc8_item32_1_to_fcxx_1<double, shd::ntohx, SHIFT_PAIR0>());
 }
 
 static converter::sptr make_convert_sc8_item32_le_1_to_fc32_1(void){
-    return converter::sptr(new convert_sc8_item32_1_to_fcxx_1<float, uhd::wtohx, SHIFT_PAIR1>());
+    return converter::sptr(new convert_sc8_item32_1_to_fcxx_1<float, shd::wtohx, SHIFT_PAIR1>());
 }
 
 static converter::sptr make_convert_sc8_item32_le_1_to_fc64_1(void){
-    return converter::sptr(new convert_sc8_item32_1_to_fcxx_1<double, uhd::wtohx, SHIFT_PAIR1>());
+    return converter::sptr(new convert_sc8_item32_1_to_fcxx_1<double, shd::wtohx, SHIFT_PAIR1>());
 }
 
 static converter::sptr make_convert_sc8_item32_be_1_to_sc16_1(void){
-    return converter::sptr(new convert_sc8_item32_1_to_fcxx_1<s16_t, uhd::ntohx, SHIFT_PAIR0>());
+    return converter::sptr(new convert_sc8_item32_1_to_fcxx_1<s16_t, shd::ntohx, SHIFT_PAIR0>());
 }
 
 static converter::sptr make_convert_sc8_item32_le_1_to_sc16_1(void){
-    return converter::sptr(new convert_sc8_item32_1_to_fcxx_1<s16_t, uhd::wtohx, SHIFT_PAIR1>());
+    return converter::sptr(new convert_sc8_item32_1_to_fcxx_1<s16_t, shd::wtohx, SHIFT_PAIR1>());
 }
 
 static converter::sptr make_convert_sc16_1_to_sc8_item32_be_1(void){
@@ -227,56 +227,56 @@ static converter::sptr make_convert_sc16_1_to_sc8_item32_le_1(void){
     return converter::sptr(new convert_sc16_1_to_sc8_item32_1<LE_SWAP>());
 }
 
-UHD_STATIC_BLOCK(register_convert_sc16_item32_1_to_fcxx_1){
-    uhd::convert::id_type id;
+SHD_STATIC_BLOCK(register_convert_sc16_item32_1_to_fcxx_1){
+    shd::convert::id_type id;
     id.num_inputs = 1;
     id.num_outputs = 1;
 
     id.output_format = "fc32";
     id.input_format = "sc16_item32_be";
-    uhd::convert::register_converter(id, &make_convert_sc16_item32_be_1_to_fc32_1, PRIORITY_TABLE);
+    shd::convert::register_converter(id, &make_convert_sc16_item32_be_1_to_fc32_1, PRIORITY_TABLE);
 
     id.output_format = "fc64";
     id.input_format = "sc16_item32_be";
-    uhd::convert::register_converter(id, &make_convert_sc16_item32_be_1_to_fc64_1, PRIORITY_TABLE);
+    shd::convert::register_converter(id, &make_convert_sc16_item32_be_1_to_fc64_1, PRIORITY_TABLE);
 
     id.output_format = "fc32";
     id.input_format = "sc16_item32_le";
-    uhd::convert::register_converter(id, &make_convert_sc16_item32_le_1_to_fc32_1, PRIORITY_TABLE);
+    shd::convert::register_converter(id, &make_convert_sc16_item32_le_1_to_fc32_1, PRIORITY_TABLE);
 
     id.output_format = "fc64";
     id.input_format = "sc16_item32_le";
-    uhd::convert::register_converter(id, &make_convert_sc16_item32_le_1_to_fc64_1, PRIORITY_TABLE);
+    shd::convert::register_converter(id, &make_convert_sc16_item32_le_1_to_fc64_1, PRIORITY_TABLE);
 
     id.output_format = "fc32";
     id.input_format = "sc8_item32_be";
-    uhd::convert::register_converter(id, &make_convert_sc8_item32_be_1_to_fc32_1, PRIORITY_TABLE);
+    shd::convert::register_converter(id, &make_convert_sc8_item32_be_1_to_fc32_1, PRIORITY_TABLE);
 
     id.output_format = "fc64";
     id.input_format = "sc8_item32_be";
-    uhd::convert::register_converter(id, &make_convert_sc8_item32_be_1_to_fc64_1, PRIORITY_TABLE);
+    shd::convert::register_converter(id, &make_convert_sc8_item32_be_1_to_fc64_1, PRIORITY_TABLE);
 
     id.output_format = "fc32";
     id.input_format = "sc8_item32_le";
-    uhd::convert::register_converter(id, &make_convert_sc8_item32_le_1_to_fc32_1, PRIORITY_TABLE);
+    shd::convert::register_converter(id, &make_convert_sc8_item32_le_1_to_fc32_1, PRIORITY_TABLE);
 
     id.output_format = "fc64";
     id.input_format = "sc8_item32_le";
-    uhd::convert::register_converter(id, &make_convert_sc8_item32_le_1_to_fc64_1, PRIORITY_TABLE);
+    shd::convert::register_converter(id, &make_convert_sc8_item32_le_1_to_fc64_1, PRIORITY_TABLE);
 
     id.output_format = "sc16";
     id.input_format = "sc8_item32_be";
-    uhd::convert::register_converter(id, &make_convert_sc8_item32_be_1_to_sc16_1, PRIORITY_TABLE);
+    shd::convert::register_converter(id, &make_convert_sc8_item32_be_1_to_sc16_1, PRIORITY_TABLE);
 
     id.output_format = "sc16";
     id.input_format = "sc8_item32_le";
-    uhd::convert::register_converter(id, &make_convert_sc8_item32_le_1_to_sc16_1, PRIORITY_TABLE);
+    shd::convert::register_converter(id, &make_convert_sc8_item32_le_1_to_sc16_1, PRIORITY_TABLE);
 
     id.input_format = "sc16";
     id.output_format = "sc8_item32_be";
-    uhd::convert::register_converter(id, &make_convert_sc16_1_to_sc8_item32_be_1, PRIORITY_TABLE);
+    shd::convert::register_converter(id, &make_convert_sc16_1_to_sc8_item32_be_1, PRIORITY_TABLE);
 
     id.input_format = "sc16";
     id.output_format = "sc8_item32_le";
-    uhd::convert::register_converter(id, &make_convert_sc16_1_to_sc8_item32_le_1, PRIORITY_TABLE);
+    shd::convert::register_converter(id, &make_convert_sc16_1_to_sc8_item32_le_1, PRIORITY_TABLE);
 }

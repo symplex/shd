@@ -89,7 +89,7 @@ def get_initialized_OptionParser():
                       default="32 64 256 1024")
     parser.add_option("", "--spps", type="string", help="samples per packet (0: driver default) [default: %default]",
                       default="0 64 128 256 512")
-    parser.add_option("", "--args", type="string", help="UHD device arguments [default: %default]", default=None)
+    parser.add_option("", "--args", type="string", help="SHD device arguments [default: %default]", default=None)
     parser.add_option("", "--prefix", type="string", help="Stats filename prefix [default: %default]", default=None)
     parser.add_option("", "--suffix", type="string", help="Stats filename suffix [default: %default]", default=None)
     parser.add_option("", "--pause", action="store_true", help="pause between tests [default=%default]", default=False)

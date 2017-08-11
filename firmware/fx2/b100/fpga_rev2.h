@@ -1,5 +1,5 @@
 /* 
- * USRP - Universal Software Radio Peripheral
+ * SMINI - Universal Software Radio Peripheral
  *
  * Copyright (C) 2003,2004 Free Software Foundation, Inc.
  *

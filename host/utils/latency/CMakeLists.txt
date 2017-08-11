@@ -34,12 +34,12 @@ IF(CURSES_FOUND)
     FOREACH(source ${sources})
         GET_FILENAME_COMPONENT(name ${source} NAME_WE)
         ADD_EXECUTABLE(${name} ${source} ${latency_lib_path})
-    	LIBUHD_APPEND_SOURCES(${name})
-        TARGET_LINK_LIBRARIES(${name} uhd ${Boost_LIBRARIES} ${CURSES_LIBRARIES})
-    	UHD_INSTALL(TARGETS ${name} RUNTIME DESTINATION ${latency_comp_dest} COMPONENT ${latency_comp_name})
+    	LIBSHD_APPEND_SOURCES(${name})
+        TARGET_LINK_LIBRARIES(${name} shd ${Boost_LIBRARIES} ${CURSES_LIBRARIES})
+    	SHD_INSTALL(TARGETS ${name} RUNTIME DESTINATION ${latency_comp_dest} COMPONENT ${latency_comp_name})
     ENDFOREACH(source)
 
-    UHD_INSTALL(PROGRAMS run_tests.py graph.py
+    SHD_INSTALL(PROGRAMS run_tests.py graph.py
                 DESTINATION ${latency_comp_dest}
                 COMPONENT ${latency_comp_name}
     )

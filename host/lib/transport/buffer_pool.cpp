@@ -15,21 +15,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/buffer_pool.hpp>
-#include <uhd/transport/zero_copy.hpp>
+#include <shd/transport/buffer_pool.hpp>
+#include <shd/transport/zero_copy.hpp>
 #include <boost/shared_array.hpp>
 #include <vector>
 
-using namespace uhd::transport;
+using namespace shd::transport;
 
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
 /*
  * This is the implementation for the static variable 's_buffer_count'
- * located in uhd/transport/zero_copy.hpp.
+ * located in shd/transport/zero_copy.hpp.
  * It is used in the managed_buffer class.
  */
 boost::detail::atomic_count managed_buffer::s_buffer_count(0);
-#endif // UHD_TXRX_DEBUG_PRINTS
+#endif // SHD_TXRX_DEBUG_PRINTS
 
 //! pad the byte count to a multiple of alignment
 static size_t pad_to_boundary(const size_t bytes, const size_t alignment){

@@ -15,14 +15,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_LIBUHD_RFNOC_UTILS_HPP
-#define INCLUDED_LIBUHD_RFNOC_UTILS_HPP
+#ifndef INCLUDED_LIBSHD_RFNOC_UTILS_HPP
+#define INCLUDED_LIBSHD_RFNOC_UTILS_HPP
 
-#include <uhd/rfnoc/node_ctrl_base.hpp>
+#include <shd/rfnoc/node_ctrl_base.hpp>
 #include <boost/lexical_cast.hpp>
 #include <set>
 
-namespace uhd { namespace rfnoc { namespace utils {
+namespace shd { namespace rfnoc { namespace utils {
 
     /*! If \p suggested_port equals ANY_PORT, return the first available
      * port number on \p nodes. Otherwise, return \p suggested_port.
@@ -71,7 +71,7 @@ namespace uhd { namespace rfnoc { namespace utils {
         return return_set;
     }
 
-}}}; /* namespace uhd::rfnoc::utils */
+}}}; /* namespace shd::rfnoc::utils */
 
-#endif /* INCLUDED_LIBUHD_RFNOC_UTILS_HPP */
+#endif /* INCLUDED_LIBSHD_RFNOC_UTILS_HPP */
 // vim: sw=4 et:

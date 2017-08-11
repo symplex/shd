@@ -15,14 +15,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/types/ranges.hpp>
-#include <uhd/exception.hpp>
+#include <shd/types/ranges.hpp>
+#include <shd/exception.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <boost/foreach.hpp>
 #include <algorithm>
 #include <sstream>
 
-using namespace uhd;
+using namespace shd;
 
 /***********************************************************************
  * range_t implementation code
@@ -39,7 +39,7 @@ range_t::range_t(
     _start(start), _stop(stop), _step(step)
 {
     if (stop < start){
-        throw uhd::value_error("cannot make range where stop < start");
+        throw shd::value_error("cannot make range where stop < start");
     }
 }
 
@@ -69,11 +69,11 @@ const std::string range_t::to_pp_string(void) const{
  **********************************************************************/
 void check_meta_range_monotonic(const meta_range_t &mr){
     if (mr.empty()){
-        throw uhd::value_error("meta-range cannot be empty");
+        throw shd::value_error("meta-range cannot be empty");
     }
     for (size_t i = 1; i < mr.size(); i++){
         if (mr.at(i).start() < mr.at(i-1).stop()){
-            throw uhd::value_error("meta-range is not monotonic");
+            throw shd::value_error("meta-range is not monotonic");
         }
     }
 }

@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/nirio/niriok_proxy_impl_v1.h>
+#include <shd/transport/nirio/niriok_proxy_impl_v1.h>
 #include <cstring>
 
 // "push" and "pop" introduced in GCC 4.6; works with all clang
@@ -27,7 +27,7 @@
 #endif
 
 // CTL_CODE macro for non-win OSes
-#ifndef UHD_PLATFORM_WIN32
+#ifndef SHD_PLATFORM_WIN32
     #define CTL_CODE(a,controlCode,b,c) (controlCode)
 #endif
 
@@ -67,7 +67,7 @@ const uint32_t NIRIO_IOCTL_PRE_CLOSE =
             METHOD_BUFFERED,
             FILE_READ_ACCESS);  ///< Called before closing a session
 
-namespace uhd { namespace niusrprio
+namespace shd { namespace nisminirio
 {
     // -------------------------------
     // Function Codes: defined as integers rather than enums because they

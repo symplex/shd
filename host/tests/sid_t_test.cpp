@@ -18,10 +18,10 @@
 #include <iostream>
 #include <sstream>
 #include <boost/test/unit_test.hpp>
-#include <uhd/types/sid.hpp>
-#include <uhd/exception.hpp>
+#include <shd/types/sid.hpp>
+#include <shd/exception.hpp>
 
-using uhd::sid_t;
+using shd::sid_t;
 
 BOOST_AUTO_TEST_CASE(test_sid_t) {
     uint32_t sid_value = 0x01020310;
@@ -151,8 +151,8 @@ BOOST_AUTO_TEST_CASE(test_sid_t_from_str) {
     BOOST_CHECK_EQUAL(sid.get_dst_addr(), (uint32_t)4);
     BOOST_CHECK_EQUAL(sid.get_dst_endpoint(), (uint32_t)16);
 
-    BOOST_REQUIRE_THROW(sid_t fail_sid("foobar"), uhd::value_error);
-    BOOST_REQUIRE_THROW(sid_t fail_sid("01:02:03:4"), uhd::value_error);
-    BOOST_REQUIRE_THROW(sid_t fail_sid("01:02:03:004"), uhd::value_error);
-    BOOST_REQUIRE_THROW(sid_t fail_sid("1.2.3.0004"), uhd::value_error);
+    BOOST_REQUIRE_THROW(sid_t fail_sid("foobar"), shd::value_error);
+    BOOST_REQUIRE_THROW(sid_t fail_sid("01:02:03:4"), shd::value_error);
+    BOOST_REQUIRE_THROW(sid_t fail_sid("01:02:03:004"), shd::value_error);
+    BOOST_REQUIRE_THROW(sid_t fail_sid("1.2.3.0004"), shd::value_error);
 }

@@ -15,11 +15,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/types/tune_request.hpp>
-#include <uhd/types/tune_result.hpp>
+#include <shd/types/tune_request.hpp>
+#include <shd/types/tune_result.hpp>
 #include <boost/format.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 tune_request_t::tune_request_t(double target_freq):
     target_freq(target_freq),

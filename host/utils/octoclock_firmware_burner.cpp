@@ -32,16 +32,16 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 
-#include <uhd/device.hpp>
-#include <uhd/transport/udp_simple.hpp>
-#include <uhd/types/device_addr.hpp>
-#include <uhd/types/time_spec.hpp>
-#include <uhd/utils/byteswap.hpp>
-#include <uhd/utils/paths.hpp>
-#include <uhd/utils/paths.hpp>
-#include <uhd/utils/safe_main.hpp>
+#include <shd/device.hpp>
+#include <shd/transport/udp_simple.hpp>
+#include <shd/types/device_addr.hpp>
+#include <shd/types/time_spec.hpp>
+#include <shd/utils/byteswap.hpp>
+#include <shd/utils/paths.hpp>
+#include <shd/utils/paths.hpp>
+#include <shd/utils/safe_main.hpp>
 
-#include "../lib/usrp_clock/octoclock/common.h"
+#include "../lib/smini_clock/octoclock/common.h"
 #include "../lib/utils/ihex.hpp"
 
 #define MAX_FIRMWARE_SIZE 1024*120
@@ -51,8 +51,8 @@
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
-using namespace uhd;
-using namespace uhd::transport;
+using namespace shd;
+using namespace shd::transport;
 
 static int num_ctrl_c = 0;
 void sig_int_handler(int){
@@ -96,7 +96,7 @@ static uint16_t calculate_crc(uint8_t* buffer, uint16_t len){
  * Functions
  */
 void list_octoclocks(){
-    device_addrs_t found_octoclocks = device::find(uhd::device_addr_t(), device::CLOCK);
+    device_addrs_t found_octoclocks = device::find(shd::device_addr_t(), device::CLOCK);
 
     std::cout << "Available OctoClock devices:" << std::endl;
     BOOST_FOREACH(const device_addr_t &oc, found_octoclocks){
@@ -106,21 +106,21 @@ void list_octoclocks(){
 
 void print_image_loader_warning(const std::string &fw_path, const po::variables_map &vm){
     // Newline + indent
-    #ifdef UHD_PLATFORM_WIN32
+    #ifdef SHD_PLATFORM_WIN32
     const std::string nl = " ^\n    ";
     #else
     const std::string nl = " \\\n    ";
     #endif
 
-    std::string uhd_image_loader = str(boost::format("uhd_image_loader --args=\"type=octoclock,addr=%s\""
+    std::string shd_image_loader = str(boost::format("shd_image_loader --args=\"type=octoclock,addr=%s\""
                                                      "%s --fw-path=%s")
                                        % vm["addr"].as<std::string>() % nl % fw_path);
 
     std::cout << "************************************************************************************************" << std::endl
-              << "WARNING: This utility will be removed in an upcoming version of UHD. In the future, use" << std::endl
+              << "WARNING: This utility will be removed in an upcoming version of SHD. In the future, use" << std::endl
               << "         this command:" << std::endl
               << std::endl
-              << uhd_image_loader << std::endl
+              << shd_image_loader << std::endl
               << std::endl
               << "************************************************************************************************" << std::endl
               << std::endl;
@@ -134,7 +134,7 @@ device_addrs_t bootloader_find(const std::string &ip_addr){
     udp_simple::sptr udp_transport = udp_simple::make_connected(ip_addr, BOOST_STRINGIZE(OCTOCLOCK_UDP_CTRL_PORT));
 
     octoclock_packet_t pkt_out;
-    pkt_out.sequence = uhd::htonx<uint32_t>(std::rand());
+    pkt_out.sequence = shd::htonx<uint32_t>(std::rand());
     pkt_out.code = OCTOCLOCK_QUERY_CMD;
     pkt_out.len = 0;
     size_t len = 0;
@@ -144,8 +144,8 @@ device_addrs_t bootloader_find(const std::string &ip_addr){
     boost::system_time comm_timeout = boost::get_system_time() + boost::posix_time::milliseconds(3000);
 
     while(boost::get_system_time() < comm_timeout){
-        UHD_OCTOCLOCK_SEND_AND_RECV(udp_transport, OCTOCLOCK_FW_COMPAT_NUM, OCTOCLOCK_QUERY_CMD, pkt_out, len, octoclock_data);
-        if(UHD_OCTOCLOCK_PACKET_MATCHES(OCTOCLOCK_QUERY_ACK, pkt_out, pkt_in, len) and
+        SHD_OCTOCLOCK_SEND_AND_RECV(udp_transport, OCTOCLOCK_FW_COMPAT_NUM, OCTOCLOCK_QUERY_CMD, pkt_out, len, octoclock_data);
+        if(SHD_OCTOCLOCK_PACKET_MATCHES(OCTOCLOCK_QUERY_ACK, pkt_out, pkt_in, len) and
            pkt_in->proto_ver == OCTOCLOCK_BOOTLOADER_PROTO_VER){
             addrs.push_back(device_addr_t());
             addrs[0]["type"] = "octoclock-bootloader";
@@ -162,7 +162,7 @@ void read_firmware(){
     firmware_size = size_t(fs::file_size(actual_firmware_path));
     if(firmware_size > MAX_FIRMWARE_SIZE){
         firmware_file.close();
-        throw uhd::runtime_error(str(boost::format("Firmware file too large: %d > %d")
+        throw shd::runtime_error(str(boost::format("Firmware file too large: %d > %d")
                                      % firmware_size % (MAX_FIRMWARE_SIZE)));
     }
     firmware_file.read((char*)firmware_image, firmware_size);
@@ -174,19 +174,19 @@ void read_firmware(){
 
 void burn_firmware(udp_simple::sptr udp_transport){
     octoclock_packet_t pkt_out;
-    pkt_out.sequence = uhd::htonx<uint32_t>(std::rand());
+    pkt_out.sequence = shd::htonx<uint32_t>(std::rand());
     pkt_out.len = (uint16_t)firmware_size;
     pkt_out.crc = calculate_crc(firmware_image, firmware_size);
     size_t len = 0, current_pos = 0;
 
     //Tell OctoClock not to jump to application, wait for us instead
     std::cout << "Telling OctoClock to prepare for firmware download..." << std::flush;
-    UHD_OCTOCLOCK_SEND_AND_RECV(udp_transport, OCTOCLOCK_FW_COMPAT_NUM, PREPARE_FW_BURN_CMD, pkt_out, len, octoclock_data);
-    if(UHD_OCTOCLOCK_PACKET_MATCHES(FW_BURN_READY_ACK, pkt_out, pkt_in, len)) std::cout << "ready." << std::endl;
+    SHD_OCTOCLOCK_SEND_AND_RECV(udp_transport, OCTOCLOCK_FW_COMPAT_NUM, PREPARE_FW_BURN_CMD, pkt_out, len, octoclock_data);
+    if(SHD_OCTOCLOCK_PACKET_MATCHES(FW_BURN_READY_ACK, pkt_out, pkt_in, len)) std::cout << "ready." << std::endl;
     else{
         std::cout << std::endl;
         if(hex) fs::remove(actual_firmware_path);
-        throw uhd::runtime_error("Could not get OctoClock in valid state for firmware download.");
+        throw shd::runtime_error("Could not get OctoClock in valid state for firmware download.");
     }
 
     std::cout << std::endl << "Burning firmware." << std::endl;
@@ -206,8 +206,8 @@ void burn_firmware(udp_simple::sptr udp_transport){
 
         bool success = false;
         while(num_tries <= 5){
-            UHD_OCTOCLOCK_SEND_AND_RECV(udp_transport, OCTOCLOCK_FW_COMPAT_NUM, FILE_TRANSFER_CMD, pkt_out, len, octoclock_data);
-            if(UHD_OCTOCLOCK_PACKET_MATCHES(FILE_TRANSFER_ACK, pkt_out, pkt_in, len)){
+            SHD_OCTOCLOCK_SEND_AND_RECV(udp_transport, OCTOCLOCK_FW_COMPAT_NUM, FILE_TRANSFER_CMD, pkt_out, len, octoclock_data);
+            if(SHD_OCTOCLOCK_PACKET_MATCHES(FILE_TRANSFER_ACK, pkt_out, pkt_in, len)){
                 success = true;
                 break;
             }
@@ -219,7 +219,7 @@ void burn_firmware(udp_simple::sptr udp_transport){
         if(not success){
             std::cout << std::endl;
             if(hex) fs::remove(actual_firmware_path);
-            throw uhd::runtime_error("Failed to burn firmware to OctoClock!");
+            throw shd::runtime_error("Failed to burn firmware to OctoClock!");
         }
 
         current_pos += BLOCK_SIZE;
@@ -231,7 +231,7 @@ void burn_firmware(udp_simple::sptr udp_transport){
 void verify_firmware(udp_simple::sptr udp_transport){
     octoclock_packet_t pkt_out;
     pkt_out.proto_ver = OCTOCLOCK_FW_COMPAT_NUM;
-    pkt_out.sequence = uhd::htonx<uint32_t>(std::rand());
+    pkt_out.sequence = shd::htonx<uint32_t>(std::rand());
     size_t len = 0, current_pos = 0;
 
     for(size_t i = 0; i < num_blocks; i++){
@@ -240,19 +240,19 @@ void verify_firmware(udp_simple::sptr udp_transport){
         std::cout << "\r * Progress: " << int(double(i)/double(num_blocks)*100)
                   << "% (" << (i+1) << "/" << num_blocks << " blocks)" << std::flush;
 
-        UHD_OCTOCLOCK_SEND_AND_RECV(udp_transport, OCTOCLOCK_FW_COMPAT_NUM, READ_FW_CMD, pkt_out, len, octoclock_data);
-        if(UHD_OCTOCLOCK_PACKET_MATCHES(READ_FW_ACK, pkt_out, pkt_in, len)){
+        SHD_OCTOCLOCK_SEND_AND_RECV(udp_transport, OCTOCLOCK_FW_COMPAT_NUM, READ_FW_CMD, pkt_out, len, octoclock_data);
+        if(SHD_OCTOCLOCK_PACKET_MATCHES(READ_FW_ACK, pkt_out, pkt_in, len)){
             if(memcmp((void*)(pkt_in->data), &firmware_image[i*BLOCK_SIZE],
                       std::min(int(firmware_size-current_pos), BLOCK_SIZE))){
                 std::cout << std::endl;
                 if(hex) fs::remove(actual_firmware_path);
-                throw uhd::runtime_error("Failed to verify OctoClock firmware!");
+                throw shd::runtime_error("Failed to verify OctoClock firmware!");
             }
         }
         else{
             std::cout << std::endl;
             if(hex) fs::remove(actual_firmware_path);
-            throw uhd::runtime_error("Failed to verify OctoClock firmware!");
+            throw shd::runtime_error("Failed to verify OctoClock firmware!");
         }
     }
 
@@ -263,14 +263,14 @@ bool reset_octoclock(const std::string &ip_addr){
     udp_simple::sptr udp_transport = udp_simple::make_connected(ip_addr, BOOST_STRINGIZE(OCTOCLOCK_UDP_CTRL_PORT));
 
     octoclock_packet_t pkt_out;
-    pkt_out.sequence = uhd::htonx<uint32_t>(std::rand());
+    pkt_out.sequence = shd::htonx<uint32_t>(std::rand());
     size_t len;
 
-    UHD_OCTOCLOCK_SEND_AND_RECV(udp_transport, OCTOCLOCK_FW_COMPAT_NUM, RESET_CMD, pkt_out, len, octoclock_data);
-    if(not UHD_OCTOCLOCK_PACKET_MATCHES(RESET_ACK, pkt_out, pkt_in, len)){
+    SHD_OCTOCLOCK_SEND_AND_RECV(udp_transport, OCTOCLOCK_FW_COMPAT_NUM, RESET_CMD, pkt_out, len, octoclock_data);
+    if(not SHD_OCTOCLOCK_PACKET_MATCHES(RESET_ACK, pkt_out, pkt_in, len)){
         std::cout << std::endl;
         if(hex) fs::remove(actual_firmware_path);
-        throw uhd::runtime_error("Failed to place device in state to receive firmware.");
+        throw shd::runtime_error("Failed to place device in state to receive firmware.");
     }
 
     boost::this_thread::sleep(boost::posix_time::milliseconds(500));
@@ -280,11 +280,11 @@ bool reset_octoclock(const std::string &ip_addr){
 void finalize(udp_simple::sptr udp_transport){
     octoclock_packet_t pkt_out;
     pkt_out.len = 0;
-    pkt_out.sequence = uhd::htonx<uint32_t>(std::rand());
+    pkt_out.sequence = shd::htonx<uint32_t>(std::rand());
     size_t len = 0;
 
-    UHD_OCTOCLOCK_SEND_AND_RECV(udp_transport, OCTOCLOCK_FW_COMPAT_NUM, FINALIZE_BURNING_CMD, pkt_out, len, octoclock_data);
-    if(not UHD_OCTOCLOCK_PACKET_MATCHES(FINALIZE_BURNING_ACK, pkt_out, pkt_in, len)){
+    SHD_OCTOCLOCK_SEND_AND_RECV(udp_transport, OCTOCLOCK_FW_COMPAT_NUM, FINALIZE_BURNING_CMD, pkt_out, len, octoclock_data);
+    if(not SHD_OCTOCLOCK_PACKET_MATCHES(FINALIZE_BURNING_ACK, pkt_out, pkt_in, len)){
         std::cout << std::endl;
         if(hex) fs::remove(actual_firmware_path);
         std::cout << "no ACK. Bootloader may not have loaded application." << std::endl;
@@ -296,7 +296,7 @@ void octoclock_convert_ihex(const std::string &hex_path, const std::string &bin_
     hex_reader.to_bin_file(bin_path);
 }
 
-int UHD_SAFE_MAIN(UHD_UNUSED(int argc), UHD_UNUSED(char *argv[])){
+int SHD_SAFE_MAIN(SHD_UNUSED(int argc), SHD_UNUSED(char *argv[])){
 
     std::string ip_addr;
     po::options_description desc("Allowed options");
@@ -332,19 +332,19 @@ int UHD_SAFE_MAIN(UHD_UNUSED(int argc), UHD_UNUSED(char *argv[])){
     }
 
     if(not (vm.count("addr"))){
-        throw uhd::runtime_error("You must specify an address with the --addr option!");
+        throw shd::runtime_error("You must specify an address with the --addr option!");
     }
     udp_simple::sptr udp_transport = udp_simple::make_connected(ip_addr, BOOST_STRINGIZE(OCTOCLOCK_UDP_FW_PORT));
 
     //If custom path given, make sure it exists
     if(vm.count("fw-path")){
         //Expand tilde usage if applicable
-        #ifndef UHD_PLATFORM_WIN32
+        #ifndef SHD_PLATFORM_WIN32
         if(firmware_path.find("~/") == 0) firmware_path.replace(0,1,getenv("HOME"));
         #endif
 
         if(not fs::exists(firmware_path)){
-            throw uhd::runtime_error(str(boost::format("This filepath does not exist: %s") % firmware_path));
+            throw shd::runtime_error(str(boost::format("This filepath does not exist: %s") % firmware_path));
         }
     }
     else firmware_path = find_image_path("octoclock_r4_fw.hex");
@@ -366,7 +366,7 @@ int UHD_SAFE_MAIN(UHD_UNUSED(int argc), UHD_UNUSED(char *argv[])){
         actual_firmware_path = firmware_path;
         std::cout << "Found firmware at path: " << firmware_path << std::endl;
     }
-    else throw uhd::runtime_error("The firmware file has in improper extension (must be .hex or .bin).");
+    else throw shd::runtime_error("The firmware file has in improper extension (must be .hex or .bin).");
 
     std::cout << std::endl << boost::format("Searching for OctoClock with IP address %s...") % ip_addr << std::flush;
     device_addrs_t octoclocks = device::find(str(boost::format("addr=%s") % ip_addr), device::CLOCK);
@@ -377,7 +377,7 @@ int UHD_SAFE_MAIN(UHD_UNUSED(int argc), UHD_UNUSED(char *argv[])){
             else{
                 std::cout << "failed." << std::endl;
                 if(hex) fs::remove(actual_firmware_path);
-                throw uhd::runtime_error("Failed to reset OctoClock device into its bootloader.");
+                throw shd::runtime_error("Failed to reset OctoClock device into its bootloader.");
             }
         }
         else std::cout << "found." << std::endl;
@@ -385,7 +385,7 @@ int UHD_SAFE_MAIN(UHD_UNUSED(int argc), UHD_UNUSED(char *argv[])){
     else{
         std::cout << "failed." << std::endl;
         if(hex) fs::remove(actual_firmware_path);
-        throw uhd::runtime_error("Could not find OctoClock with given IP address!");
+        throw shd::runtime_error("Could not find OctoClock with given IP address!");
     }
 
     read_firmware();
@@ -408,7 +408,7 @@ int UHD_SAFE_MAIN(UHD_UNUSED(int argc), UHD_UNUSED(char *argv[])){
         if(octoclocks[0]["type"] == "octoclock-bootloader"){
             std::cout << std::endl;
             if(hex) fs::remove(actual_firmware_path);
-            throw uhd::runtime_error("Firmware did not load properly.");
+            throw shd::runtime_error("Firmware did not load properly.");
         }
         else{
             std::cout << "found." << std::endl << std::endl
@@ -418,7 +418,7 @@ int UHD_SAFE_MAIN(UHD_UNUSED(int argc), UHD_UNUSED(char *argv[])){
     else{
         std::cout << std::endl;
         if(hex) fs::remove(actual_firmware_path);
-        throw uhd::runtime_error("Failed to reinitialize OctoClock.");
+        throw shd::runtime_error("Failed to reinitialize OctoClock.");
     }
     if(hex) fs::remove(actual_firmware_path);
 

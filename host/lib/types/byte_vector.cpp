@@ -17,9 +17,9 @@
 
 #include <boost/foreach.hpp>
 
-#include <uhd/types/byte_vector.hpp>
+#include <shd/types/byte_vector.hpp>
 
-namespace uhd{
+namespace shd{
 
 std::string bytes_to_string(const byte_vector_t &bytes){
     std::string out;
@@ -39,4 +39,4 @@ byte_vector_t string_to_bytes(const std::string &str, size_t max_length){
     return bytes;
 }
 
-} /* namespace uhd */
+} /* namespace shd */

@@ -28,14 +28,14 @@ mkdir build
 cd build
 
 # Run the CPack process (ZIP file)
-cmake .. -DCPACK_GENERATOR=ZIP -DUHD_RELEASE_MODE="$1" $2 ..
+cmake .. -DCPACK_GENERATOR=ZIP -DSHD_RELEASE_MODE="$1" $2 ..
 make package
-mv uhd-images*.zip ..
+mv shd-images*.zip ..
 
 # Run the CPack process (tarball)
-cmake .. -DCPACK_GENERATOR=TGZ -DUHD_RELEASE_MODE="$1" $2 ..
+cmake .. -DCPACK_GENERATOR=TGZ -DSHD_RELEASE_MODE="$1" $2 ..
 make package
-mv uhd-images*.tar.gz ..
+mv shd-images*.tar.gz ..
 
 # Move images to here and clean up after us:
 cd ..
@@ -53,4 +53,4 @@ if [ $? -eq 0 ]; then
 fi
 
 MD5_FILE_NAME=`echo $TGZ_ARCHIVE_NAME | sed "s/tar.gz\>/md5/"`
-md5sum uhd-images* > $MD5_FILE_NAME
+md5sum shd-images* > $MD5_FILE_NAME

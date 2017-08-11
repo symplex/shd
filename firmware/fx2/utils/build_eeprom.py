@@ -27,10 +27,10 @@ from optparse import OptionParser
 
 # USB Vendor and Product ID's
 
-USRP1VID = 0xfffe                            # Free Software Folks
-USRP1PID = 0x0002
-USRP1PVID= 0x2500                            # Ettus Research
-USRP1PPID= 0x0002
+SMINI1VID = 0x2508                            # Symplex VID 
+SMINI1PID = 0x0001
+SMINI1PVID= 0x2508                            # Symplex VID 
+SMINI1PPID= 0x0001
     
 def msb (x):
     return (x >> 8) & 0xff
@@ -52,11 +52,11 @@ def build_eeprom_image (filename, rev):
     start_addr = 0 #prove me wrong
 
     if(rev == 1):
-      VID = USRP1VID
-      PID = USRP1PID
+      VID = SMINI1VID
+      PID = SMINI1PID
     else:
-      VID = USRP1PVID
-      PID = USRP1PPID
+      VID = SMINI1PVID
+      PID = SMINI1PPID
 
     rom_header = [
         0xC2,                           # boot from EEPROM
@@ -96,14 +96,14 @@ if __name__ == '__main__':
     usage = "usage: %prog -r REV [options] bootfile.bin outfile.bin"
     parser = OptionParser (usage=usage)
     parser.add_option ("-r", "--rev", type="int", default=-1,
-                       help="Specify USRP revision, 1 for USRP1, 2 for USRP1P")
+                       help="Specify SMINI revision, 1 for SMINI1, 2 for SMINI1P")
     (options, args) = parser.parse_args ()
     if len (args) != 2:
         parser.print_help ()
         sys.exit (1)
     if options.rev < 0:
         sys.stderr.write (
-            "You must specify the USRP revision number (2 or 4) with -r REV\n")
+            "You must specify the SMINI revision number (2 or 4) with -r REV\n")
         sys.exit (1)
 
     infile = args[0]

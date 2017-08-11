@@ -139,7 +139,7 @@ void handle_udp_query_packet(
 ){
     const octoclock_packet_t *pkt_in = (octoclock_packet_t*)payload;
 
-    // Respond to uhd::device::find(), identify as bootloader
+    // Respond to shd::device::find(), identify as bootloader
     if(pkt_in->code == OCTOCLOCK_QUERY_CMD){
         octoclock_packet_t pkt_out;
         pkt_out.proto_ver = OCTOCLOCK_BOOTLOADER_PROTO_VER;

@@ -3,9 +3,9 @@
 #ifndef INCLUDED_{lvbitx_classname_u}_LVBITX_HPP
 #define INCLUDED_{lvbitx_classname_u}_LVBITX_HPP
 
-#include <uhd/transport/nirio/nifpga_lvbitx.h>
+#include <shd/transport/nirio/nifpga_lvbitx.h>
 
-namespace uhd {{ namespace niusrprio {{
+namespace shd {{ namespace nisminirio {{
 
 class {lvbitx_classname}_lvbitx : public nifpga_lvbitx {{
 public:

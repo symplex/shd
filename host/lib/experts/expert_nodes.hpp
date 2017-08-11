@@ -15,13 +15,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_UHD_EXPERTS_EXPERT_NODES_HPP
-#define INCLUDED_UHD_EXPERTS_EXPERT_NODES_HPP
+#ifndef INCLUDED_SHD_EXPERTS_EXPERT_NODES_HPP
+#define INCLUDED_SHD_EXPERTS_EXPERT_NODES_HPP
 
-#include <uhd/config.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/utils/dirty_tracked.hpp>
-#include <uhd/types/time_spec.hpp>
+#include <shd/config.hpp>
+#include <shd/exception.hpp>
+#include <shd/utils/dirty_tracked.hpp>
+#include <shd/types/time_spec.hpp>
 #include <boost/function.hpp>
 #include <boost/foreach.hpp>
 #include <boost/thread/recursive_mutex.hpp>
@@ -31,7 +31,7 @@
 #include <list>
 #include <stdint.h>
 
-namespace uhd { namespace experts {
+namespace shd { namespace experts {
 
     enum node_class_t  { CLASS_WORKER, CLASS_DATA, CLASS_PROPERTY };
     enum node_access_t { ACCESS_READER, ACCESS_WRITER };
@@ -180,7 +180,7 @@ namespace uhd { namespace experts {
 
         // Data node specific setters and getters (for external entities)
         void commit(const data_t& value) {
-            if (_callback_mutex == NULL) throw uhd::assertion_error("node " + get_name() + " is missing the callback mutex");
+            if (_callback_mutex == NULL) throw shd::assertion_error("node " + get_name() + " is missing the callback mutex");
             boost::lock_guard<boost::recursive_mutex> lock(*_callback_mutex);
             set(value);
             _author = AUTHOR_USER;
@@ -190,7 +190,7 @@ namespace uhd { namespace experts {
         }
 
         const data_t retrieve() const {
-            if (_callback_mutex == NULL) throw uhd::assertion_error("node " + get_name() + " is missing the callback mutex");
+            if (_callback_mutex == NULL) throw shd::assertion_error("node " + get_name() + " is missing the callback mutex");
             boost::lock_guard<boost::recursive_mutex> lock(*_callback_mutex);
             if (has_read_callback()) {
                 _rd_callback(std::string(get_name()));
@@ -300,7 +300,7 @@ namespace uhd { namespace experts {
         {
             _datanode = dynamic_cast< data_node_t<data_t>* >(&node());
             if (_datanode == NULL) {
-                throw uhd::type_error("Expected data type for node " + n +
+                throw shd::type_error("Expected data type for node " + n +
                                       " was " + boost::units::detail::demangle(typeid(data_t).name()) +
                                       " but got " + node().get_dtype());
             }
@@ -434,7 +434,7 @@ namespace uhd { namespace experts {
             } else if (accessor.is_writer()) {
                 _outputs.push_back(&accessor);
             } else {
-                throw uhd::assertion_error("Invalid accessor type");
+                throw shd::assertion_error("Invalid accessor type");
             }
         }
 
@@ -480,4 +480,4 @@ namespace uhd { namespace experts {
 
 }}
 
-#endif /* INCLUDED_UHD_EXPERTS_EXPERT_NODE_HPP */
+#endif /* INCLUDED_SHD_EXPERTS_EXPERT_NODE_HPP */

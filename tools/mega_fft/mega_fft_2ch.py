@@ -22,7 +22,7 @@ from gnuradio import analog
 from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import gr
-from gnuradio import uhd
+from gnuradio import shd
 from gnuradio import wxgui
 from gnuradio.eng_option import eng_option
 from gnuradio.fft import logpwrfft
@@ -82,7 +82,7 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
         # Variables
         ##################################################
         self.relative_freq = relative_freq = 1
-        self.gain_range = gain_range = uhd.gain_range(0,0,0)
+        self.gain_range = gain_range = shd.gain_range(0,0,0)
         self.fft_max_idx = fft_max_idx = (fft_size/2)*0
         self.actual_sample_rate = actual_sample_rate = rate
         self.actual_center_freq = actual_center_freq = 0
@@ -97,10 +97,10 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
         self.antennas = antennas = ['']
         self.window_fn_name_map = window_fn_name_map = {'auto': 'Auto', 'bh': 'Blackman-Harris', 'ham': 'Hamming', 'han': 'Hanning', 'rect': 'Rectangular', 'flat': 'Flattop'}
         self.window_fn_map = window_fn_map = {'auto': None, 'bh': fft_win.blackmanharris, 'ham': fft_win.hamming, 'han': fft_win.hanning, 'rect': fft_win.rectangular, 'flat': fft_win.flattop}
-        self.usrp_info = usrp_info = '(unknown)'
-        self.tune_result = tune_result = uhd.tune_result_t()
+        self.smini_info = smini_info = '(unknown)'
+        self.tune_result = tune_result = shd.tune_result_t()
         self.tune_mode = tune_mode = [1,0][lo_offset==0.0]
-        self.time_probe = time_probe = uhd.time_spec_t()
+        self.time_probe = time_probe = shd.time_spec_t()
         self.test = test = 1
         self.subdev_spec = subdev_spec = '(unknown)'
         self.signal_probe_log = signal_probe_log = math.log10([signal_probe,1.0][signal_probe==0.0])*10
@@ -121,7 +121,7 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
         self.daughterboard_sensors = daughterboard_sensors = '(none)'
         self.clicked_freq = clicked_freq = 0
         self.window_fn = window_fn = window_fn_map[window]
-        self.variable_static_usrp_info = variable_static_usrp_info = usrp_info
+        self.variable_static_smini_info = variable_static_smini_info = smini_info
         self.variable_static_time_now = variable_static_time_now = str( [time.ctime(time_probe.get_real_secs()), datetime.timedelta(seconds=time_probe.get_real_secs()), time.gmtime(time_probe.get_real_secs())] [relative_time])
         self.variable_static_text_0_0 = variable_static_text_0_0 = daughterboard_sensors
         self.variable_static_text_0 = variable_static_text_0 = motherboard_sensors
@@ -141,7 +141,7 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
         self.variable_any_code_auto_dc_offset_removal = variable_any_code_auto_dc_offset_removal = None
         self.update_time_source = update_time_source = None
         self.update_clock_source = update_clock_source = None
-        self.tune_obj = tune_obj = [requested_freq, uhd.tune_request(requested_freq, lo_offset_txt), uhd.tune_request(requested_freq, dsp_freq=0, dsp_freq_policy=uhd.tune_request.POLICY_MANUAL)][tune_mode]
+        self.tune_obj = tune_obj = [requested_freq, shd.tune_request(requested_freq, lo_offset_txt), shd.tune_request(requested_freq, dsp_freq=0, dsp_freq_policy=shd.tune_request.POLICY_MANUAL)][tune_mode]
         self.static_locked = static_locked = '"' + str(locked_probe) + '"'
         self.show_stream_tags_chk = show_stream_tags_chk = [False, True][show_stream_tags.lower() != 'false']
         self.show_max_lvl = show_max_lvl = True
@@ -155,7 +155,7 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
         self.max_decim = max_decim = 256
         self.initial_gain = initial_gain = 0
         self.has_lo_locked = has_lo_locked = False
-        self.freq_range = freq_range = uhd.freq_range(freq,freq+1)
+        self.freq_range = freq_range = shd.freq_range(freq,freq+1)
         self.fix_invalid_freq = fix_invalid_freq = None
         self.fft_max_lvl_value_2 = fft_max_lvl_value_2 = fft_max_lvl_2
         self.fft_max_lvl_value = fft_max_lvl_value = fft_max_lvl
@@ -169,9 +169,9 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
         ##################################################
         # Blocks
         ##################################################
-        self.src = uhd.usrp_source(
+        self.src = shd.smini_source(
         	",".join((args, "")),
-        	uhd.stream_args(
+        	shd.stream_args(
         		cpu_format="fc32",
         		channels=range(2),
         	),
@@ -179,9 +179,9 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
         )
         if spec != "": self.src.set_subdev_spec(spec, 0)
         self.src.set_samp_rate(requested_sample_rate)
-        self.src.set_center_freq(uhd.tune_request(freq, lo_offset), 0)
+        self.src.set_center_freq(shd.tune_request(freq, lo_offset), 0)
         self.src.set_gain(selected_gain_proxy, 0)
-        self.src.set_center_freq(uhd.tune_request(freq, lo_offset), 1)
+        self.src.set_center_freq(shd.tune_request(freq, lo_offset), 1)
         self.src.set_gain(selected_gain_proxy, 1)
         self.nb_right = self.nb_right = wx.Notebook(self.GetWin(), style=wx.NB_TOP)
         self.nb_right.AddPage(grc_wxgui.Panel(self.nb_right), "Params")
@@ -649,14 +649,14 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
         	self.set_clicked_freq(x)
 
         self.waterfall_sink_0.set_callback(waterfall_sink_0_callback)
-        self._variable_static_usrp_info_static_text = forms.static_text(
+        self._variable_static_smini_info_static_text = forms.static_text(
         	parent=self.nb_info.GetPage(0).GetWin(),
-        	value=self.variable_static_usrp_info,
-        	callback=self.set_variable_static_usrp_info,
-        	label="USRP",
+        	value=self.variable_static_smini_info,
+        	callback=self.set_variable_static_smini_info,
+        	label="SMINI",
         	converter=forms.str_converter(),
         )
-        self.nb_info.GetPage(0).GridAdd(self._variable_static_usrp_info_static_text, 0, 0, 1, 10)
+        self.nb_info.GetPage(0).GridAdd(self._variable_static_smini_info_static_text, 0, 0, 1, 10)
         self._variable_static_time_now_static_text = forms.static_text(
         	parent=self.nb_test.GetPage(0).GetWin(),
         	value=self.variable_static_time_now,
@@ -1006,21 +1006,21 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
         			print "Cannot post message"
         	self._run_evaluators_later = _run_evaluators_later
         	_run_evaluators_later()
-        def __post_evalutate_usrp_info():
-        	self._post_any_code_evaluators += [('usrp_info', lambda: self._evalutate_usrp_info(**{}))]
-        def __evalutate_usrp_info(*args, **kwds):
+        def __post_evalutate_smini_info():
+        	self._post_any_code_evaluators += [('smini_info', lambda: self._evalutate_smini_info(**{}))]
+        def __evalutate_smini_info(*args, **kwds):
         	try:
-        		self.usrp_info = '%s (\'%s\'), %s' % (self.src.get_usrp_info().get('mboard_id'), self.src.get_usrp_info().get('mboard_name'), self.src.get_usrp_info().get('rx_subdev_name'))
-        		self.set_usrp_info(self.usrp_info)
+        		self.smini_info = '%s (\'%s\'), %s' % (self.src.get_smini_info().get('mboard_id'), self.src.get_smini_info().get('mboard_name'), self.src.get_smini_info().get('rx_subdev_name'))
+        		self.set_smini_info(self.smini_info)
         	except AttributeError, e:
-        		print "AttributeError while evaulating usrp_info:", e
-        		__post_evalutate_usrp_info()
+        		print "AttributeError while evaulating smini_info:", e
+        		__post_evalutate_smini_info()
         	except Exception, e:
-        		print "Exception while evaluating usrp_info:", e
-        self._evalutate_usrp_info = __evalutate_usrp_info
-        self.__post_evalutate_usrp_info = __post_evalutate_usrp_info
-        self._evalutate_usrp_info(**{})
-        usrp_info = self.usrp_info
+        		print "Exception while evaluating smini_info:", e
+        self._evalutate_smini_info = __evalutate_smini_info
+        self.__post_evalutate_smini_info = __post_evalutate_smini_info
+        self._evalutate_smini_info(**{})
+        smini_info = self.smini_info
         if not hasattr(self, '_post_any_code_evaluators'):
         	self._post_any_code_evaluators = []
         	self.wxEVT_AnyCode = wxEVT_AnyCode = wx.NewEventType()
@@ -2010,8 +2010,8 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
     def set_freq(self, freq):
         self.freq = freq
         self.set_requested_freq_txt(self.freq)
-        self.src.set_center_freq(uhd.tune_request(self.freq, self.lo_offset), 0)
-        self.src.set_center_freq(uhd.tune_request(self.freq, self.lo_offset), 1)
+        self.src.set_center_freq(shd.tune_request(self.freq, self.lo_offset), 0)
+        self.src.set_center_freq(shd.tune_request(self.freq, self.lo_offset), 1)
 
     def get_freq_fine_range(self):
         return self.freq_fine_range
@@ -2039,8 +2039,8 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
         self.lo_offset = lo_offset
         self.set_lo_offset_txt(self.lo_offset)
         self.set_tune_mode([1,0][self.lo_offset==0.0])
-        self.src.set_center_freq(uhd.tune_request(self.freq, self.lo_offset), 0)
-        self.src.set_center_freq(uhd.tune_request(self.freq, self.lo_offset), 1)
+        self.src.set_center_freq(shd.tune_request(self.freq, self.lo_offset), 0)
+        self.src.set_center_freq(shd.tune_request(self.freq, self.lo_offset), 1)
 
     def get_mag_alpha(self):
         return self.mag_alpha
@@ -2266,12 +2266,12 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
         self.window_fn_map = window_fn_map
         self.set_window_fn(self.window_fn_map[self.window])
 
-    def get_usrp_info(self):
-        return self.usrp_info
+    def get_smini_info(self):
+        return self.smini_info
 
-    def set_usrp_info(self, usrp_info):
-        self.usrp_info = usrp_info
-        self.set_variable_static_usrp_info(self.usrp_info)
+    def set_smini_info(self, smini_info):
+        self.smini_info = smini_info
+        self.set_variable_static_smini_info(self.smini_info)
 
     def get_tune_result(self):
         return self.tune_result
@@ -2287,7 +2287,7 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
     def set_tune_mode(self, tune_mode):
         self.tune_mode = tune_mode
         self._tune_mode_chooser.set_value(self.tune_mode)
-        self.set_tune_obj([self.requested_freq, uhd.tune_request(self.requested_freq, self.lo_offset_txt), uhd.tune_request(self.requested_freq, dsp_freq=0, dsp_freq_policy=uhd.tune_request.POLICY_MANUAL)][self.tune_mode])
+        self.set_tune_obj([self.requested_freq, shd.tune_request(self.requested_freq, self.lo_offset_txt), shd.tune_request(self.requested_freq, dsp_freq=0, dsp_freq_policy=shd.tune_request.POLICY_MANUAL)][self.tune_mode])
 
     def get_time_probe(self):
         return self.time_probe
@@ -2348,7 +2348,7 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
 
     def set_requested_freq(self, requested_freq):
         self.requested_freq = requested_freq
-        self.set_tune_obj([self.requested_freq, uhd.tune_request(self.requested_freq, self.lo_offset_txt), uhd.tune_request(self.requested_freq, dsp_freq=0, dsp_freq_policy=uhd.tune_request.POLICY_MANUAL)][self.tune_mode])
+        self.set_tune_obj([self.requested_freq, shd.tune_request(self.requested_freq, self.lo_offset_txt), shd.tune_request(self.requested_freq, dsp_freq=0, dsp_freq_policy=shd.tune_request.POLICY_MANUAL)][self.tune_mode])
         self.set_variable_static_requested_freq(self.requested_freq)
 
     def get_relative_time(self):
@@ -2386,7 +2386,7 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
     def set_lo_offset_txt(self, lo_offset_txt):
         self.lo_offset_txt = lo_offset_txt
         self._lo_offset_txt_text_box.set_value(self.lo_offset_txt)
-        self.set_tune_obj([self.requested_freq, uhd.tune_request(self.requested_freq, self.lo_offset_txt), uhd.tune_request(self.requested_freq, dsp_freq=0, dsp_freq_policy=uhd.tune_request.POLICY_MANUAL)][self.tune_mode])
+        self.set_tune_obj([self.requested_freq, shd.tune_request(self.requested_freq, self.lo_offset_txt), shd.tune_request(self.requested_freq, dsp_freq=0, dsp_freq_policy=shd.tune_request.POLICY_MANUAL)][self.tune_mode])
 
     def get_fft_peak_hold(self):
         return self.fft_peak_hold
@@ -2447,12 +2447,12 @@ class mega_fft_2ch(grc_wxgui.top_block_gui):
     def set_window_fn(self, window_fn):
         self.window_fn = window_fn
 
-    def get_variable_static_usrp_info(self):
-        return self.variable_static_usrp_info
+    def get_variable_static_smini_info(self):
+        return self.variable_static_smini_info
 
-    def set_variable_static_usrp_info(self, variable_static_usrp_info):
-        self.variable_static_usrp_info = variable_static_usrp_info
-        self._variable_static_usrp_info_static_text.set_value(self.variable_static_usrp_info)
+    def set_variable_static_smini_info(self, variable_static_smini_info):
+        self.variable_static_smini_info = variable_static_smini_info
+        self._variable_static_smini_info_static_text.set_value(self.variable_static_smini_info)
 
     def get_variable_static_time_now(self):
         return self.variable_static_time_now
@@ -2760,7 +2760,7 @@ if __name__ == '__main__':
     parser.add_option("-A", "--antenna", dest="antenna", type="string", default="",
         help="Set Antenna (blank for default) [default=%default]")
     parser.add_option("-a", "--args", dest="args", type="string", default="",
-        help="Set UHD device args [default=%default]")
+        help="Set SHD device args [default=%default]")
     parser.add_option("", "--ave", dest="ave", type="eng_float", default=eng_notation.num_to_str(1*0 + 0.5),
         help="Set Average FFT [default=%default]")
     parser.add_option("", "--averaging", dest="averaging", type="string", default="True",

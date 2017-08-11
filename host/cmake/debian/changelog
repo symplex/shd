@@ -1,6 +1,6 @@
-uhd (3.10.2.0-0ubuntu1) trusty; urgency=low
+shd (3.10.2.0-0ubuntu1) trusty; urgency=low
 
-  * multi_usrp: Fixed get_normalized_tx_gain.
+  * multi_smini: Fixed get_normalized_tx_gain.
   * E300: Fix for streamer recreation issue. Reduced minimum timeout, fixed
           potential race condition.
   * X300: Fix for network discovery, will now return early when correct serial is
@@ -15,22 +15,22 @@ uhd (3.10.2.0-0ubuntu1) trusty; urgency=low
   * TwinRX: Added LO reimport feature.
   * GPSDO: Improved detection. Improved query_gpsdo sensor.
   * RFNoC: Fixed issue with DDC and DUC command tick rate.
-  * UHD: Fixed potential memory leak in tasks. Fixed get_normalized_tx_gain().
+  * SHD: Fixed potential memory leak in tasks. Fixed get_normalized_tx_gain().
          Fixed default socket buffer size to honor MTU.
   * Examples: Added channel param to samps to/from file. sync_to_gps exits
               instead of uncaught throw. latency_test improved output. Use
               next_pps in test_clock_synch. Added TwinRX FHSS example.
-  * Utils: Modified behaviour of uhd_images_downloader so it won't delete dirs
+  * Utils: Modified behaviour of shd_images_downloader so it won't delete dirs
            when using -i
   * Tools: Updates to CHDR dissector. Added set_time_source_out(). Fixed LO API.
-  * C API: Fixed some missing fields in USRP info.
+  * C API: Fixed some missing fields in SMINI info.
   * Docs: Many minor fixes. Fixed Doxygen warnings related to /* in files.
   * CMake: Fixed GCC 4.4 compilation issue. Added ability to specify package
            names.
 
  -- Ettus Research <packages@ettus.com>  Mon, 31 Jul 2017 02:37:48 -0800
 
-uhd (3.10.1.1-0ubuntu1) trusty; urgency=low
+shd (3.10.1.1-0ubuntu1) trusty; urgency=low
 
   - Docs: The protocol for Gen-3 devices is now consistently referred to as CHDR.
   - X300: Fixed EEPROM corruption bug (happened when two processes would access
@@ -40,20 +40,20 @@ uhd (3.10.1.1-0ubuntu1) trusty; urgency=low
     Improve PCIe behaviour. Fix timed commands for non-TwinRX dboards. Improve
     AXI Interconnect (faster, improved build timing).
   - N230: Use second_addr (like X300).
-  - C API: Added UHD_VERSION macro. Fixed online rate change.
-  - Utils: Minor fixes to uhd_images_downloader.
+  - C API: Added SHD_VERSION macro. Fixed online rate change.
+  - Utils: Minor fixes to shd_images_downloader.
   - Build/CMake: Fixed some Py3k build issues. Fixed many compiler warnings. Allow
     to specify package names.
   - RFNoC: Fixed sampling rate mismatch error. Noc-Shell uses a non-cascaded 2-clk
     FIFO. Increase default FIFO sizes on DUC and DDC blocks.
   - UBX: Force on RX driver to eliminate transient.
   - Transport code: Fixed memory leak.
-  - FPGA repository: Merged usrp3_rfnoc and usrp3 directories again. Cleaned up
-    superfluous files. Clean separation between Gen-3 and other devices in usrp3.
+  - FPGA repository: Merged smini3_rfnoc and smini3 directories again. Cleaned up
+    superfluous files. Clean separation between Gen-3 and other devices in smini3.
 
  -- Ettus Research <packages@ettus.com>  Thu, 26 Jan 2017 04:15:56 -0800
 
-uhd (3.10.1.0-0ubuntu1) trusty; urgency=low
+shd (3.10.1.0-0ubuntu1) trusty; urgency=low
 
   - Fixed multiple compiler warnings
   - Multiple documentation fixes
@@ -74,18 +74,18 @@ uhd (3.10.1.0-0ubuntu1) trusty; urgency=low
   - GPS: Fixed message for case when no GPS is present. Fixed multiple GPS-related
     issues.
   - Converters: Fixed floating point rounding error in tests.
-  - Utils: uhd_usrp_probe can now query vectors
+  - Utils: shd_smini_probe can now query vectors
   - Fixed issue that prevented soft_regs working on 32-bit systems
   - Tools: Merged dissectors into common directory.
   - CMake: -Og is the default now for gcc-based Debug builds.
 
  -- Ettus Research <packages@ettus.com>  Wed, 02 Nov 2016 01:20:07 -0800
 
-uhd (3.10.0.0-0ubuntu1) trusty; urgency=low
+shd (3.10.0.0-0ubuntu1) trusty; urgency=low
 
   - Changed version string to quadruplets (Major.API.ABI.Patch)
   - Minimum dependencies bumped for gcc, Boost, CMake, clang and Python.
-  - TwinRX: Added support. Includes LO API for multi_usrp.
+  - TwinRX: Added support. Includes LO API for multi_smini.
   - N230: Added support
   - Added expert framework
   - X300: Completely restructured to use RFNoC
@@ -94,7 +94,7 @@ uhd (3.10.0.0-0ubuntu1) trusty; urgency=low
     now part of builds, added Aurora support
   - WBX: Fixed bug that prevented LO locking with 50 MHz ref clock
   - pkg-config: Added boost_system
-  - Utils: uhd_usrp_probe can query sensors, query_gpsdo_sensors: minor fixes,
+  - Utils: shd_smini_probe can query sensors, query_gpsdo_sensors: minor fixes,
     and cleanup
   - Examples: Bugfixes in tx_waveforms, benchmark_rate measures timeouts,
   - USB subsystem: Cleanups and minor bugfixes
@@ -105,7 +105,7 @@ uhd (3.10.0.0-0ubuntu1) trusty; urgency=low
 
  -- Ettus Research <packages@ettus.com>  Thu, 11 Aug 2016 04:48:49 -0800
 
-uhd (3.9.5-0ubuntu1) trusty; urgency=low
+shd (3.9.5-0ubuntu1) trusty; urgency=low
 
   - B200: Update DSPs after changing tick rate
   - X300: Added option to disable ADC self test, prevent DAC from
@@ -118,12 +118,12 @@ uhd (3.9.5-0ubuntu1) trusty; urgency=low
   - CMake: Fix lib64 detection, better platform detection, Doxygen may use shorter
     filenames
   - Octoclock: GPSDO-related fixes, sequence number consistency fixes, UART
-    fixes (off-by-one errors). uhd_usrp_probe will pick up an OC now,
+    fixes (off-by-one errors). shd_smini_probe will pick up an OC now,
     added Wireshark dissector for OC packets
 
  -- Ettus Research <packages@ettus.com>  Mon, 22 Aug 2016 02:36:40 -0800
 
-uhd (3.9.4-0ubuntu1) trusty; urgency=low
+shd (3.9.4-0ubuntu1) trusty; urgency=low
 
   - GPIO control: Fix address mismatch for RX and full duplex.
     This fixes full-duplex mode for most devices.
@@ -138,7 +138,7 @@ uhd (3.9.4-0ubuntu1) trusty; urgency=low
 
  -- Ettus Research <packages@ettus.com>  Thu, 05 May 2016 12:56:28 -0800
 
-uhd (3.9.3-0ubuntu1) trusty; urgency=low
+shd (3.9.3-0ubuntu1) trusty; urgency=low
 
   * UBX: Fixed a phase synchronization issue on the sub-1GHz band
   * USB: Fixed transport issue that crashed when multiple USB devices were
@@ -147,14 +147,14 @@ uhd (3.9.3-0ubuntu1) trusty; urgency=low
   * B200: Fixed memory growth/increasing tune times issue
   * E300: Fixed memory leak with udev, fixed issue with autoboot value, fixes
     to button behaviour
-  * usrp2, usrp3: Fixed IQ imbalance and DC bias in DDC chain
+  * smini2, smini3: Fixed IQ imbalance and DC bias in DDC chain
   * CMake: Windows registry fixes
   * Fixed several compiler warnings and minor bugs
   * Examples: Updated benchmark_rate for improved thread safety
 
  -- Ettus Research <packages@ettus.com>  Mon, 21 Mar 2016 11:40:26 -0800
 
-uhd (3.9.2-0ubuntu1) trusty; urgency=low
+shd (3.9.2-0ubuntu1) trusty; urgency=low
 
   * E310: Added support for Speedgrade 3
   * B205mini: Added support
@@ -170,7 +170,7 @@ uhd (3.9.2-0ubuntu1) trusty; urgency=low
 
  -- Martin Braun <martin.braun@ettus.com>  Wed, 30 Dec 2015 11:48:37 -0800
 
-uhd (3.9.1-0ubuntu1) trusty; urgency=low
+shd (3.9.1-0ubuntu1) trusty; urgency=low
 
   * B200mini: Updated udev rules, removed DCM
   * B200: Better USB error messages

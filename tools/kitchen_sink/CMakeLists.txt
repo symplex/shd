@@ -59,17 +59,17 @@ SET(Boost_ADDITIONAL_VERSIONS
 )
 FIND_PACKAGE(Boost 1.46 COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
 
-#### Set up UHD:
-find_package(UHD "3.7.3" REQUIRED)
+#### Set up SHD:
+find_package(SHD "3.7.3" REQUIRED)
 
 ### Configure Compiler ########################################################
 include_directories(
     ${Boost_INCLUDE_DIRS}
-    ${UHD_INCLUDE_DIRS}
+    ${SHD_INCLUDE_DIRS}
 )
 
 ### Make the executable #######################################################
 add_executable(kitchen_sink kitchen_sink.cpp)
-target_link_libraries(kitchen_sink ${UHD_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(kitchen_sink ${SHD_LIBRARIES} ${Boost_LIBRARIES})
 
 # Skip installing.

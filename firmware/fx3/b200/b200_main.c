@@ -2200,7 +2200,7 @@ CyU3PReturnStatus_t b200_spi_init(void) {
 /*! Initialize the USB module of the FX3 chip.
  *
  * This function handles USB initialization, re-enumeration (and thus coming up
- * as a USRP B200 device), configures USB endpoints and the DMA module.
+ * as a SMINI B200 device), configures USB endpoints and the DMA module.
  */
 void b200_usb_init(void) {
     //msg("b200_usb_init");
@@ -2250,8 +2250,8 @@ void b200_usb_init(void) {
      *
      * We support three PIDs:
      *  Ettus B200/B210:        0x0020
-     *  NI USRP-2900:           0x7813
-     *  NI USRP-2901:           0x7814
+     *  NI SMINI-2900:           0x7813
+     *  NI SMINI-2901:           0x7814
      */
     uint8_t *mfr_string = NULL;
     uint8_t *product_string = NULL;
@@ -2259,12 +2259,12 @@ void b200_usb_init(void) {
         mfr_string = b200_usb_manufacture_desc;
         product_string = b200_usb_product_desc;
     } else if((vidpid[3] == 0x39) && (vidpid[2] == 0x23)) {
-        mfr_string = niusrp_usb_manufacture_desc;
+        mfr_string = nismini_usb_manufacture_desc;
 
         if((vidpid[1] == 0x78) && (vidpid[0] == 0x13)) {
-            product_string = niusrp_2900_usb_product_desc;
+            product_string = nismini_2900_usb_product_desc;
         } else if((vidpid[1] == 0x78) && (vidpid[0] == 0x14)) {
-            product_string = niusrp_2901_usb_product_desc;
+            product_string = nismini_2901_usb_product_desc;
         } else {
             product_string = unknown_desc;
         }

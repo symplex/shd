@@ -18,14 +18,14 @@
 #ifndef INCLUDED_RFNOC_WB_IFACE_ADAPTER_HPP
 #define INCLUDED_RFNOC_WB_IFACE_ADAPTER_HPP
 
-#include <uhd/config.hpp>
-#include <uhd/types/wb_iface.hpp>
+#include <shd/config.hpp>
+#include <shd/types/wb_iface.hpp>
 #include <boost/function.hpp>
 
-namespace uhd {
+namespace shd {
     namespace rfnoc {
 
-class UHD_API wb_iface_adapter : public uhd::timed_wb_iface
+class SHD_API wb_iface_adapter : public shd::timed_wb_iface
 {
 public:
     typedef boost::shared_ptr<wb_iface_adapter> sptr;
@@ -65,6 +65,6 @@ private:
     const settime_type  settime_functor;
 };
 
-}} // namespace uhd::rfnoc
+}} // namespace shd::rfnoc
 
 #endif /* INCLUDED_RFNOC_WB_IFACE_ADAPTER_HPP */

@@ -15,18 +15,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/exception.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/exception.hpp>
 #include <boost/format.hpp>
 #include <iostream>
 
-bool uhd::set_thread_priority_safe(float priority, bool realtime){
+bool shd::set_thread_priority_safe(float priority, bool realtime){
     try{
         set_thread_priority(priority, realtime);
         return true;
     }catch(const std::exception &e){
-        UHD_MSG(warning) << boost::format(
+        SHD_MSG(warning) << boost::format(
             "Unable to set the thread priority. Performance may be negatively affected.\n"
             "Please see the general application notes in the manual for instructions.\n"
             "%s\n"
@@ -37,7 +37,7 @@ bool uhd::set_thread_priority_safe(float priority, bool realtime){
 
 static void check_priority_range(float priority){
     if (priority > +1.0 or priority < -1.0)
-        throw uhd::value_error("priority out of range [-1.0, +1.0]");
+        throw shd::value_error("priority out of range [-1.0, +1.0]");
 }
 
 /***********************************************************************
@@ -46,7 +46,7 @@ static void check_priority_range(float priority){
 #ifdef HAVE_PTHREAD_SETSCHEDPARAM
     #include <pthread.h>
 
-    void uhd::set_thread_priority(float priority, bool realtime){
+    void shd::set_thread_priority(float priority, bool realtime){
         check_priority_range(priority);
 
         //when realtime is not enabled, use sched other
@@ -58,13 +58,13 @@ static void check_priority_range(float priority){
         //get the priority bounds for the selected policy
         int min_pri = sched_get_priority_min(policy);
         int max_pri = sched_get_priority_max(policy);
-        if (min_pri == -1 or max_pri == -1) throw uhd::os_error("error in sched_get_priority_min/max");
+        if (min_pri == -1 or max_pri == -1) throw shd::os_error("error in sched_get_priority_min/max");
 
         //set the new priority and policy
         sched_param sp;
         sp.sched_priority = int(priority*(max_pri - min_pri)) + min_pri;
         int ret = pthread_setschedparam(pthread_self(), policy, &sp);
-        if (ret != 0) throw uhd::os_error("error in pthread_setschedparam");
+        if (ret != 0) throw shd::os_error("error in pthread_setschedparam");
     }
 #endif /* HAVE_PTHREAD_SETSCHEDPARAM */
 
@@ -74,7 +74,7 @@ static void check_priority_range(float priority){
 #ifdef HAVE_WIN_SETTHREADPRIORITY
     #include <windows.h>
 
-    void uhd::set_thread_priority(float priority, UHD_UNUSED(bool realtime)){
+    void shd::set_thread_priority(float priority, SHD_UNUSED(bool realtime)){
         check_priority_range(priority);
 
         /*
@@ -83,7 +83,7 @@ static void check_priority_range(float priority){
         //set the priority class on the process
         int pri_class = (realtime)? REALTIME_PRIORITY_CLASS : NORMAL_PRIORITY_CLASS;
         if (SetPriorityClass(GetCurrentProcess(), pri_class) == 0)
-            throw uhd::os_error("error in SetPriorityClass");
+            throw shd::os_error("error in SetPriorityClass");
          */
 
         //scale the priority value to the constants
@@ -95,7 +95,7 @@ static void check_priority_range(float priority){
 
         //set the thread priority on the thread
         if (SetThreadPriority(GetCurrentThread(), priorities[pri_index]) == 0)
-            throw uhd::os_error("error in SetThreadPriority");
+            throw shd::os_error("error in SetThreadPriority");
     }
 #endif /* HAVE_WIN_SETTHREADPRIORITY */
 
@@ -103,8 +103,8 @@ static void check_priority_range(float priority){
  * Unimplemented API to set priority
  **********************************************************************/
 #ifdef HAVE_THREAD_PRIO_DUMMY
-    void uhd::set_thread_priority(float, bool){
-        throw uhd::not_implemented_error("set thread priority not implemented");
+    void shd::set_thread_priority(float, bool){
+        throw shd::not_implemented_error("set thread priority not implemented");
     }
 
 #endif /* HAVE_THREAD_PRIO_DUMMY */

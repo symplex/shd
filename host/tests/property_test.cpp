@@ -16,7 +16,7 @@
 //
 
 #include <boost/test/unit_test.hpp>
-#include <uhd/property_tree.hpp>
+#include <shd/property_tree.hpp>
 #include <boost/bind.hpp>
 #include <exception>
 #include <iostream>
@@ -52,8 +52,8 @@ struct getter_type{
 };
 
 BOOST_AUTO_TEST_CASE(test_prop_simple){
-    uhd::property_tree::sptr tree = uhd::property_tree::make();
-    uhd::property<int> &prop = tree->create<int>("/");
+    shd::property_tree::sptr tree = shd::property_tree::make();
+    shd::property<int> &prop = tree->create<int>("/");
 
     BOOST_CHECK(prop.empty());
     prop.set(0);
@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_CASE(test_prop_simple){
 }
 
 BOOST_AUTO_TEST_CASE(test_prop_with_desired_subscriber){
-    uhd::property_tree::sptr tree = uhd::property_tree::make();
-    uhd::property<int> &prop = tree->create<int>("/");
+    shd::property_tree::sptr tree = shd::property_tree::make();
+    shd::property<int> &prop = tree->create<int>("/");
 
     setter_type setter;
     prop.add_desired_subscriber(boost::bind(&setter_type::doit, &setter, _1));
@@ -84,8 +84,8 @@ BOOST_AUTO_TEST_CASE(test_prop_with_desired_subscriber){
 }
 
 BOOST_AUTO_TEST_CASE(test_prop_with_coerced_subscriber){
-    uhd::property_tree::sptr tree = uhd::property_tree::make();
-    uhd::property<int> &prop = tree->create<int>("/");
+    shd::property_tree::sptr tree = shd::property_tree::make();
+    shd::property<int> &prop = tree->create<int>("/");
 
     setter_type setter;
     prop.add_coerced_subscriber(boost::bind(&setter_type::doit, &setter, _1));
@@ -102,8 +102,8 @@ BOOST_AUTO_TEST_CASE(test_prop_with_coerced_subscriber){
 }
 
 BOOST_AUTO_TEST_CASE(test_prop_manual_coercion){
-    uhd::property_tree::sptr tree = uhd::property_tree::make();
-    uhd::property<int> &prop = tree->create<int>("/", uhd::property_tree::MANUAL_COERCE);
+    shd::property_tree::sptr tree = shd::property_tree::make();
+    shd::property<int> &prop = tree->create<int>("/", shd::property_tree::MANUAL_COERCE);
 
     setter_type dsetter, csetter;
     prop.add_desired_subscriber(boost::bind(&setter_type::doit, &dsetter, _1));
@@ -125,8 +125,8 @@ BOOST_AUTO_TEST_CASE(test_prop_manual_coercion){
 }
 
 BOOST_AUTO_TEST_CASE(test_prop_with_publisher){
-    uhd::property_tree::sptr tree = uhd::property_tree::make();
-    uhd::property<int> &prop = tree->create<int>("/");
+    shd::property_tree::sptr tree = shd::property_tree::make();
+    shd::property<int> &prop = tree->create<int>("/");
 
     BOOST_CHECK(prop.empty());
     getter_type getter;
@@ -143,8 +143,8 @@ BOOST_AUTO_TEST_CASE(test_prop_with_publisher){
 }
 
 BOOST_AUTO_TEST_CASE(test_prop_with_publisher_and_subscriber){
-    uhd::property_tree::sptr tree = uhd::property_tree::make();
-    uhd::property<int> &prop = tree->create<int>("/");
+    shd::property_tree::sptr tree = shd::property_tree::make();
+    shd::property<int> &prop = tree->create<int>("/");
 
     getter_type getter;
     prop.set_publisher(boost::bind(&getter_type::doit, &getter));
@@ -164,8 +164,8 @@ BOOST_AUTO_TEST_CASE(test_prop_with_publisher_and_subscriber){
 }
 
 BOOST_AUTO_TEST_CASE(test_prop_with_coercion){
-    uhd::property_tree::sptr tree = uhd::property_tree::make();
-    uhd::property<int> &prop = tree->create<int>("/");
+    shd::property_tree::sptr tree = shd::property_tree::make();
+    shd::property<int> &prop = tree->create<int>("/");
 
     setter_type setter;
     prop.add_coerced_subscriber(boost::bind(&setter_type::doit, &setter, _1));
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(test_prop_with_coercion){
 }
 
 BOOST_AUTO_TEST_CASE(test_prop_tree){
-    uhd::property_tree::sptr tree = uhd::property_tree::make();
+    shd::property_tree::sptr tree = shd::property_tree::make();
 
     tree->create<int>("/test/prop0");
     tree->create<int>("/test/prop1");
@@ -210,15 +210,15 @@ BOOST_AUTO_TEST_CASE(test_prop_tree){
 }
 
 BOOST_AUTO_TEST_CASE(test_prop_subtree){
-    uhd::property_tree::sptr tree = uhd::property_tree::make();
+    shd::property_tree::sptr tree = shd::property_tree::make();
     tree->create<int>("/subdir1/subdir2");
 
-    uhd::property_tree::sptr subtree1 = tree->subtree("/");
+    shd::property_tree::sptr subtree1 = tree->subtree("/");
     const std::vector<std::string> tree_dirs1 = tree->list("/");
     const std::vector<std::string> subtree1_dirs = subtree1->list("");
     BOOST_CHECK_EQUAL_COLLECTIONS(tree_dirs1.begin(), tree_dirs1.end(), subtree1_dirs.begin(), subtree1_dirs.end());
 
-    uhd::property_tree::sptr subtree2 = subtree1->subtree("subdir1");
+    shd::property_tree::sptr subtree2 = subtree1->subtree("subdir1");
     const std::vector<std::string> tree_dirs2 = tree->list("/subdir1");
     const std::vector<std::string> subtree2_dirs = subtree2->list("");
     BOOST_CHECK_EQUAL_COLLECTIONS(tree_dirs2.begin(), tree_dirs2.end(), subtree2_dirs.begin(), subtree2_dirs.end());
@@ -228,19 +228,19 @@ BOOST_AUTO_TEST_CASE(test_prop_subtree){
 
 BOOST_AUTO_TEST_CASE(test_prop_operators)
 {
-    uhd::fs_path path1 = "/root/";
+    shd::fs_path path1 = "/root/";
     path1 = path1 / "leaf";
     BOOST_CHECK_EQUAL(path1, "/root/leaf");
 
-    uhd::fs_path path2 = "/root";
+    shd::fs_path path2 = "/root";
     path2 = path2 / "leaf";
     BOOST_CHECK_EQUAL(path2, "/root/leaf");
 
-    uhd::fs_path path3 = "/root/";
+    shd::fs_path path3 = "/root/";
     path3 = path3 / "/leaf/";
     BOOST_CHECK_EQUAL(path3, "/root/leaf/");
 
-    uhd::fs_path path4 = "/root/";
+    shd::fs_path path4 = "/root/";
     size_t x = 2;
     path4 = path4 / x;
     BOOST_CHECK_EQUAL(path4, "/root/2");

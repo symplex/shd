@@ -22,8 +22,8 @@
 
 #include "fpga.h"
 #include "fpga_regs_common.h"
-#include "usrp_common.h"
-#include "usrp_globals.h"
+#include "smini_common.h"
+#include "smini_globals.h"
 
 unsigned char g_tx_reset = 0;
 unsigned char g_rx_reset = 0;

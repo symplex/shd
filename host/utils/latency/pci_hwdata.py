@@ -25,9 +25,9 @@ from netifaces import AF_INET
 from optparse import OptionParser
 
 try:
-    from gnuradio import uhd
+    from gnuradio import shd
 except:
-    print "Can't gather USRP info! gr-uhd not found."
+    print "Can't gather SMINI info! gr-shd not found."
 
 # If other paths for this file are known, add them to this list.
 pci_hwdata_paths = ["/usr/share/hwdata/pci.ids", "/usr/share/misc/pci.ids"]
@@ -37,7 +37,7 @@ def main():
     # Just get the file name, where results are supposed to be stored.
     usage = "%prog: [savefile]"
     parser = OptionParser(usage=usage)
-    parser.add_option("", "--file", type="string", help="file to save results. [default=%default]", default="usrps_info.txt")
+    parser.add_option("", "--file", type="string", help="file to save results. [default=%default]", default="sminis_info.txt")
     (options, args) = parser.parse_args()
 
     eths_ids = get_eths_with_ids()
@@ -45,18 +45,18 @@ def main():
         print eth
     save_eth_ids_info_to_file(eths_ids, options.file)
 
-    usrps = []
+    sminis = []
     try:
-        usrps = get_usrps_with_device_info()
-        for usrp in usrps:
-            print usrp
+        sminis = get_sminis_with_device_info()
+        for smini in sminis:
+            print smini
     except Exception as e:
-        print "Can't gather USRP info!"
+        print "Can't gather SMINI info!"
         print e.message,
     try:
-        save_usrp_info(usrps, options.file)
+        save_smini_info(sminis, options.file)
     except Exception as e:
-        print "Can't save USRP info!"
+        print "Can't save SMINI info!"
         print e.message
 
 
@@ -84,12 +84,12 @@ def get_eth_interface_with_address():
                 for ip, mac in zip(ips, macs):
                     eths.append({'interface': iface, 'addr': ip['addr'], 'mac': mac['addr']})
     if not eths:
-        print "Can't gather Ethernet info. Check if a network based USRP is connected to host and responding to \'uhd_find_devices\'"
+        print "Can't gather Ethernet info. Check if a network based SMINI is connected to host and responding to \'shd_find_devices\'"
     return eths
 
 
-def get_usrps_with_device_info():
-    devs = uhd.find_devices()
+def get_sminis_with_device_info():
+    devs = shd.find_devices()
     devs_infos = []
     eths_ids = get_eths_with_ids()
     for dev in devs:
@@ -105,34 +105,34 @@ def get_usrps_with_device_info():
     return devs_infos
 
 
-def save_usrp_info(usrps, filename):
-    if not usrps:
-        print "No USRP data available. Not saving any data."
+def save_smini_info(sminis, filename):
+    if not sminis:
+        print "No SMINI data available. Not saving any data."
         return
     with open(filename, 'w') as f:
         if f.closed:
             print "Warning: Couldn't open", filename, "to save results."
         f.write("#\n")
         f.write("#\n")
-        f.write("# This file contains gathered information about USRPs connected to the host\n")
+        f.write("# This file contains gathered information about SMINIs connected to the host\n")
         f.write("#\n")
         count = 0
-        for usrp in usrps:
-            f.write("\n## USRP Device " + str(count) + "\n")
-            f.write("type:    " + usrp['type'] + "\n")
-            f.write("address: " + usrp['addr'] + "\n")
-            f.write("name:    " + usrp['name'] + "\n")
-            f.write("serial:  " + usrp['serial'] + "\n")
+        for smini in sminis:
+            f.write("\n## SMINI Device " + str(count) + "\n")
+            f.write("type:    " + smini['type'] + "\n")
+            f.write("address: " + smini['addr'] + "\n")
+            f.write("name:    " + smini['name'] + "\n")
+            f.write("serial:  " + smini['serial'] + "\n")
             f.write("host\n")
-            f.write("\t" + usrp['host']['interface'] + "\n")
-            f.write("\t" + usrp['host']['addr'] + "\n")
-            f.write("\t" + usrp['host']['mac'] + "\n")
+            f.write("\t" + smini['host']['interface'] + "\n")
+            f.write("\t" + smini['host']['addr'] + "\n")
+            f.write("\t" + smini['host']['mac'] + "\n")
             f.write("\t\tphysical port info\n")
-            f.write("\t\t\t" + usrp['host']['physical']['vendor']['id'] + " " + usrp['host']['physical']['vendor'][
+            f.write("\t\t\t" + smini['host']['physical']['vendor']['id'] + " " + smini['host']['physical']['vendor'][
                 'name'] + "\n")
-            f.write("\t\t\t" + usrp['host']['physical']['device']['id'] + " " + usrp['host']['physical']['device'][
+            f.write("\t\t\t" + smini['host']['physical']['device']['id'] + " " + smini['host']['physical']['device'][
                 'name'] + "\n")
-            f.write("## End USRP Device " + str(count) + "\n\n")
+            f.write("## End SMINI Device " + str(count) + "\n\n")
             count += 1
 
 

@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/smini/multi_smini.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 #include <iostream>
@@ -25,8 +25,8 @@
 
 namespace po = boost::program_options;
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+int SHD_SAFE_MAIN(int argc, char *argv[]){
+    shd::set_thread_priority_safe();
 
     //variables to be set by po
     std::string args;
@@ -39,7 +39,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "help message")
-        ("args",   po::value<std::string>(&args)->default_value(""), "single uhd device address args")
+        ("args",   po::value<std::string>(&args)->default_value(""), "single shd device address args")
         ("nsamps", po::value<size_t>(&nsamps)->default_value(100),   "number of samples per run")
         ("nruns",  po::value<size_t>(&nruns)->default_value(1000),   "number of tests to perform")
         ("rtt",    po::value<double>(&rtt)->default_value(0.001),    "delay between receive and transmit (seconds)")
@@ -52,53 +52,53 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //print the help message
     if (vm.count("help")){
-        std::cout << boost::format("UHD - Latency Test %s") % desc << std::endl;
+        std::cout << boost::format("SHD - Latency Test %s") % desc << std::endl;
         std::cout <<
         "    Latency test receives a packet at time t,\n"
         "    and tries to send a packet at time t + rtt,\n"
         "    where rtt is the round trip time sample time\n"
         "    from device to host and back to the device.\n"
-        "    This can be used to test latency between UHD and the device.\n"
+        "    This can be used to test latency between SHD and the device.\n"
         "    If the value rtt is chosen too small, the transmit packet will.\n"
         "    arrive too late at the device indicate an error.\n"
         "    The smallest value of rtt that does not indicate an error is an\n"
         "    approximation for the time it takes for a sample packet to\n"
-        "    go to UHD and back to the device."
+        "    go to SHD and back to the device."
         << std::endl;
         return EXIT_SUCCESS;
     }
 
     bool verbose = vm.count("verbose") != 0;
 
-    //create a usrp device
+    //create a smini device
     std::cout << std::endl;
-    //std::cout << boost::format("Creating the usrp device with: %s...") % args << std::endl;
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
-    //std::cout << boost::format("Using Device: %s") % usrp->get_pp_string() << std::endl;
+    //std::cout << boost::format("Creating the smini device with: %s...") % args << std::endl;
+    shd::smini::multi_smini::sptr smini = shd::smini::multi_smini::make(args);
+    //std::cout << boost::format("Using Device: %s") % smini->get_pp_string() << std::endl;
 
-    usrp->set_time_now(uhd::time_spec_t(0.0));
+    smini->set_time_now(shd::time_spec_t(0.0));
 
     //set the tx sample rate
-    usrp->set_tx_rate(rate);
+    smini->set_tx_rate(rate);
     std::cout
         << boost::format("Actual TX Rate: %f Msps...")
-            % (usrp->get_tx_rate()/1e6)
+            % (smini->get_tx_rate()/1e6)
         << std::endl;
 
     //set the rx sample rate
-    usrp->set_rx_rate(rate);
+    smini->set_rx_rate(rate);
     std::cout
         << boost::format("Actual RX Rate: %f Msps...")
-            % (usrp->get_rx_rate()/1e6)
+            % (smini->get_rx_rate()/1e6)
         << std::endl;
 
     //allocate a buffer to use
     std::vector<std::complex<float> > buffer(nsamps);
 
     //create RX and TX streamers
-    uhd::stream_args_t stream_args("fc32"); //complex floats
-    uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(stream_args);
-    uhd::tx_streamer::sptr tx_stream = usrp->get_tx_stream(stream_args);
+    shd::stream_args_t stream_args("fc32"); //complex floats
+    shd::rx_streamer::sptr rx_stream = smini->get_rx_stream(stream_args);
+    shd::tx_streamer::sptr tx_stream = smini->get_tx_stream(stream_args);
 
     //initialize result counts
     int time_error = 0;
@@ -111,16 +111,16 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         /***************************************************************
          * Issue a stream command some time in the near future
          **************************************************************/
-        uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
+        shd::stream_cmd_t stream_cmd(shd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
         stream_cmd.num_samps = buffer.size();
         stream_cmd.stream_now = false;
-        stream_cmd.time_spec = usrp->get_time_now() + uhd::time_spec_t(0.01);
+        stream_cmd.time_spec = smini->get_time_now() + shd::time_spec_t(0.01);
         rx_stream->issue_stream_cmd(stream_cmd);
 
         /***************************************************************
          * Receive the requested packet
          **************************************************************/
-        uhd::rx_metadata_t rx_md;
+        shd::rx_metadata_t rx_md;
         size_t num_rx_samps = rx_stream->recv(
             &buffer.front(), buffer.size(), rx_md
         );
@@ -141,11 +141,11 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         /***************************************************************
          * Transmit a packet with delta time after received packet
          **************************************************************/
-        uhd::tx_metadata_t tx_md;
+        shd::tx_metadata_t tx_md;
         tx_md.start_of_burst = true;
         tx_md.end_of_burst = true;
         tx_md.has_time_spec = true;
-        tx_md.time_spec = rx_md.time_spec + uhd::time_spec_t(rtt);
+        tx_md.time_spec = rx_md.time_spec + shd::time_spec_t(rtt);
         size_t num_tx_samps = tx_stream->send(
             &buffer.front(), buffer.size(), tx_md
         );
@@ -158,21 +158,21 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         /***************************************************************
          * Check the async messages for result
          **************************************************************/
-        uhd::async_metadata_t async_md;
+        shd::async_metadata_t async_md;
         if (not tx_stream->recv_async_msg(async_md)){
             std::cout << boost::format("failed:\n    Async message recv timed out.\n") << std::endl;
             continue;
         }
         switch(async_md.event_code){
-        case uhd::async_metadata_t::EVENT_CODE_TIME_ERROR:
+        case shd::async_metadata_t::EVENT_CODE_TIME_ERROR:
             time_error++;
             break;
 
-        case uhd::async_metadata_t::EVENT_CODE_BURST_ACK:
+        case shd::async_metadata_t::EVENT_CODE_BURST_ACK:
             ack++;
             break;
 
-        case uhd::async_metadata_t::EVENT_CODE_UNDERFLOW:
+        case shd::async_metadata_t::EVENT_CODE_UNDERFLOW:
             underflow++;
             break;
 
@@ -186,20 +186,20 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     }
 
     while (true) {
-        uhd::async_metadata_t async_md;
+        shd::async_metadata_t async_md;
         if (not tx_stream->recv_async_msg(async_md)) {
             break;
         }
         switch(async_md.event_code){
-        case uhd::async_metadata_t::EVENT_CODE_TIME_ERROR:
+        case shd::async_metadata_t::EVENT_CODE_TIME_ERROR:
             time_error++;
             break;
 
-        case uhd::async_metadata_t::EVENT_CODE_BURST_ACK:
+        case shd::async_metadata_t::EVENT_CODE_BURST_ACK:
             ack++;
             break;
 
-        case uhd::async_metadata_t::EVENT_CODE_UNDERFLOW:
+        case shd::async_metadata_t::EVENT_CODE_UNDERFLOW:
             underflow++;
             break;
 

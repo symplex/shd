@@ -21,7 +21,7 @@
  */
 
 #include "spi.h"
-#include "usrp_regs.h"
+#include "smini_regs.h"
 
 static void
 setup_enables (unsigned char enables)
@@ -34,12 +34,12 @@ setup_enables (unsigned char enables)
 
   // KLUDGE: This code is fragile, but reasonably fast...
   // low three bits of enables go into port A
-  USRP_PA = USRP_PA | (0x7 << 3);	// disable FPGA, CODEC_A, CODEC_B
-  USRP_PA ^= (enables & 0x7) << 3;	// enable specified devs
+  SMINI_PA = SMINI_PA | (0x7 << 3);	// disable FPGA, CODEC_A, CODEC_B
+  SMINI_PA ^= (enables & 0x7) << 3;	// enable specified devs
 
   // high four bits of enables go into port E
-  USRP_PE = USRP_PE | (0xf << 4);	// disable TX_A, RX_A, TX_B, RX_B
-  USRP_PE ^= (enables & 0xf0);		// enable specified devs
+  SMINI_PE = SMINI_PE | (0xf << 4);	// disable TX_A, RX_A, TX_B, RX_B
+  SMINI_PE ^= (enables & 0xf0);		// enable specified devs
 }
 
 #define disable_all()	setup_enables (0)

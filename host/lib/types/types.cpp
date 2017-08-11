@@ -15,10 +15,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/types/stream_cmd.hpp>
-#include <uhd/types/metadata.hpp>
+#include <shd/types/stream_cmd.hpp>
+#include <shd/types/metadata.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 /***********************************************************************
  * stream command

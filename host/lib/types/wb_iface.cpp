@@ -15,10 +15,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/types/wb_iface.hpp>
-#include <uhd/exception.hpp>
+#include <shd/types/wb_iface.hpp>
+#include <shd/exception.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 wb_iface::~wb_iface(void)
 {
@@ -27,30 +27,30 @@ wb_iface::~wb_iface(void)
 
 void wb_iface::poke64(const wb_iface::wb_addr_type, const uint64_t)
 {
-    throw uhd::not_implemented_error("poke64 not implemented");
+    throw shd::not_implemented_error("poke64 not implemented");
 }
 
 uint64_t wb_iface::peek64(const wb_iface::wb_addr_type)
 {
-    throw uhd::not_implemented_error("peek64 not implemented");
+    throw shd::not_implemented_error("peek64 not implemented");
 }
 
 void wb_iface::poke32(const wb_iface::wb_addr_type, const uint32_t)
 {
-    throw uhd::not_implemented_error("poke32 not implemented");
+    throw shd::not_implemented_error("poke32 not implemented");
 }
 
 uint32_t wb_iface::peek32(const wb_iface::wb_addr_type)
 {
-    throw uhd::not_implemented_error("peek32 not implemented");
+    throw shd::not_implemented_error("peek32 not implemented");
 }
 
 void wb_iface::poke16(const wb_iface::wb_addr_type, const uint16_t)
 {
-    throw uhd::not_implemented_error("poke16 not implemented");
+    throw shd::not_implemented_error("poke16 not implemented");
 }
 
 uint16_t wb_iface::peek16(const wb_iface::wb_addr_type)
 {
-    throw uhd::not_implemented_error("peek16 not implemented");
+    throw shd::not_implemented_error("peek16 not implemented");
 }

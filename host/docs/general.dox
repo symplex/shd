@@ -6,7 +6,7 @@
 
 \subsection general_tuning_process Two-stage tuning process
 
-A USRP device has two stages of tuning:
+A SMINI device has two stages of tuning:
 
 - RF front-end: translates between RF and IF
 - DSP: translates between IF and baseband
@@ -15,15 +15,15 @@ In a typical use-case, the user specifies an overall center frequency
 for the signal chain. The RF front-end will be tuned as close as
 possible to the center frequency, and the DSP will account for the error
 in tuning between target frequency and actual frequency. The user may
-also explicitly control both stages of tuning through through the uhd::tune_request_t object, which allows for more advanced tuning.
+also explicitly control both stages of tuning through through the shd::tune_request_t object, which allows for more advanced tuning.
 
-In general, Using UHD software's advanced tuning is highly recommended
+In general, Using SHD software's advanced tuning is highly recommended
 as it makes it easy to move the DC component out of your
 band-of-interest. This can be done by passing your desired LO offset to
-the uhd::tune_request_t object, and letting the UHD software handle the
+the shd::tune_request_t object, and letting the SHD software handle the
 rest.
 
-The uhd::tune_request_t object can also be used with certain
+The shd::tune_request_t object can also be used with certain
 daughterboards to use Integer-N tuning instead of the default fractional
 tuning, allowing for better spur performance. The daughterboards that
 support this functionality are:
@@ -41,18 +41,18 @@ support this functionality are:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
 //tuning to a desired center frequency
-usrp->set_rx_freq(target_frequency_in_hz);
+smini->set_rx_freq(target_frequency_in_hz);
 
 --OR--
 
-//advanced tuning with tune_request_t uhd::tune_request_t
+//advanced tuning with tune_request_t shd::tune_request_t
 tune_req(target_frequency_in_hz, desired_lo_offset);
-tune_req.args = uhd::device_addr_t("mode_n=integer"); //to use Int-N tuning
+tune_req.args = shd::device_addr_t("mode_n=integer"); //to use Int-N tuning
 //fill in any additional/optional tune request fields...
-usrp->set_rx_freq(tune_req);
+smini->set_rx_freq(tune_req);
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-More information can be found in uhd::tune_request_t.
+More information can be found in shd::tune_request_t.
 
 \subsection general_tuning_rfsettling RF front-end settling time
 
@@ -67,24 +67,24 @@ second).
 \subsubsection general_tuning_waitcode Pseudo-code for dealing with settling time after tuning on receive:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-    usrp->set_rx_freq(...);
+    smini->set_rx_freq(...);
     sleep(1);
-    usrp->issue_stream_command(...);
+    smini->issue_stream_command(...);
 
     --OR--
 
-    usrp->set_rx_freq(...);
-    while (not usrp->get_rx_sensor("lo_locked").to_bool()){
+    smini->set_rx_freq(...);
+    while (not smini->get_rx_sensor("lo_locked").to_bool()){
         //sleep for a short time in milliseconds
     }
-    usrp->issue_stream_command(...);
+    smini->issue_stream_command(...);
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 \section general_sampleratenotes Sample rate notes
 
-Sample rates as delivered to the host computer for USRP devices are constrained to follow several important rules.
+Sample rates as delivered to the host computer for SMINI devices are constrained to follow several important rules.
 
-It is important to understand that strictly-integer <b>decimation</b> and <b>interpolation</b> are used within USRP
+It is important to understand that strictly-integer <b>decimation</b> and <b>interpolation</b> are used within SMINI
 hardware to meet the requested sample-rate requirements of the application at hand.  That means that the desired
 sample rate must meet the requirement that master-clock-rate/desired-sample-rate be an integer ratio.  Further, it is
 strongly desirable for that ratio to be <b>even</b>.
@@ -93,23 +93,23 @@ There are further constraints on the desired sample rate, such that if the requi
 then the resulting decimation <b>must</b> be evenly divisible by 2, and that if the required decimation exceeds 256, the
 resulting decimation \b must be evenly divisible by 4.
 
-For USRP devices with fixed master clocks (notably: USRP1, USRP2, N2xx), there are fewer effective sample rates available than
-on USRP hardware that provides some flexibility in selecting a master clock.  Several USRP devices support flexible master
+For SMINI devices with fixed master clocks (notably: SMINI1, SMINI2, N2xx), there are fewer effective sample rates available than
+on SMINI hardware that provides some flexibility in selecting a master clock.  Several SMINI devices support flexible master
 clock selection, allowing a broader range of sample rate selections by applications. See the individual devices' manual
 pages for more details.
 
-In many cases using USRPs with flexible master-clock rates, it is possible to achieve lower sample rates without running into
+In many cases using SMINIs with flexible master-clock rates, it is possible to achieve lower sample rates without running into
 the constraints of higher decimation rates, simply by choosing a lower master-clock rate to keep required decimation below 128.
 
 \subsection general_sampleratenotes_automatic Automatic master-clock selection
 
-In recent versions of UHD software (3.8.5 and newer), and on some devices (currently: B2xx and E3xx series),
+In recent versions of SHD software (3.8.5 and newer), and on some devices (currently: B2xx and E3xx series),
 the master clock rate is chosen automatically (unless specified by the user).
-UHD will select a master clock rate that is consistent with the desired sample rate indicated by the application.
+SHD will select a master clock rate that is consistent with the desired sample rate indicated by the application.
 
 \subsection general_sampleratenotes_nyquist Master clock rate and Nyquist
 
-In selecting a master clock rate on certain USRP hardware (X3xx and B1xx), it is important to select a rate that still provides
+In selecting a master clock rate on certain SMINI hardware (X3xx and B1xx), it is important to select a rate that still provides
 correct alias suppression by the analog hardware.  For daughtercards with a 40 MHz analog bandwidth, this means the clock rate 
 must be <b>at least</b> 40 MHz, with better performance to be expected with a higher clock rate.  For daughtercards
 with 160 MHz bandwidth, it must be <b>at least</b> 160 MHz, again, better performance is to expected with a higher clock rate.
@@ -121,7 +121,7 @@ is significantly more flexible as a result.
 
 \section general_ounotes Overflow/Underflow Notes
 
-<b>Note:</b> The following overflow/underflow notes do not apply to USRP1,
+<b>Note:</b> The following overflow/underflow notes do not apply to SMINI1,
 which does not support the advanced features available in newer
 products.
 
@@ -129,12 +129,12 @@ products.
 
 When receiving, the device produces samples at a constant rate.
 Overflows occurs when the host does not consume data fast enough. When
-UHD software detects the overflow, it prints an "O" or "D" to stdout,
+SHD software detects the overflow, it prints an "O" or "D" to stdout,
 and pushes an inline message packet into the receive stream.
 
 <b>Network-based devices</b>: The host does not back-pressure the receive
 stream. When the kernel's socket buffer becomes full, it will drop
-subsequent packets. UHD software detects the overflow as a discontinuity
+subsequent packets. SHD software detects the overflow as a discontinuity
 in the packet's sequence numbers, and pushes an inline message packet
 into the receive stream. In this case the character "D" is printed to
 stdout as an indication.
@@ -144,14 +144,14 @@ Therefore, overflows always occur in the device itself. When the
 device's internal buffers become full, streaming is shut off, and an
 inline message packet is sent to the host. In this case the character
 "O" is printed to stdout as an indication. If the device was in
-continuous streaming mode, the UHD software will automatically restart
+continuous streaming mode, the SHD software will automatically restart
 streaming when the buffer has space again.
 
 \subsection general_ounotes_underrun Underrun notes
 
 When transmitting, the device consumes samples at a constant rate.
 Underflow occurs when the host does not produce data fast enough. When
-UHD software detects the underflow, it prints a "U" to stdout, and
+SHD software detects the underflow, it prints a "U" to stdout, and
 pushes a message packet into the async message stream.
 
 <b>Note:</b> "O" and "U" message are generally harmless, and just mean the host machine can't keep up with the requested rates.
@@ -160,11 +160,11 @@ pushes a message packet into the async message stream.
 
 \subsection general_threading_safety Thread safety notes
 
-For the most part, UHD software is thread-safe. Please observe the
+For the most part, SHD software is thread-safe. Please observe the
 following limitations:
 
 <b>Fast-path thread requirements:</b> There are three fast-path methods for
-a device: uhd::tx_streamer::send(), uhd::rx_streamer::recv(), and uhd::tx_streamer::recv_async_msg().
+a device: shd::tx_streamer::send(), shd::rx_streamer::recv(), and shd::tx_streamer::recv_async_msg().
 All three methods are thread-safe and can be called from different thread
 contexts. For performance, the user should call each method from a
 separate thread context. These methods can also be used in a
@@ -179,12 +179,12 @@ to use at most one thread context for manipulating device settings.
 
 \subsection general_threading_prio Thread priority scheduling
 
-When UHD software spawns a new thread, it may try to boost the thread's
-scheduling priority. If setting the new priority fails, the UHD software
+When SHD software spawns a new thread, it may try to boost the thread's
+scheduling priority. If setting the new priority fails, the SHD software
 prints a warning to the console, as shown below. This warning is harmless;
 it simply means that the thread will retain a normal or default scheduling priority.
 
-    UHD Warning:
+    SHD Warning:
         Unable to set the thread priority. Performance may be negatively affected.
         Please see the general application notes in the manual for instructions.
         EnvironmentError: OSError: error in pthread_setschedparam
@@ -206,26 +206,26 @@ In most Linux distributions, a list of groups and group members can be found in 
 
 For a module to be loaded at runtime, it must be:
 
-- found in the `UHD_MODULE_PATH` environment variable,
-- installed into the `\<install-path\>/share/uhd/modules` directory,
-- or installed into `/usr/share/uhd/modules` directory (UNIX only).
+- found in the `SHD_MODULE_PATH` environment variable,
+- installed into the `\<install-path\>/share/shd/modules` directory,
+- or installed into `/usr/share/shd/modules` directory (UNIX only).
 
 \subsection general_misc_prints Disabling or redirecting prints to stdout
 
-The user can disable the UHD library from printing directly to stdout by
+The user can disable the SHD library from printing directly to stdout by
 registering a custom message handler. The handler will intercept all
 messages, which can be dropped or redirected. Only one handler can be
 registered at a time. Make **register_handler** your first call into
-the UHD library:
+the SHD library:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-#include <uhd/utils/msg.hpp>
+#include <shd/utils/msg.hpp>
 
-void my_handler(uhd::msg::type_t type, const std::string &msg){
+void my_handler(shd::msg::type_t type, const std::string &msg){
 //handle the message...
 }
 
-uhd::msg::register_handler(&my_handler);
+shd::msg::register_handler(&my_handler);
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 */

@@ -15,20 +15,20 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_LIBUHD_TRANSPORT_SUPER_RECV_PACKET_HANDLER_HPP
-#define INCLUDED_LIBUHD_TRANSPORT_SUPER_RECV_PACKET_HANDLER_HPP
+#ifndef INCLUDED_LIBSHD_TRANSPORT_SUPER_RECV_PACKET_HANDLER_HPP
+#define INCLUDED_LIBSHD_TRANSPORT_SUPER_RECV_PACKET_HANDLER_HPP
 
 #include "../rfnoc/rx_stream_terminator.hpp"
-#include <uhd/config.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/convert.hpp>
-#include <uhd/stream.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/utils/tasks.hpp>
-#include <uhd/utils/byteswap.hpp>
-#include <uhd/types/metadata.hpp>
-#include <uhd/transport/vrt_if_packet.hpp>
-#include <uhd/transport/zero_copy.hpp>
+#include <shd/config.hpp>
+#include <shd/exception.hpp>
+#include <shd/convert.hpp>
+#include <shd/stream.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/utils/tasks.hpp>
+#include <shd/utils/byteswap.hpp>
+#include <shd/types/metadata.hpp>
+#include <shd/transport/vrt_if_packet.hpp>
+#include <shd/transport/zero_copy.hpp>
 #include <boost/dynamic_bitset.hpp>
 #include <boost/foreach.hpp>
 #include <boost/function.hpp>
@@ -39,20 +39,20 @@
 #include <vector>
 
 // Included for debugging
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
 #include <boost/format.hpp>
 #include <boost/thread/thread.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
 #endif
 
-namespace uhd{ namespace transport{ namespace sph{
+namespace shd{ namespace transport{ namespace sph{
 
-UHD_INLINE uint32_t get_context_code(
+SHD_INLINE uint32_t get_context_code(
     const uint32_t *vrt_hdr, const vrt::if_packet_info_t &if_packet_info
 ){
     //extract the context word (we dont know the endianness so mirror the bytes)
     uint32_t word0 = vrt_hdr[if_packet_info.num_header_words32] |
-              uhd::byteswap(vrt_hdr[if_packet_info.num_header_words32]);
+              shd::byteswap(vrt_hdr[if_packet_info.num_header_words32]);
     return word0 & 0xff;
 }
 
@@ -129,12 +129,12 @@ public:
         }
     }
 
-    void set_terminator(uhd::rfnoc::rx_stream_terminator::sptr terminator)
+    void set_terminator(shd::rfnoc::rx_stream_terminator::sptr terminator)
     {
         _terminator = terminator;
     }
 
-    uhd::rfnoc::rx_stream_terminator::sptr get_terminator()
+    shd::rfnoc::rx_stream_terminator::sptr get_terminator()
     {
         return _terminator;
     }
@@ -195,12 +195,12 @@ public:
     }
 
     //! Set the conversion routine for all channels
-    void set_converter(const uhd::convert::id_type &id){
+    void set_converter(const shd::convert::id_type &id){
         _num_outputs = id.num_outputs;
-        _converter = uhd::convert::get_converter(id)();
+        _converter = shd::convert::get_converter(id)();
         this->set_scale_factor(1/32767.); //update after setting converter
-        _bytes_per_otw_item = uhd::convert::get_bytes_per_item(id.input_format);
-        _bytes_per_cpu_item = uhd::convert::get_bytes_per_item(id.output_format);
+        _bytes_per_otw_item = shd::convert::get_bytes_per_item(id.input_format);
+        _bytes_per_cpu_item = shd::convert::get_bytes_per_item(id.output_format);
     }
 
     //! Set the transport channel's overflow handler
@@ -226,7 +226,7 @@ public:
         //if (stream_cmd.stream_now
                 //and stream_cmd.stream_mode != stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS
                 //and _props.size() > 1) {
-            //throw uhd::runtime_error("Attempting to do multi-channel receive with stream_now == true will result in misaligned channels. Aborting.");
+            //throw shd::runtime_error("Attempting to do multi-channel receive with stream_now == true will result in misaligned channels. Aborting.");
         //}
 
         for (size_t i = 0; i < _props.size(); i++)
@@ -240,10 +240,10 @@ public:
      * The entry point for the fast-path receive calls.
      * Dispatch into combinations of single packet receive calls.
      ******************************************************************/
-    UHD_INLINE size_t recv(
-        const uhd::rx_streamer::buffs_type &buffs,
+    SHD_INLINE size_t recv(
+        const shd::rx_streamer::buffs_type &buffs,
         const size_t nsamps_per_buff,
-        uhd::rx_metadata_t &metadata,
+        shd::rx_metadata_t &metadata,
         const double timeout,
         const bool one_packet
     ){
@@ -261,7 +261,7 @@ public:
         );
 
         if (one_packet or metadata.end_of_burst){
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
             dbg_gather_data(nsamps_per_buff, accum_num_samps, metadata, timeout, one_packet);
 #endif
             return accum_num_samps;
@@ -292,7 +292,7 @@ public:
                 break;
             }
         }
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
         dbg_gather_data(nsamps_per_buff, accum_num_samps, metadata, timeout, one_packet);
 #endif
         return accum_num_samps;
@@ -326,7 +326,7 @@ private:
     size_t _num_outputs;
     size_t _bytes_per_otw_item; //used in conversion
     size_t _bytes_per_cpu_item; //used in conversion
-    uhd::convert::converter::sptr _converter; //used in conversion
+    shd::convert::converter::sptr _converter; //used in conversion
 
     //! information stored for a received buffer
     struct per_buffer_info_type{
@@ -393,7 +393,7 @@ private:
     int recvd_packets;
     #endif
 
-    uhd::rfnoc::rx_stream_terminator::sptr _terminator;
+    shd::rfnoc::rx_stream_terminator::sptr _terminator;
 
     /*******************************************************************
      * Get and process a single packet from the transport:
@@ -401,7 +401,7 @@ private:
      * Extract all the relevant info and store.
      * Check the info to determine the return code.
      ******************************************************************/
-    UHD_INLINE packet_type get_and_process_single_packet(
+    SHD_INLINE packet_type get_and_process_single_packet(
         const size_t index,
         per_buffer_info_type &prev_buffer_info,
         per_buffer_info_type &curr_buffer_info,
@@ -461,7 +461,7 @@ private:
         const size_t expected_packet_count = _props[index].packet_count;
         _props[index].packet_count = (info.ifpi.packet_count + 1) & seq_mask;
         if (expected_packet_count != info.ifpi.packet_count){
-            //UHD_MSG(status) << "expected: " << expected_packet_count << " got: " << info.ifpi.packet_count << std::endl;
+            //SHD_MSG(status) << "expected: " << expected_packet_count << " got: " << info.ifpi.packet_count << std::endl;
             if (_props[index].handle_flowctrl) {
                 // Always update flow control in this case, because we don't
                 // know which packet was dropped and what state the upstream
@@ -513,7 +513,7 @@ private:
      * Alignment check:
      * Check the received packet for alignment and mark accordingly.
      ******************************************************************/
-    UHD_INLINE void alignment_check(
+    SHD_INLINE void alignment_check(
         const size_t index, buffers_info_type &info
     ){
         //if alignment time was not valid or if the sequence id is newer:
@@ -544,7 +544,7 @@ private:
      * Handle all of the edge cases like inline messages and errors.
      * The logic will throw out older packets until it finds a match.
      ******************************************************************/
-    UHD_INLINE void get_aligned_buffs(double timeout){
+    SHD_INLINE void get_aligned_buffs(double timeout){
 
         get_prev_buffer_info().reset(); // no longer need the previous info - reset it for future use
 
@@ -573,8 +573,8 @@ private:
             }
 
             //handle the case where a bad header exists
-            catch(const uhd::value_error &e){
-                UHD_MSG(error) << boost::format(
+            catch(const shd::value_error &e){
+                SHD_MSG(error) << boost::format(
                     "The receive packet handler caught a value exception.\n%s"
                 ) % e.what() << std::endl;
                 std::swap(curr_info, next_info); //save progress from curr -> next
@@ -614,7 +614,7 @@ private:
                     rx_metadata_t metadata = curr_info.metadata;
                     _props[index].handle_overflow();
                     curr_info.metadata = metadata;
-                    UHD_MSG(fastpath) << "O";
+                    SHD_MSG(fastpath) << "O";
                 }
                 curr_info[index].buff.reset();
                 curr_info[index].copy_buff = NULL;
@@ -636,14 +636,14 @@ private:
                     prev_info[index].ifpi.num_payload_words32*sizeof(uint32_t)/_bytes_per_otw_item, _samp_rate);
                 curr_info.metadata.out_of_sequence = true;
                 curr_info.metadata.error_code = rx_metadata_t::ERROR_CODE_OVERFLOW;
-                UHD_MSG(fastpath) << "D";
+                SHD_MSG(fastpath) << "D";
                 return;
 
             }
 
             //too many iterations: detect alignment failure
             if (iterations++ > _alignment_failure_threshold){
-                UHD_MSG(error) << boost::format(
+                SHD_MSG(error) << boost::format(
                     "The receive packet handler failed to time-align packets.\n"
                     "%u received packets were processed by the handler.\n"
                     "However, a timestamp match could not be determined.\n"
@@ -673,10 +673,10 @@ private:
      * When no fragments are available, call the get aligned buffers.
      * Then copy-convert available data into the user's IO buffers.
      ******************************************************************/
-    UHD_INLINE size_t recv_one_packet(
-        const uhd::rx_streamer::buffs_type &buffs,
+    SHD_INLINE size_t recv_one_packet(
+        const shd::rx_streamer::buffs_type &buffs,
         const size_t nsamps_per_buff,
-        uhd::rx_metadata_t &metadata,
+        shd::rx_metadata_t &metadata,
         const double timeout,
         const size_t buffer_offset_bytes = 0
     ){
@@ -766,15 +766,15 @@ private:
      * It causes a lot of prints to stderr which can be piped to a file.
      * Gathered data can be used to post process it with external tools.
      */
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
     struct dbg_recv_stat_t {
-        dbg_recv_stat_t(long wc, size_t nspb, size_t nsr, uhd::rx_metadata_t md, double to, bool op, double rate):
+        dbg_recv_stat_t(long wc, size_t nspb, size_t nsr, shd::rx_metadata_t md, double to, bool op, double rate):
         wallclock(wc), nsamps_per_buff(nspb), nsamps_recv(nsr), metadata(md), timeout(to), one_packet(op), samp_rate(rate)
         {}
         long wallclock;
         size_t nsamps_per_buff;
         size_t nsamps_recv;
-        uhd::rx_metadata_t metadata;
+        shd::rx_metadata_t metadata;
         double timeout;
         bool one_packet;
         double samp_rate;
@@ -793,7 +793,7 @@ private:
     };
 
     void dbg_gather_data(const size_t nsamps_per_buff, const size_t nsamps_recv,
-            uhd::rx_metadata_t &metadata, const double timeout,
+            shd::rx_metadata_t &metadata, const double timeout,
             const bool one_packet,
             bool dbg_print_directly = true
         )
@@ -839,7 +839,7 @@ public:
     size_t recv(
         const rx_streamer::buffs_type &buffs,
         const size_t nsamps_per_buff,
-        uhd::rx_metadata_t &metadata,
+        shd::rx_metadata_t &metadata,
         const double timeout,
         const bool one_packet
     ){
@@ -857,4 +857,4 @@ private:
 
 }}} //namespace
 
-#endif /* INCLUDED_LIBUHD_TRANSPORT_SUPER_RECV_PACKET_HANDLER_HPP */
+#endif /* INCLUDED_LIBSHD_TRANSPORT_SUPER_RECV_PACKET_HANDLER_HPP */

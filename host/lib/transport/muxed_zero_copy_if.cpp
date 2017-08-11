@@ -15,18 +15,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/muxed_zero_copy_if.hpp>
-#include <uhd/transport/bounded_buffer.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/utils/safe_call.hpp>
+#include <shd/transport/muxed_zero_copy_if.hpp>
+#include <shd/transport/bounded_buffer.hpp>
+#include <shd/exception.hpp>
+#include <shd/utils/safe_call.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/locks.hpp>
 #include <map>
 
-using namespace uhd;
-using namespace uhd::transport;
+using namespace shd;
+using namespace shd::transport;
 
 class muxed_zero_copy_if_impl : public muxed_zero_copy_if,
                                 public boost::enable_shared_from_this<muxed_zero_copy_if_impl>
@@ -50,7 +50,7 @@ public:
 
     virtual ~muxed_zero_copy_if_impl()
     {
-        UHD_SAFE_CALL(
+        SHD_SAFE_CALL(
             //Interrupt buffer updater loop
             _recv_thread.interrupt();
             //Wait for loop to finish
@@ -72,7 +72,7 @@ public:
     {
         boost::lock_guard<boost::mutex> lock(_mutex);
         if (_streams.size() >= _max_num_streams) {
-            throw uhd::runtime_error("muxed_zero_copy_if: stream capacity exceeded. cannot create more streams.");
+            throw shd::runtime_error("muxed_zero_copy_if: stream capacity exceeded. cannot create more streams.");
         }
         // Only allocate a portion of the base transport's frames to each stream
         // to prevent all streams from attempting to use all the frames.
@@ -111,7 +111,7 @@ private:
 
         void release() {}
 
-        UHD_INLINE sptr get_new(char *buff, size_t len)
+        SHD_INLINE sptr get_new(char *buff, size_t len)
         {
             memcpy(_buff, buff, len);
             return make(this, _buff, len);

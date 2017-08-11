@@ -15,13 +15,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_LIBUHD_TRANSPORT_VRT_PACKET_HANDLER_HPP
-#define INCLUDED_LIBUHD_TRANSPORT_VRT_PACKET_HANDLER_HPP
+#ifndef INCLUDED_LIBSHD_TRANSPORT_VRT_PACKET_HANDLER_HPP
+#define INCLUDED_LIBSHD_TRANSPORT_VRT_PACKET_HANDLER_HPP
 
-#include <uhd/config.hpp>
+#include <shd/config.hpp>
 #include <boost/asio.hpp>
 
-namespace uhd{ namespace transport{
+namespace shd{ namespace transport{
 
     // Jumbo frames are limited to 9000;
     static const size_t MAX_ETHERNET_MTU = 9000;
@@ -34,7 +34,7 @@ namespace uhd{ namespace transport{
      * \param timeout the timeout duration in seconds
      * \return true when the socket is ready for receive
      */
-    UHD_INLINE bool wait_for_recv_ready(int sock_fd, double timeout){
+    SHD_INLINE bool wait_for_recv_ready(int sock_fd, double timeout){
         //setup timeval for timeout
         timeval tv;
         //If the tv_usec > 1 second on some platforms, select will
@@ -58,6 +58,6 @@ namespace uhd{ namespace transport{
         return TEMP_FAILURE_RETRY(::select(sock_fd+1, &rset, NULL, NULL, &tv)) > 0;
     }
 
-}} //namespace uhd::transport
+}} //namespace shd::transport
 
-#endif /* INCLUDED_LIBUHD_TRANSPORT_VRT_PACKET_HANDLER_HPP */
+#endif /* INCLUDED_LIBSHD_TRANSPORT_VRT_PACKET_HANDLER_HPP */

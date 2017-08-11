@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/nirio/nifpga_lvbitx.h>
+#include <shd/transport/nirio/nifpga_lvbitx.h>
 #include <cstdlib>
 #include <string>
 #include <fstream>
@@ -23,7 +23,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 
-namespace uhd { namespace niusrprio {
+namespace shd { namespace nisminirio {
 
 std::string nifpga_lvbitx::_get_bitstream_checksum(const std::string& file_path)
 {

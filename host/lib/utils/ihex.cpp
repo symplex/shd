@@ -16,13 +16,13 @@
 //
 
 #include "ihex.hpp"
-#include <uhd/exception.hpp>
+#include <shd/exception.hpp>
 #include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <sstream>
 #include <fstream>
 
-using namespace uhd;
+using namespace shd;
 
 /*!
  * Verify checksum of a Intel HEX record
@@ -113,7 +113,7 @@ void ihex_reader::read(ihex_reader::record_handle_type record_handler)
     file.open(filename, std::ifstream::in);
 
     if(!file.good()) {
-        throw uhd::io_error("ihex_reader::read(): cannot open firmware input file");
+        throw shd::io_error("ihex_reader::read(): cannot open firmware input file");
     }
 
     while (!file.eof()) {
@@ -127,7 +127,7 @@ void ihex_reader::read(ihex_reader::record_handle_type record_handler)
         /* Check for valid Intel HEX record. */
         if (!checksum(record)
             || !parse_record(record, len, lower_address_bits, type, data)) {
-            throw uhd::io_error("ihex_reader::read(): bad intel hex record checksum");
+            throw shd::io_error("ihex_reader::read(): bad intel hex record checksum");
         }
 
         /* Type 0x00: Data. */
@@ -135,14 +135,14 @@ void ihex_reader::read(ihex_reader::record_handle_type record_handler)
             ret = record_handler(lower_address_bits, upper_address_bits, data, len);
 
             if (ret < 0) {
-                throw uhd::io_error("ihex_reader::read(): record hander returned failure code");
+                throw shd::io_error("ihex_reader::read(): record hander returned failure code");
             }
         }
 
         /* Type 0x01: EOF. */
         else if (type == 0x01) {
             if (lower_address_bits != 0x0000 || len != 0 ) {
-                throw uhd::io_error("ihex_reader::read(): For EOF record, address must be 0, length must be 0.");
+                throw shd::io_error("ihex_reader::read(): For EOF record, address must be 0, length must be 0.");
             }
 
             /* Successful termination! */
@@ -153,7 +153,7 @@ void ihex_reader::read(ihex_reader::record_handle_type record_handler)
         /* Type 0x04: Extended Linear Address Record. */
         else if (type == 0x04) {
             if (lower_address_bits != 0x0000 || len != 2 ) {
-                throw uhd::io_error("ihex_reader::read(): For ELA record, address must be 0, length must be 2.");
+                throw shd::io_error("ihex_reader::read(): For ELA record, address must be 0, length must be 2.");
             }
 
             upper_address_bits = ((uint16_t)((data[0] & 0x00FF) << 8))\
@@ -163,7 +163,7 @@ void ihex_reader::read(ihex_reader::record_handle_type record_handler)
         /* Type 0x05: Start Linear Address Record. */
         else if (type == 0x05) {
             if (lower_address_bits != 0x0000 || len != 4 ) {
-                throw uhd::io_error("ihex_reader::read(): For SLA record, address must be 0, length must be 4.");
+                throw shd::io_error("ihex_reader::read(): For SLA record, address must be 0, length must be 4.");
             }
 
             /* The firmware load is complete.  We now need to tell the CPU
@@ -180,12 +180,12 @@ void ihex_reader::read(ihex_reader::record_handle_type record_handler)
 
         /* If we receive an unknown record type, error out. */
         else {
-            throw uhd::io_error(str(boost::format("ihex_reader::read(): unsupported record type: %X.") % type));
+            throw shd::io_error(str(boost::format("ihex_reader::read(): unsupported record type: %X.") % type));
         }
     }
 
     /* There was no valid EOF. */
-    throw uhd::io_error("ihex_reader::read(): No EOF record found.");
+    throw shd::io_error("ihex_reader::read(): No EOF record found.");
 }
 
 // We need a functor for the cast, a lambda would be perfect...
@@ -203,7 +203,7 @@ void ihex_reader::to_bin_file(const std::string &bin_filename)
     boost::shared_ptr<std::ofstream> output_file(boost::make_shared<std::ofstream>());
     output_file->open(bin_filename.c_str(), std::ios::out | std::ios::binary);
     if (not output_file->is_open()) {
-        throw uhd::io_error(str(boost::format("Could not open file for writing: %s") % bin_filename));
+        throw shd::io_error(str(boost::format("Could not open file for writing: %s") % bin_filename));
     }
 
     this->read(boost::bind(&_file_writer_callback, output_file, _3, _4));

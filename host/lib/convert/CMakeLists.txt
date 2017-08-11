@@ -50,7 +50,7 @@ IF(HAVE_EMMINTRIN_H)
         ${convert_with_sse2_sources}
         PROPERTIES COMPILE_FLAGS "${EMMINTRIN_FLAGS}"
     )
-    LIBUHD_APPEND_SOURCES(${convert_with_sse2_sources})
+    LIBSHD_APPEND_SOURCES(${convert_with_sse2_sources})
 ENDIF(HAVE_EMMINTRIN_H)
 
 ########################################################################
@@ -63,7 +63,7 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 IF(HAVE_ARM_NEON_H AND (${CMAKE_SIZEOF_VOID_P} EQUAL 4))
     ENABLE_LANGUAGE(ASM)
 
-    LIBUHD_APPEND_SOURCES(
+    LIBSHD_APPEND_SOURCES(
         ${CMAKE_CURRENT_SOURCE_DIR}/convert_with_neon.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/convert_neon.S
     )
@@ -75,12 +75,12 @@ ENDIF()
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
-LIBUHD_PYTHON_GEN_SOURCE(
+LIBSHD_PYTHON_GEN_SOURCE(
     ${CMAKE_CURRENT_SOURCE_DIR}/gen_convert_general.py
     ${CMAKE_CURRENT_BINARY_DIR}/convert_general.cpp
 )
 
-LIBUHD_APPEND_SOURCES(
+LIBSHD_APPEND_SOURCES(
     ${CMAKE_CURRENT_SOURCE_DIR}/convert_with_tables.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/convert_impl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/convert_item32.cpp

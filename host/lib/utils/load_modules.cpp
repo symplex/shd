@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/paths.hpp>
-#include <uhd/utils/static.hpp>
-#include <uhd/exception.hpp>
+#include <shd/utils/paths.hpp>
+#include <shd/utils/static.hpp>
+#include <shd/exception.hpp>
 #include <boost/format.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
@@ -34,7 +34,7 @@ namespace fs = boost::filesystem;
 #include <dlfcn.h>
 static void load_module(const std::string &file_name){
     if (dlopen(file_name.c_str(), RTLD_LAZY) == NULL){
-        throw uhd::os_error(str(
+        throw shd::os_error(str(
             boost::format("dlopen failed to load \"%s\"") % file_name
         ));
     }
@@ -46,7 +46,7 @@ static void load_module(const std::string &file_name){
 #include <windows.h>
 static void load_module(const std::string &file_name){
     if (LoadLibrary(file_name.c_str()) == NULL){
-        throw uhd::os_error(str(
+        throw shd::os_error(str(
             boost::format("LoadLibrary failed to load \"%s\"") % file_name
         ));
     }
@@ -56,7 +56,7 @@ static void load_module(const std::string &file_name){
 
 #ifdef HAVE_LOAD_MODULES_DUMMY
 static void load_module(const std::string &file_name){
-    throw uhd::not_implemented_error(str(
+    throw shd::not_implemented_error(str(
         boost::format("Module loading not supported: Cannot load \"%s\"") % file_name
     ));
 }
@@ -101,8 +101,8 @@ static void load_module_path(const fs::path &path){
 /*!
  * Load all the modules given in the module paths.
  */
-UHD_STATIC_BLOCK(load_modules){
-    BOOST_FOREACH(const fs::path &path, uhd::get_module_paths()){
+SHD_STATIC_BLOCK(load_modules){
+    BOOST_FOREACH(const fs::path &path, shd::get_module_paths()){
         load_module_path(path);
     }
 }

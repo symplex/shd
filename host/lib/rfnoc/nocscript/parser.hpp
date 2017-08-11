@@ -19,10 +19,10 @@
 #include "function_table.hpp"
 #include <boost/shared_ptr.hpp>
 
-#ifndef INCLUDED_LIBUHD_RFNOC_NOCSCRIPT_PARSER_HPP
-#define INCLUDED_LIBUHD_RFNOC_NOCSCRIPT_PARSER_HPP
+#ifndef INCLUDED_LIBSHD_RFNOC_NOCSCRIPT_PARSER_HPP
+#define INCLUDED_LIBSHD_RFNOC_NOCSCRIPT_PARSER_HPP
 
-namespace uhd { namespace rfnoc { namespace nocscript {
+namespace shd { namespace rfnoc { namespace nocscript {
 
 class parser
 {
@@ -39,12 +39,12 @@ class parser
      *
      * Evaluating the returned object will execute the code.
      *
-     * \throws uhd::syntax_error if \p code contains syntax errors
+     * \throws shd::syntax_error if \p code contains syntax errors
      */
     virtual expression::sptr create_expr_tree(const std::string &code) = 0;
 };
 
-}}} /* namespace uhd::rfnoc::nocscript */
+}}} /* namespace shd::rfnoc::nocscript */
 
-#endif /* INCLUDED_LIBUHD_RFNOC_NOCSCRIPT_PARSER_HPP */
+#endif /* INCLUDED_LIBSHD_RFNOC_NOCSCRIPT_PARSER_HPP */
 // vim: sw=4 et:

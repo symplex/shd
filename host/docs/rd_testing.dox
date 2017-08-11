@@ -10,12 +10,12 @@ development. As a result, test definitions are fairly light-weight.
 
 | Test Code        | Device    | Peripherals       | Manual Test Procedure        | Automatic Test Procedure  |
 |------------------|-----------|-------------------|------------------------------|---------------------------|
-| GPS-X310-TCXO-v1 | USRP X310 | Jackson Labs TCXO | \ref rdtesting_gpsdo_manual  | \ref rdtesting_gpsdo_auto |
-| GPS-X310-OCXO-v1 | USRP X310 | Jackson Labs OCXO | \ref rdtesting_gpsdo_manual  | \ref rdtesting_gpsdo_auto |
-| GPS-X300-TCXO-v1 | USRP X300 | Jackson Labs TCXO | \ref rdtesting_gpsdo_manual  | \ref rdtesting_gpsdo_auto |
-| GPS-X300-OCXO-v1 | USRP X300 | Jackson Labs OCXO | \ref rdtesting_gpsdo_manual  | \ref rdtesting_gpsdo_auto |
-| GPS-B200-TCXO-v1 | USRP B200 | Jackson Labs TCXO | \ref rdtesting_gpsdo_manual  | \ref rdtesting_gpsdo_auto |
-| GPS-B210-TCXO-v1 | USRP B210 | Jackson Labs TCXO | \ref rdtesting_gpsdo_manual  | \ref rdtesting_gpsdo_auto |
+| GPS-X310-TCXO-v1 | SMINI X310 | Jackson Labs TCXO | \ref rdtesting_gpsdo_manual  | \ref rdtesting_gpsdo_auto |
+| GPS-X310-OCXO-v1 | SMINI X310 | Jackson Labs OCXO | \ref rdtesting_gpsdo_manual  | \ref rdtesting_gpsdo_auto |
+| GPS-X300-TCXO-v1 | SMINI X300 | Jackson Labs TCXO | \ref rdtesting_gpsdo_manual  | \ref rdtesting_gpsdo_auto |
+| GPS-X300-OCXO-v1 | SMINI X300 | Jackson Labs OCXO | \ref rdtesting_gpsdo_manual  | \ref rdtesting_gpsdo_auto |
+| GPS-B200-TCXO-v1 | SMINI B200 | Jackson Labs TCXO | \ref rdtesting_gpsdo_manual  | \ref rdtesting_gpsdo_auto |
+| GPS-B210-TCXO-v1 | SMINI B210 | Jackson Labs TCXO | \ref rdtesting_gpsdo_manual  | \ref rdtesting_gpsdo_auto |
 
 
 \subsection rdtesting_gpsdo_recommendations Recommendations
@@ -38,17 +38,17 @@ following).
 
 \subsection rdtesting_gpsdo_manual GPSDO: Manual Test Procedure
 
-1. Without connecting the peripheral to the device, run `uhd_usrp_probe` on the
+1. Without connecting the peripheral to the device, run `shd_smini_probe` on the
    device and verify that the lack of GPSDO is correctly reported. No warning
    or error must be printed.
 2. This and the following tests are run with the peripheral connected: Run
-   `uhd_usrp_probe` and verify that the GPSDO is correctly reported. Power down
+   `shd_smini_probe` and verify that the GPSDO is correctly reported. Power down
    the device before connecting the peripheral. The GPSDO must be reported
    found, and no error or warning must be printed.
 3. OCXO only: Without connecting the GPS antenna input, run
    `query_gpsdo_sensors`. To pass, it must report the GPSDO as found, lock to
    the external reference, but then report not being locked to GPS. The tool
-   will report a valid GPS time, and a string such as "GPS and UHD Device time
+   will report a valid GPS time, and a string such as "GPS and SHD Device time
    are aligned" in case of success.
 4. Connect a GPS antenna to the input and make sure it is in a position to
    receive GPS satellite data. Confirm that GPS lock is reported using
@@ -67,18 +67,18 @@ tbd
 
 | Test Code           | Device        | Peripherals | Manual Test Procedure         | Automatic Test Procedure    |
 |---------------------|---------------|-------------|-------------------------------|-----------------------------|
-| DEVTEST-X310-XG-v1  | USRP X310     | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
-| DEVTEST-X310-HG-v1  | USRP X310     | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
-| DEVTEST-X300-XG-v1  | USRP X300     | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
-| DEVTEST-X300-HG-v1  | USRP X300     | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
-| DEVTEST-E310-SG1-v1 | USRP E310-SG1 | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
-| DEVTEST-E310-SG3-v1 | USRP E310-SG3 | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
-| DEVTEST-B200-v1     | USRP B200     | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
-| DEVTEST-B210-v1     | USRP B210     | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
-| DEVTEST-B200m-v1    | USRP B200mini | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
-| DEVTEST-B205m-v1    | USRP B205mini | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
+| DEVTEST-X310-XG-v1  | SMINI X310     | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
+| DEVTEST-X310-HG-v1  | SMINI X310     | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
+| DEVTEST-X300-XG-v1  | SMINI X300     | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
+| DEVTEST-X300-HG-v1  | SMINI X300     | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
+| DEVTEST-E310-SG1-v1 | SMINI E310-SG1 | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
+| DEVTEST-E310-SG3-v1 | SMINI E310-SG3 | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
+| DEVTEST-B200-v1     | SMINI B200     | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
+| DEVTEST-B210-v1     | SMINI B210     | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
+| DEVTEST-B200m-v1    | SMINI B200mini | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
+| DEVTEST-B205m-v1    | SMINI B205mini | None        | \ref rdtesting_devtest_manual | \ref rdtesting_devtest_auto |
 
-The devtests are hardware tests built in to the UHD make system. They can be run
+The devtests are hardware tests built in to the SHD make system. They can be run
 directly from the build directory and require no configuration.
 Devtests are designed to always run, regardless of the actual device
 configuration. This means, by definition, that devtests cannot require special
@@ -128,7 +128,7 @@ respectively.
    typical sshfs mount of an environment). In this case, copy the contents of
    the devtest directory onto the device, and run the following command (the
    environment variables need to point to the location of the devtest code, the
-   location of the UHD examples such as benchmark_rate, and where you want to
+   location of the SHD examples such as benchmark_rate, and where you want to
    store log files, respectively):
 
        $DEVTEST_DIR/run_testsuite.py --src-dir $DEVTEST_DIR \
@@ -164,18 +164,18 @@ installed.
 1. Go to the fpga directory depending on which test needs to be run.
 
   1. NoC block test benches:
-     Most of the NoC blocks have a test bench written in System Verilog that provides stimuli to the noc_block to verify it. The test bench for a block resides in `<fpga-dir>/usrp3/lib/rfnoc/&zwj;*_tb`.
+     Most of the NoC blocks have a test bench written in System Verilog that provides stimuli to the noc_block to verify it. The test bench for a block resides in `<fpga-dir>/smini3/lib/rfnoc/&zwj;*_tb`.
 
   2. Running unit test benches:
-     A few sub-blocks like noc-shell and sine_tone are used within the bigger noc_blocks. They have their own test benches. Their test benches reside in `<fpga-dir>/usrp3/lib/sim/rfnoc/&zwj;*`.
+     A few sub-blocks like noc-shell and sine_tone are used within the bigger noc_blocks. They have their own test benches. Their test benches reside in `<fpga-dir>/smini3/lib/sim/rfnoc/&zwj;*`.
 
   3. Radio test bench:
-     The radio test bench resides in `<fpga-dir>/usrp3/lib/radio/noc_block_radio_core_tb/`.
+     The radio test bench resides in `<fpga-dir>/smini3/lib/radio/noc_block_radio_core_tb/`.
 
   4. Device specific test benches:
-     IPs specific to a device have test benches that exist in `<fpga-dir>/usrp3/top/x300/sim/*`. e.g. DMA testbench, PCIe, etc.
+     IPs specific to a device have test benches that exist in `<fpga-dir>/smini3/top/x300/sim/*`. e.g. DMA testbench, PCIe, etc.
 
-2. Setup the environment by running `source <fpga-dir>/usrp3/top/<device>/setupenv.sh`.
+2. Setup the environment by running `source <fpga-dir>/smini3/top/<device>/setupenv.sh`.
 
 3. In the test bench directory and run the test bench by 'make xsim' or 'make vsim'.
 
@@ -214,18 +214,18 @@ debugging: https://kb.ettus.com/Debugging_FPGA_images
 
 \subsection rdtesting_fpga_testbenches_auto Automatic Test Procedure
 
- Go to <fpga-dir>/usrp3/ and run 'build.py xsim all'. All tests should report 'PASS'.
+ Go to <fpga-dir>/smini3/ and run 'build.py xsim all'. All tests should report 'PASS'.
 
 \section rdtesting_fpgadspverif FPGA DSP Verification
 
 | Test Code                | Device        | Peripherals | Manual Test Procedure              | Automatic Test Procedure         |
 |--------------------------|---------------|-------------|------------------------------------|----------------------------------|
-| FPGADSPVERIF-X310-HG-v1  | USRP X310     | 2x UBX      | \ref rdtesting_fpgadspverif_manual | \ref rdtesting_fpgadspverif_auto |
-| FPGADSPVERIF-X310-XG-v1  | USRP X300     | 2x UBX      | \ref rdtesting_fpgadspverif_manual | \ref rdtesting_fpgadspverif_auto |
-| FPGADSPVERIF-X300-HG-v1  | USRP X310     | 2x UBX      | \ref rdtesting_fpgadspverif_manual | \ref rdtesting_fpgadspverif_auto |
-| FPGADSPVERIF-X300-XG-v1  | USRP X300     | 2x UBX      | \ref rdtesting_fpgadspverif_manual | \ref rdtesting_fpgadspverif_auto |
-| FPGADSPVERIF-E310-SG1-v1 | USRP E310 SG1 | None        | \ref rdtesting_fpgadspverif_manual | \ref rdtesting_fpgadspverif_auto |
-| FPGADSPVERIF-E310-SG3-v1 | USRP E310 SG3 | None        | \ref rdtesting_fpgadspverif_manual | \ref rdtesting_fpgadspverif_auto |
+| FPGADSPVERIF-X310-HG-v1  | SMINI X310     | 2x UBX      | \ref rdtesting_fpgadspverif_manual | \ref rdtesting_fpgadspverif_auto |
+| FPGADSPVERIF-X310-XG-v1  | SMINI X300     | 2x UBX      | \ref rdtesting_fpgadspverif_manual | \ref rdtesting_fpgadspverif_auto |
+| FPGADSPVERIF-X300-HG-v1  | SMINI X310     | 2x UBX      | \ref rdtesting_fpgadspverif_manual | \ref rdtesting_fpgadspverif_auto |
+| FPGADSPVERIF-X300-XG-v1  | SMINI X300     | 2x UBX      | \ref rdtesting_fpgadspverif_manual | \ref rdtesting_fpgadspverif_auto |
+| FPGADSPVERIF-E310-SG1-v1 | SMINI E310 SG1 | None        | \ref rdtesting_fpgadspverif_manual | \ref rdtesting_fpgadspverif_auto |
+| FPGADSPVERIF-E310-SG3-v1 | SMINI E310 SG3 | None        | \ref rdtesting_fpgadspverif_manual | \ref rdtesting_fpgadspverif_auto |
 
 \subsection rdtesting_fpgadspverif_requirements Requirements
 
@@ -243,9 +243,9 @@ to change sample rate while streaming.
 1. Run calibration on device, if applicable
 2. Using a signal generator, inject a sine tone into RX channel 0 at 915.5 MHz @
    -40 dBm
-3. Inspect the received spectrum using `uhd_fft`
-  - X3x0: `uhd_fft -f 915e6 -s 10e6 -g 10`
-  - E3xx: `uhd_fft -f 915e6 -s 2e6 -g 50`
+3. Inspect the received spectrum using `shd_fft`
+  - X3x0: `shd_fft -f 915e6 -s 10e6 -g 10`
+  - E3xx: `shd_fft -f 915e6 -s 2e6 -g 50`
   - Embedded devices will require either using network mode or using X
     forwarding over ssh to run the app natively
 4. In the GUI, inspect the spectrum. There should be a strong tone at the test
@@ -277,9 +277,9 @@ to change sample rate while streaming.
 #### TX testing
 
 1. Run calibration on device, if applicable
-2. Using `uhd_siggen_gui`, generate a sine tone TX channel 0 at 915.5 MHz:
-  - X3x0: `uhd_siggen_gui -f 915e6 -s 10e6 -g 10 -x 500e3 --sine`
-  - E3xx: `uhd_siggen_gui -f 915e6 -s 2e6 -g 50 -x 500e3 --sine`
+2. Using `shd_siggen_gui`, generate a sine tone TX channel 0 at 915.5 MHz:
+  - X3x0: `shd_siggen_gui -f 915e6 -s 10e6 -g 10 -x 500e3 --sine`
+  - E3xx: `shd_siggen_gui -f 915e6 -s 2e6 -g 50 -x 500e3 --sine`
 3. Using a spectrum analyzer, inspect the output spectrum. There should be a
    strong tone at the test tone frequency. There may be a small tone at the
    carrier frequency due to DC offset and a quadrature image due to IQ
@@ -313,12 +313,12 @@ tbd
 
 | Test Code                 | Device        | Peripherals | Manual Test Procedure               | Automatic Test Procedure          |
 |---------------------------|---------------|-------------|-------------------------------------|-----------------------------------|
-| FPGAFUNCVERIF-X310-HG-v1  | USRP X310     | 2x UBX      | \ref rdtesting_fpgafuncverif_manual | \ref rdtesting_fpgafuncverif_auto |
-| FPGAFUNCVERIF-X310-XG-v1  | USRP X300     | 2x UBX      | \ref rdtesting_fpgafuncverif_manual | \ref rdtesting_fpgafuncverif_auto |
-| FPGAFUNCVERIF-X300-HG-v1  | USRP X310     | 2x UBX      | \ref rdtesting_fpgafuncverif_manual | \ref rdtesting_fpgafuncverif_auto |
-| FPGAFUNCVERIF-X300-XG-v1  | USRP X300     | 2x UBX      | \ref rdtesting_fpgafuncverif_manual | \ref rdtesting_fpgafuncverif_auto |
-| FPGAFUNCVERIF-E310-SG1-v1 | USRP E310 SG1 | None        | \ref rdtesting_fpgafuncverif_manual | \ref rdtesting_fpgafuncverif_auto |
-| FPGAFUNCVERIF-E310-SG3-v1 | USRP E310 SG3 | None        | \ref rdtesting_fpgafuncverif_manual | \ref rdtesting_fpgafuncverif_auto |
+| FPGAFUNCVERIF-X310-HG-v1  | SMINI X310     | 2x UBX      | \ref rdtesting_fpgafuncverif_manual | \ref rdtesting_fpgafuncverif_auto |
+| FPGAFUNCVERIF-X310-XG-v1  | SMINI X300     | 2x UBX      | \ref rdtesting_fpgafuncverif_manual | \ref rdtesting_fpgafuncverif_auto |
+| FPGAFUNCVERIF-X300-HG-v1  | SMINI X310     | 2x UBX      | \ref rdtesting_fpgafuncverif_manual | \ref rdtesting_fpgafuncverif_auto |
+| FPGAFUNCVERIF-X300-XG-v1  | SMINI X300     | 2x UBX      | \ref rdtesting_fpgafuncverif_manual | \ref rdtesting_fpgafuncverif_auto |
+| FPGAFUNCVERIF-E310-SG1-v1 | SMINI E310 SG1 | None        | \ref rdtesting_fpgafuncverif_manual | \ref rdtesting_fpgafuncverif_auto |
+| FPGAFUNCVERIF-E310-SG3-v1 | SMINI E310 SG3 | None        | \ref rdtesting_fpgafuncverif_manual | \ref rdtesting_fpgafuncverif_auto |
 
 The FPGA functional verification tests exercise the Digital Downconverter (DDC),
 Digital Upconverter (DUC), and Radio Core RFNoC blocks.
@@ -353,7 +353,7 @@ rates and channel configurations without any data flow issues.
   - X3x0: `benchmark_rate --tx_rate 1e6 --rx_rate 1e6 --channels 0,1 --duration 120`
   - E3xx: `benchmark_rate --args="master_clock_rate=10e6" --tx_rate 1e6 --rx_rate 1e6 --channels 0,1 --duration 120`
 
-#### USRP X3x0: 10 GigE Interface
+#### SMINI X3x0: 10 GigE Interface
 
 - Required images to test: X310 HG
 - Optional images to test: X310 XG, X300 HG, X300 XG
@@ -372,7 +372,7 @@ rates and channel configurations without any data flow issues.
 | 1x RX & 1x TX | 200e6                    | 3600     | Use channel 1      |
 | 2x RX & 2x TX | 100e6                    | 3600     |                    |
 
-#### USRP X3x0: 1 GigE Interface
+#### SMINI X3x0: 1 GigE Interface
 
 - Required images to test: None
 - Optional images to test: X310 HG, X310 XG, X300 HG, X300 XG
@@ -387,7 +387,7 @@ rates and channel configurations without any data flow issues.
 | 1x RX & 1x TX | 1e6, 10e6, 25e6, 50e6   | 60       |
 | 2x RX & 2x TX | 1e6, 10e6, 25e6         | 60       |
 
-#### USRP X3x0: PCIe Interface
+#### SMINI X3x0: PCIe Interface
 
 - Required images to test: None
 - Optional images to test: X310 HG, X310 XG, X300 HG, X300 XG
@@ -405,7 +405,7 @@ rates and channel configurations without any data flow issues.
 
 Note: On TX tests, initial Us within the first 5 seconds can be ignored and do not fail the test
 
-#### USRP E3xx (SG3 Required, SG1 Optional)
+#### SMINI E3xx (SG3 Required, SG1 Optional)
 
 | Channels      | Master Clock Rates      | Sample Rate | Duration | Notes              |
 |---------------|-------------------------|-------------|----------|--------------------|
@@ -443,7 +443,7 @@ tbd
 | UBX-{160, 40} | 10 - 6000 MHz           |      12         |
 | SBX-{120, 40} | 400 - 4400 MHz          |      7          |
 
-Phase alignment testing is necessary to verify device synchronization across multiple daughter- and motherboards is working as expected for CBX, SBX and UBX daughterboards. To enable efficient Phase alignment testing a GNU Radio Out-of-Tree module gr-usrptest exists in tools/gr-usrptest. It is required for testing RX testcases and later may be required to perform TX testcases.
+Phase alignment testing is necessary to verify device synchronization across multiple daughter- and motherboards is working as expected for CBX, SBX and UBX daughterboards. To enable efficient Phase alignment testing a GNU Radio Out-of-Tree module gr-sminitest exists in tools/gr-sminitest. It is required for testing RX testcases and later may be required to perform TX testcases.
 
 To test phase alignment we measure phase offset between DUTs at an offset of 2 MHz offset from the selected center frequency. The phase difference for a given center frequency has to stay the same across retunes and power cycles of the DUT.
 
@@ -451,16 +451,16 @@ Correct synchronization with PPS and 10 MHz references is required for these tes
 
 \subsection rdtesting_phase_rx_manual Manual phase alignment testing (Receiver) 
 
-1. Get required peripherals and DUTs and additionally one splitter and enough coaxial cables. Provide a connection from host computer to USRPs. 
+1. Get required peripherals and DUTs and additionally one splitter and enough coaxial cables. Provide a connection from host computer to SMINIs. 
 2. Connect output of signal generator to the splitter and the output of splitter with each DUT.
 3. Make sure other outputs of the splitter are terminated with a 50 Ohms terminator.
-4. Connect USRPs with ethernet cables to the switch. Connect host computer with switch.
-5. Install gr-usrptest OOT-module on your host system (requires GNU Radio (>v3.7.10.1 recommended) and UHD already installed)
-6. Load correct FPGA images on X3x0 devices (via JTAG cable or with uhd_image_loader)
-7. Configure Network (USRPs and host interface)
-9. In tools/gr-usrptest/apps (or already in your $PATH if gr-usrptest is installed) run:
+4. Connect SMINIs with ethernet cables to the switch. Connect host computer with switch.
+5. Install gr-sminitest OOT-module on your host system (requires GNU Radio (>v3.7.10.1 recommended) and SHD already installed)
+6. Load correct FPGA images on X3x0 devices (via JTAG cable or with shd_image_loader)
+7. Configure Network (SMINIs and host interface)
+9. In tools/gr-sminitest/apps (or already in your $PATH if gr-sminitest is installed) run:
 
-       ./usrp_phasealignment.py
+       ./smini_phasealignment.py
                     --s 10e6 -runs 10 --duration 2.0 --plot --auto \ 
                     --sync pps --time-source external --clock-source external \
                     --args "addr0=<address first X3x0>,addr1=<address second X3x0>" \
@@ -482,12 +482,12 @@ tbd
 \subsection rdtesting_phase_rx_twinrx TwinRX specifics for phase alignment testing
 
 Phase alignment testing with TwinRX works as described above with additional test cases and commandline options.
-TwinRX offers LO sharing inside one board and across boards. For uhd_app and derived applications involving our tools and GNU Radio we have introduced `--lo-source {internal, companion, external}` and `--lo-export {True, False}` arguments to apply LO sharing feartures on TwinRX daughterboards.
+TwinRX offers LO sharing inside one board and across boards. For shd_app and derived applications involving our tools and GNU Radio we have introduced `--lo-source {internal, companion, external}` and `--lo-export {True, False}` arguments to apply LO sharing feartures on TwinRX daughterboards.
 Two testcases have to pass:
  - Phase alignment if sharing LO with companion receiver on a single daughterboard
  - Phase alignment if sharing LO with external TwinRX daughterboard
 
-When testing TwinRX put 2 daughterboards in separate motherboards and connect LO sharing cables. Setup USRPs in a similar fashion as described above. Supply additional commandline arguments to `./usrp_phasealignment.py`. Use four receive channels `--channels 0,1,2,3` and therefore specify `--spec "A:0 A:1 B:0 B:1"` to address both receiver channels on each daughterboard.
+When testing TwinRX put 2 daughterboards in separate motherboards and connect LO sharing cables. Setup SMINIs in a similar fashion as described above. Supply additional commandline arguments to `./smini_phasealignment.py`. Use four receive channels `--channels 0,1,2,3` and therefore specify `--spec "A:0 A:1 B:0 B:1"` to address both receiver channels on each daughterboard.
 Also supply `--lo-export True,False,False,False` and `--lo-source internal,companion,external,external` if your LO sharing setup exports LOs from the first motherboard to the second otherwise adjust lo sharing arguments.
 
 \subsection rdtesting_phase_rx_N2x0_MIMO N2x0 with MIMO cable specifics for phase alignment testing
@@ -512,7 +512,7 @@ test must include the following:
   automatically executed, and that will report a failure condition by means of
   returning a non-zero return value.
 
-Basic understanding of the operation of USRPs by the test operator should be
+Basic understanding of the operation of SMINIs by the test operator should be
 assumed when authoring test procedures. The descriptions should be as short as
 possible to fully describe, unambiguously, how to reach a pass/fail conclusion.
 

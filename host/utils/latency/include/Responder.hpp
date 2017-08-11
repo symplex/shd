@@ -23,8 +23,8 @@
 #include <ctime>
 #include <stdint.h>
 
-#include <uhd/usrp/multi_usrp.hpp>
-#include <uhd/utils/msg.hpp>
+#include <shd/smini/multi_smini.hpp>
+#include <shd/utils/msg.hpp>
 
 using namespace std;
 
@@ -141,8 +141,8 @@ class Responder
         // Main entry point after constructor.
         int run();
 
-        // Public method to inject UHD messages in the main ncurses window.
-        void print_uhd_late_handler(uhd::msg::type_t type, const std::string& msg);
+        // Public method to inject SHD messages in the main ncurses window.
+        void print_shd_late_handler(shd::msg::type_t type, const std::string& msg);
 
         int get_return_code(){return _return_code;}
 
@@ -181,11 +181,11 @@ class Responder
         uint64_t _max_success; // < 0 --> write results to file
         int _return_code;
 
-        // Hold USRP, streams and commands
-        uhd::usrp::multi_usrp::sptr _usrp;
-        uhd::tx_streamer::sptr _tx_stream;
-        uhd::rx_streamer::sptr _rx_stream;
-        uhd::stream_cmd_t _stream_cmd;
+        // Hold SMINI, streams and commands
+        shd::smini::multi_smini::sptr _smini;
+        shd::tx_streamer::sptr _tx_stream;
+        shd::rx_streamer::sptr _rx_stream;
+        shd::stream_cmd_t _stream_cmd;
 
         // Keep track of number of timeouts.
         uint64_t _timeout_burst_count;
@@ -228,37 +228,37 @@ class Responder
         bool tx_burst_is_late();
 
         // Handle receiver errors such as overflows.
-        bool handle_rx_errors(uhd::rx_metadata_t::error_code_t err, size_t num_rx_samps);
+        bool handle_rx_errors(shd::rx_metadata_t::error_code_t err, size_t num_rx_samps);
 
         // In interactive mode, handle Responder control and output.
         bool handle_interactive_control();
         void print_interactive_msg(std::string msg);
 
-        // calibration important for interactive mode with 2nd USRP connected.
-        float calibrate_usrp_for_test_run();
+        // calibration important for interactive mode with 2nd SMINI connected.
+        float calibrate_smini_for_test_run();
 
         // Run actual test
         void run_test(float threshold = 0.0f );
 
         // Detect falling edge
         bool get_new_state(uint64_t total_samps, uint64_t simulate_duration, float val, float threshold);
-        uint64_t detect_respond_pulse_count(STATS &statsCurrent, std::vector<std::complex<float> > &buff, uint64_t trigger_count, size_t num_rx_samps, float threshold, uhd::time_spec_t rx_time);
+        uint64_t detect_respond_pulse_count(STATS &statsCurrent, std::vector<std::complex<float> > &buff, uint64_t trigger_count, size_t num_rx_samps, float threshold, shd::time_spec_t rx_time);
 
         // Hold test results till they are printed to a file
         void add_stats_to_results(STATS statsCurrent, double delay);
 
-        // Control USRP and necessary streamers
-        uhd::usrp::multi_usrp::sptr create_usrp_device();
-        void set_usrp_rx_dc_offset(uhd::usrp::multi_usrp::sptr usrp, bool ena);
-        void stop_usrp_stream();
-        uhd::tx_streamer::sptr create_tx_streamer(uhd::usrp::multi_usrp::sptr usrp);
-        uhd::rx_streamer::sptr create_rx_streamer(uhd::usrp::multi_usrp::sptr usrp);
+        // Control SMINI and necessary streamers
+        shd::smini::multi_smini::sptr create_smini_device();
+        void set_smini_rx_dc_offset(shd::smini::multi_smini::sptr smini, bool ena);
+        void stop_smini_stream();
+        shd::tx_streamer::sptr create_tx_streamer(shd::smini::multi_smini::sptr smini);
+        shd::rx_streamer::sptr create_rx_streamer(shd::smini::multi_smini::sptr smini);
 
         // Send burst and handle results.
-        bool send_tx_burst(uhd::time_spec_t rx_time, size_t n);
+        bool send_tx_burst(shd::time_spec_t rx_time, size_t n);
         void handle_tx_timeout(int burst, int eob);
         float* alloc_response_buffer_with_data(uint64_t response_length);
-        uhd::tx_metadata_t get_tx_metadata(uhd::time_spec_t rx_time, size_t n);
+        shd::tx_metadata_t get_tx_metadata(shd::time_spec_t rx_time, size_t n);
 
         // Control test parameters
         void update_and_print_parameters(const STATS& statsPrev, const double delay);
@@ -268,8 +268,8 @@ class Responder
         // Helper methods to print status during test.
         void print_init_test_status();
         void print_test_title();
-        void print_usrp_status();
-        void print_create_usrp_msg();
+        void print_smini_status();
+        void print_create_smini_msg();
         void print_tx_stream_status();
         void print_rx_stream_status();
         void print_test_parameters();
@@ -291,7 +291,7 @@ class Responder
         std::string get_gmtime_string(time_t time);
         std::string enum2str(int return_code);
         std::vector<std::map<std::string,std::string> > read_eth_info();
-        uhd::device_addr_t get_usrp_info();
+        shd::device_addr_t get_smini_info();
         std::map<std::string, std::string> get_hw_info();
         std::string get_ip_subnet_addr(std::string ip);
 };

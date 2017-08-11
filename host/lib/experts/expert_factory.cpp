@@ -17,7 +17,7 @@
 
 #include "expert_factory.hpp"
 
-namespace uhd { namespace experts {
+namespace shd { namespace experts {
 
 expert_container::sptr expert_factory::create_container(const std::string& name)
 {

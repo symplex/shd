@@ -15,11 +15,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/device.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/usrp_clock/octoclock_eeprom.hpp>
-#include <uhd/property_tree.hpp>
-#include <uhd/types/device_addr.hpp>
+#include <shd/device.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/smini_clock/octoclock_eeprom.hpp>
+#include <shd/property_tree.hpp>
+#include <shd/types/device_addr.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
@@ -28,10 +28,10 @@
 
 namespace po = boost::program_options;
 
-using namespace uhd;
-using namespace uhd::usrp_clock;
+using namespace shd;
+using namespace shd::smini_clock;
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
+int SHD_SAFE_MAIN(int argc, char *argv[]){
     std::string args, input_str, key, val;
 
     po::options_description desc("Allowed options");
@@ -65,7 +65,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     std::vector<std::string> keys_vec, vals_vec;
     if(vm.count("read-all")) keys_vec = oc_eeprom.keys(); //Leaving vals_vec empty will force utility to only read
     else if(vm.count("values")){
-        //uhd::device_addr_t properly parses input values
+        //shd::device_addr_t properly parses input values
         device_addr_t vals(input_str);
         keys_vec = vals.keys();
         vals_vec = vals.vals();

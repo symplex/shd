@@ -16,16 +16,16 @@
 //
 
 #include "utils.hpp"
-#include <uhd/utils/msg.hpp>
-#include <uhd/rfnoc/sink_node_ctrl.hpp>
-#include <uhd/rfnoc/source_node_ctrl.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/rfnoc/sink_node_ctrl.hpp>
+#include <shd/rfnoc/source_node_ctrl.hpp>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 size_t sink_node_ctrl::connect_upstream(
         node_ctrl_base::sptr upstream_node,
         size_t port,
-        const uhd::device_addr_t &args
+        const shd::device_addr_t &args
 ) {
     boost::mutex::scoped_lock lock(_input_mutex);
     port = _request_input_port(port, args);
@@ -35,7 +35,7 @@ size_t sink_node_ctrl::connect_upstream(
 
 void sink_node_ctrl::set_tx_streamer(bool active, const size_t port)
 {
-    UHD_RFNOC_BLOCK_TRACE() << "sink_node_ctrl::set_tx_streamer() " << active << " " << port << std::endl;
+    SHD_RFNOC_BLOCK_TRACE() << "sink_node_ctrl::set_tx_streamer() " << active << " " << port << std::endl;
 
     /* Enable all downstream connections:
     BOOST_FOREACH(const node_ctrl_base::node_map_pair_t downstream_node, list_downstream_nodes()) {
@@ -67,7 +67,7 @@ void sink_node_ctrl::set_tx_streamer(bool active, const size_t port)
 
 size_t sink_node_ctrl::_request_input_port(
         const size_t suggested_port,
-        const uhd::device_addr_t &
+        const shd::device_addr_t &
 ) const {
     return utils::node_map_find_first_free(_upstream_nodes, suggested_port);
 }
@@ -78,13 +78,13 @@ void sink_node_ctrl::_register_upstream_node(
 ) {
     // Do all the checks:
     if (port == ANY_PORT) {
-        throw uhd::type_error("Invalid input port number.");
+        throw shd::type_error("Invalid input port number.");
     }
     if (_upstream_nodes.count(port) and not _upstream_nodes[port].expired()) {
-        throw uhd::runtime_error(str(boost::format("On node %s, input port %d is already connected.") % unique_id() % port));
+        throw shd::runtime_error(str(boost::format("On node %s, input port %d is already connected.") % unique_id() % port));
     }
     if (not boost::dynamic_pointer_cast<source_node_ctrl>(upstream_node)) {
-        throw uhd::type_error("Attempting to register a non-source block as upstream.");
+        throw shd::type_error("Attempting to register a non-source block as upstream.");
     }
     // Alles klar, Herr Kommissar :)
 

@@ -1,5 +1,5 @@
 /*
- * Dissector for UHD CVITA (CHDR) packets
+ * Dissector for SHD CVITA (CHDR) packets
  *
  * Copyright 2010-2014 Ettus Research LLC
  *
@@ -25,9 +25,9 @@
 #include <ctype.h>
 #include <stdio.h>
 
-#include "../../host/lib/usrp/x300/x300_fw_common.h"
+#include "../../host/lib/smini/x300/x300_fw_common.h"
 
-#define LOG_HEADER  "[UHD CHDR] "
+#define LOG_HEADER  "[SHD CHDR] "
 
 #ifndef min
 #define min(a,b)    ((a<b)?a:b)
@@ -460,7 +460,7 @@ void proto_register_chdr(void)
         &ett_chdr_cmd
     };
 
-    proto_chdr = proto_register_protocol("UHD CHDR", "CHDR", "chdr");
+    proto_chdr = proto_register_protocol("SHD CHDR", "CHDR", "chdr");
     proto_register_field_array(proto_chdr, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     register_dissector("chdr", dissect_chdr, proto_chdr);

@@ -15,10 +15,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/rfnoc/scalar_node_ctrl.hpp>
+#include <shd/rfnoc/scalar_node_ctrl.hpp>
 #include <boost/bind.hpp>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 const double scalar_node_ctrl::SCALE_UNDEFINED = -1.0;
 
@@ -41,8 +41,8 @@ double scalar_node_ctrl::get_input_scale_factor(
                 boost::bind(_get_input_factor, _1, _2),
                 SCALE_UNDEFINED
         );
-    } catch (const uhd::runtime_error &ex) {
-        throw uhd::runtime_error(str(
+    } catch (const shd::runtime_error &ex) {
+        throw shd::runtime_error(str(
             boost::format("Multiple scaling factors rates downstream of %s: %s.")
             % unique_id() % ex.what()
         ));
@@ -57,8 +57,8 @@ double scalar_node_ctrl::get_output_scale_factor(
                 boost::bind(_get_output_factor, _1, _2),
                 SCALE_UNDEFINED
         );
-    } catch (const uhd::runtime_error &ex) {
-        throw uhd::runtime_error(str(
+    } catch (const shd::runtime_error &ex) {
+        throw shd::runtime_error(str(
             boost::format("Multiple scaling factors rates upstream of %s: %s.")
             % unique_id() % ex.what()
         ));

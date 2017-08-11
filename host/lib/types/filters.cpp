@@ -15,11 +15,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/types/filters.hpp>
+#include <shd/types/filters.hpp>
 
-using namespace uhd;
+using namespace shd;
 
-std::ostream& uhd::operator<<(std::ostream& os, filter_info_base& f)
+std::ostream& shd::operator<<(std::ostream& os, filter_info_base& f)
 {
     return os << f.to_pp_string();
 }

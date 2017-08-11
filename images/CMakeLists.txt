@@ -18,34 +18,34 @@
 ########################################################################
 # Setup Project
 ########################################################################
-#OPTION(UHD_PATCH_OVERRIDE "Use this string to force a patch level version string." OFF)
-MESSAGE(STATUS ${UHD_PATCH_OVERRIDE})
-IF(DEFINED UHD_PATCH_OVERRIDE)
-    SET(UHD_VERSION_PATCH_OVERRIDE ${UHD_PATCH_OVERRIDE})
-ENDIF(DEFINED UHD_PATCH_OVERRIDE)
+#OPTION(SHD_PATCH_OVERRIDE "Use this string to force a patch level version string." OFF)
+MESSAGE(STATUS ${SHD_PATCH_OVERRIDE})
+IF(DEFINED SHD_PATCH_OVERRIDE)
+    SET(SHD_VERSION_PATCH_OVERRIDE ${SHD_PATCH_OVERRIDE})
+ENDIF(DEFINED SHD_PATCH_OVERRIDE)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-PROJECT(UHD-images NONE)
+PROJECT(SHD-images NONE)
 LIST(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../host/cmake/Modules)
-INCLUDE(UHDVersion) #sets version variables (used below)
+INCLUDE(SHDVersion) #sets version variables (used below)
 EXECUTE_PROCESS(COMMAND "date" OUTPUT_VARIABLE DATETIME_NOW OUTPUT_STRIP_TRAILING_WHITESPACE) #sets the date
 
 ########################################################################
 # Setup CPack
 ########################################################################
-SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Ettus Research - USRP Hardware Driver Images")
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Ettus Research - SMINI Hardware Driver Images")
 SET(CPACK_PACKAGE_VENDOR              "Ettus Research LLC")
 SET(CPACK_PACKAGE_CONTACT             "support@ettus.com")
-SET(CPACK_PACKAGE_VERSION ${UHD_VERSION})
-SET(CPACK_PACKAGE_FILE_NAME "uhd-images_${UHD_VERSION}")
+SET(CPACK_PACKAGE_VERSION ${SHD_VERSION})
+SET(CPACK_PACKAGE_FILE_NAME "shd-images_${SHD_VERSION}")
 SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "all")
 INCLUDE(CPack) #include after setting vars
-MESSAGE(STATUS "Version: ${UHD_VERSION}")
+MESSAGE(STATUS "Version: ${SHD_VERSION}")
 
 ########################################################################
 # Install Images
 ########################################################################
 
 #tag the images with a version number (something identifiable)
-FILE(WRITE ${CMAKE_SOURCE_DIR}/images/${UHD_VERSION_MAJOR}.${UHD_VERSION_API}.${UHD_VERSION_ABI}.${UHD_VERSION_PATCH}.tag "${UHD_VERSION}\n${DATETIME_NOW}\n")
-INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/images DESTINATION share/uhd)
-INSTALL(FILES ${CMAKE_SOURCE_DIR}/../host/LICENSE DESTINATION share/uhd/images)
+FILE(WRITE ${CMAKE_SOURCE_DIR}/images/${SHD_VERSION_MAJOR}.${SHD_VERSION_API}.${SHD_VERSION_ABI}.${SHD_VERSION_PATCH}.tag "${SHD_VERSION}\n${DATETIME_NOW}\n")
+INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/images DESTINATION share/shd)
+INSTALL(FILES ${CMAKE_SOURCE_DIR}/../host/LICENSE DESTINATION share/shd/images)

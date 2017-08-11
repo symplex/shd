@@ -35,13 +35,13 @@
 	.module usb_descriptors
 	
 	VID_FREE	 = 0x2500	; Ettus Research, LLC.
-	PID_USRP	 = 0x0002	; B100
+	PID_SMINI	 = 0x0002	; B100
 
-	;; We distinguish configured from unconfigured USRPs using the Device ID.
+	;; We distinguish configured from unconfigured SMINIs using the Device ID.
 	;; If the MSB of the DID is 0, the device is unconfigured.
 	;; The LSB of the DID is reserved for hardware revs.
 	
-	DID_USRP	 = 0x0100	; Device ID (bcd)
+	DID_SMINI	 = 0x0100	; Device ID (bcd)
 
 	
 	DSCR_DEVICE	 =   1	; Descriptor type: Device
@@ -101,11 +101,11 @@ _high_speed_device_descr::
 	.db	64		; bMaxPacketSize0 for endpoint 0
 	.db	<VID_FREE	; idVendor
 	.db	>VID_FREE	; idVendor
-	.db	<PID_USRP	; idProduct
-	.db	>PID_USRP	; idProduct
+	.db	<PID_SMINI	; idProduct
+	.db	>PID_SMINI	; idProduct
 _usb_desc_hw_rev_binary_patch_location_0::
-	.db	<DID_USRP	; bcdDevice
-	.db	>DID_USRP	; bcdDevice
+	.db	<DID_SMINI	; bcdDevice
+	.db	>DID_SMINI	; bcdDevice
 	.db	SI_VENDOR	; iManufacturer (string index)
 	.db	SI_PRODUCT	; iProduct (string index)
 	.db	SI_SERIAL	; iSerial number (string index)
@@ -256,11 +256,11 @@ _full_speed_device_descr::
 	.db	64		; bMaxPacketSize0 for endpoint 0
 	.db	<VID_FREE	; idVendor
 	.db	>VID_FREE	; idVendor
-	.db	<PID_USRP	; idProduct
-	.db	>PID_USRP	; idProduct
+	.db	<PID_SMINI	; idProduct
+	.db	>PID_SMINI	; idProduct
 _usb_desc_hw_rev_binary_patch_location_1::
-	.db	<DID_USRP	; bcdDevice
-	.db	>DID_USRP	; bcdDevice
+	.db	<DID_SMINI	; bcdDevice
+	.db	>DID_SMINI	; bcdDevice
 	.db	SI_VENDOR	; iManufacturer (string index)
 	.db	SI_PRODUCT	; iProduct (string index)
 	.db	SI_NONE		; iSerial number (None)

@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/nirio/nirio_resource_manager.h>
+#include <shd/transport/nirio/nirio_resource_manager.h>
 
 // "push" and "pop" introduced in GCC 4.6; works with all clang
 #if defined(__clang__) || defined(__GNUC__) && (__GNUC__ > 3) && (__GNUC_MINOR__ > 5)
@@ -25,7 +25,7 @@
     #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 
-namespace uhd { namespace niusrprio
+namespace shd { namespace nisminirio
 {
 
 nirio_resource_manager::nirio_resource_manager():_fifo_info_map(), _reg_info_map()

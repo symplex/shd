@@ -15,17 +15,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/convert.hpp>
-#include <uhd/utils/log.hpp>
-#include <uhd/utils/static.hpp>
-#include <uhd/types/dict.hpp>
-#include <uhd/exception.hpp>
+#include <shd/convert.hpp>
+#include <shd/utils/log.hpp>
+#include <shd/utils/static.hpp>
+#include <shd/types/dict.hpp>
+#include <shd/exception.hpp>
 #include <stdint.h>
 #include <boost/format.hpp>
 #include <boost/foreach.hpp>
 #include <complex>
 
-using namespace uhd;
+using namespace shd;
 
 convert::converter::~converter(void){
     /* NOP */
@@ -67,13 +67,13 @@ std::string convert::id_type::to_string(void) const{
 /***********************************************************************
  * Setup the table registry
  **********************************************************************/
-typedef uhd::dict<convert::id_type, uhd::dict<convert::priority_type, convert::function_type> > fcn_table_type;
-UHD_SINGLETON_FCN(fcn_table_type, get_table);
+typedef shd::dict<convert::id_type, shd::dict<convert::priority_type, convert::function_type> > fcn_table_type;
+SHD_SINGLETON_FCN(fcn_table_type, get_table);
 
 /***********************************************************************
  * The registry functions
  **********************************************************************/
-void uhd::convert::register_converter(
+void shd::convert::register_converter(
     const id_type &id,
     const function_type &fcn,
     const priority_type prio
@@ -81,7 +81,7 @@ void uhd::convert::register_converter(
     get_table()[id][prio] = fcn;
 
     //----------------------------------------------------------------//
-    UHD_LOGV(always) << "register_converter: " << id.to_pp_string() << std::endl
+    SHD_LOGV(always) << "register_converter: " << id.to_pp_string() << std::endl
         << "    prio: " << prio << std::endl
         << std::endl
     ;
@@ -95,7 +95,7 @@ convert::function_type convert::get_converter(
     const id_type &id,
     const priority_type prio
 ){
-    if (not get_table().has_key(id)) throw uhd::key_error(
+    if (not get_table().has_key(id)) throw shd::key_error(
         "Cannot find a conversion routine for " + id.to_pp_string());
 
     //find a matching priority
@@ -103,7 +103,7 @@ convert::function_type convert::get_converter(
     BOOST_FOREACH(priority_type prio_i, get_table()[id].keys()){
         if (prio_i == prio) {
             //----------------------------------------------------------------//
-            UHD_LOGV(always) << "get_converter: For converter ID: " << id.to_pp_string() << std::endl
+            SHD_LOGV(always) << "get_converter: For converter ID: " << id.to_pp_string() << std::endl
                 << "Using prio: " << prio << std::endl
                 << std::endl
             ;
@@ -114,11 +114,11 @@ convert::function_type convert::get_converter(
     }
 
     //wanted a specific prio, didnt find
-    if (prio != -1) throw uhd::key_error(
+    if (prio != -1) throw shd::key_error(
         "Cannot find a conversion routine [with prio] for " + id.to_pp_string());
 
     //----------------------------------------------------------------//
-    UHD_LOGV(always) << "get_converter: For converter ID: " << id.to_pp_string() << std::endl
+    SHD_LOGV(always) << "get_converter: For converter ID: " << id.to_pp_string() << std::endl
         << "Using prio: " << best_prio << std::endl
         << std::endl
     ;
@@ -131,8 +131,8 @@ convert::function_type convert::get_converter(
 /***********************************************************************
  * Mappings for item format to byte size for all items we can
  **********************************************************************/
-typedef uhd::dict<std::string, size_t> item_size_type;
-UHD_SINGLETON_FCN(item_size_type, get_item_size_table);
+typedef shd::dict<std::string, size_t> item_size_type;
+SHD_SINGLETON_FCN(item_size_type, get_item_size_table);
 
 void convert::register_bytes_per_item(
     const std::string &format, const size_t size
@@ -152,10 +152,10 @@ size_t convert::get_bytes_per_item(const std::string &format){
         return get_bytes_per_item(format.substr(0, pos));
     }
 
-    throw uhd::key_error("Cannot find an item size:\n" + format);
+    throw shd::key_error("Cannot find an item size:\n" + format);
 }
 
-UHD_STATIC_BLOCK(convert_register_item_sizes){
+SHD_STATIC_BLOCK(convert_register_item_sizes){
     //register standard complex types
     convert::register_bytes_per_item("fc64", sizeof(std::complex<double>));
     convert::register_bytes_per_item("fc32", sizeof(std::complex<float>));

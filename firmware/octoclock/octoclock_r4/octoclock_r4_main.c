@@ -16,7 +16,7 @@
  */
 
 /*
- * Welcome to the firmware code for the USRP Octoclock accessory product!
+ * Welcome to the firmware code for the SMINI Octoclock accessory product!
  *
  * Notes regarding this firmware:
  *      NOT in M103 compatibility mode

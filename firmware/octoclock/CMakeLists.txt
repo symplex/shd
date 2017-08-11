@@ -37,7 +37,7 @@ endif(OCTOCLOCK_DEBUG)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/../../host/lib/usrp_clock
+    ${CMAKE_SOURCE_DIR}/../../host/lib/smini_clock
 )
 
 add_subdirectory(bootloader)

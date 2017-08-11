@@ -32,7 +32,7 @@ extern xdata unsigned char nstring_descriptors;
 extern xdata char * xdata string_descriptors[];
 
 /*
- * We patch these locations with info read from the usrp config eeprom
+ * We patch these locations with info read from the smini config eeprom
  */
 extern xdata char usb_desc_hw_rev_binary_patch_location_0[];
 extern xdata char usb_desc_hw_rev_binary_patch_location_1[];

@@ -17,9 +17,9 @@
 """
 Run device tests for the B2xx series.
 """
-from usrp_probe_test import uhd_usrp_probe_test
-from benchmark_rate_test import uhd_benchmark_rate_test
-uhd_benchmark_rate_test.tests = {
+from smini_probe_test import shd_smini_probe_test
+from benchmark_rate_test import shd_benchmark_rate_test
+shd_benchmark_rate_test.tests = {
     'mimo': {
         'duration': 1,
         'direction': 'tx,rx',
@@ -70,7 +70,7 @@ rx_samples_to_file_test.tests = {
     },
 }
 
-from tx_bursts_test import uhd_tx_bursts_test
-from test_pps_test import uhd_test_pps_test
+from tx_bursts_test import shd_tx_bursts_test
+from test_pps_test import shd_test_pps_test
 from gpio_test import gpio_test
 

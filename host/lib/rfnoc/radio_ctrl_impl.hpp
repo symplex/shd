@@ -15,27 +15,27 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_LIBUHD_RFNOC_RADIO_CTRL_IMPL_HPP
-#define INCLUDED_LIBUHD_RFNOC_RADIO_CTRL_IMPL_HPP
+#ifndef INCLUDED_LIBSHD_RFNOC_RADIO_CTRL_IMPL_HPP
+#define INCLUDED_LIBSHD_RFNOC_RADIO_CTRL_IMPL_HPP
 
 #include "rx_vita_core_3000.hpp"
 #include "tx_vita_core_3000.hpp"
 #include "time_core_3000.hpp"
 #include "gpio_atr_3000.hpp"
-#include <uhd/rfnoc/radio_ctrl.hpp>
-#include <uhd/types/direction.hpp>
+#include <shd/rfnoc/radio_ctrl.hpp>
+#include <shd/types/direction.hpp>
 #include <boost/thread.hpp>
 
 //! Shorthand for radio block constructor
-#define UHD_RFNOC_RADIO_BLOCK_CONSTRUCTOR_DECL(CLASS_NAME) \
+#define SHD_RFNOC_RADIO_BLOCK_CONSTRUCTOR_DECL(CLASS_NAME) \
     CLASS_NAME##_impl(const make_args_t &make_args);
 
-#define UHD_RFNOC_RADIO_BLOCK_CONSTRUCTOR(CLASS_NAME) \
+#define SHD_RFNOC_RADIO_BLOCK_CONSTRUCTOR(CLASS_NAME) \
     CLASS_NAME##_impl::CLASS_NAME##_impl( \
         const make_args_t &make_args \
     ) : block_ctrl_base(make_args), radio_ctrl_impl()
 
-namespace uhd {
+namespace shd {
     namespace rfnoc {
 
 /*! \brief Provide access to a radio.
@@ -71,7 +71,7 @@ public:
 
     void set_time_now(const time_spec_t &time_spec);
     void set_time_next_pps(const time_spec_t &time_spec);
-    void set_time_sync(const uhd::time_spec_t &time);
+    void set_time_sync(const shd::time_spec_t &time);
     time_spec_t get_time_now();
     time_spec_t get_time_last_pps();
 
@@ -81,7 +81,7 @@ public:
     void set_rx_streamer(bool active, const size_t port);
     void set_tx_streamer(bool active, const size_t port);
 
-    void issue_stream_cmd(const uhd::stream_cmd_t &stream_cmd, const size_t port);
+    void issue_stream_cmd(const shd::stream_cmd_t &stream_cmd, const size_t port);
 
     virtual double get_input_samp_rate(size_t /* port */) { return get_rate(); }
     virtual double get_output_samp_rate(size_t /* port */) { return get_rate(); }
@@ -157,13 +157,13 @@ protected: // TODO see what's protected and what's private
         return _perifs.at(radio_num).ctrl;
     }
 
-    inline bool _is_streamer_active(uhd::direction_t dir, const size_t chan) const {
+    inline bool _is_streamer_active(shd::direction_t dir, const size_t chan) const {
         switch (dir) {
-        case uhd::TX_DIRECTION:
+        case shd::TX_DIRECTION:
             return _tx_streamer_active.at(chan);
-        case uhd::RX_DIRECTION:
+        case shd::RX_DIRECTION:
             return _rx_streamer_active.at(chan);
-        case uhd::DX_DIRECTION:
+        case shd::DX_DIRECTION:
             return _rx_streamer_active.at(chan) and _tx_streamer_active.at(chan);
         default:
             return false;
@@ -203,7 +203,7 @@ private:
     std::vector<bool> _continuous_streaming;
 }; /* class radio_ctrl_impl */
 
-}} /* namespace uhd::rfnoc */
+}} /* namespace shd::rfnoc */
 
-#endif /* INCLUDED_LIBUHD_RFNOC_RADIO_CTRL_IMPL_HPP */
+#endif /* INCLUDED_LIBSHD_RFNOC_RADIO_CTRL_IMPL_HPP */
 // vim: sw=4 et:

@@ -18,11 +18,11 @@
 #include <string>
 #include <sstream>
 #include <boost/format.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/types/metadata.hpp>
-#include <uhd/types/time_spec.hpp>
+#include <shd/exception.hpp>
+#include <shd/types/metadata.hpp>
+#include <shd/types/time_spec.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 std::string rx_metadata_t::to_pp_string(bool compact) const
 {

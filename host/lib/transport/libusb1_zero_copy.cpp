@@ -16,11 +16,11 @@
 //
 
 #include "libusb1_base.hpp"
-#include <uhd/transport/usb_zero_copy.hpp>
-#include <uhd/transport/buffer_pool.hpp>
-#include <uhd/transport/bounded_buffer.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/exception.hpp>
+#include <shd/transport/usb_zero_copy.hpp>
+#include <shd/transport/buffer_pool.hpp>
+#include <shd/transport/bounded_buffer.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/exception.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <boost/function.hpp>
@@ -31,14 +31,14 @@
 #include <boost/thread/condition_variable.hpp>
 #include <list>
 
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
 #include <vector>
 #include <fstream>
 #include <boost/format.hpp>
 #endif
 
-using namespace uhd;
-using namespace uhd::transport;
+using namespace shd;
+using namespace shd::transport;
 
 static const size_t DEFAULT_NUM_XFERS = 16;     //num xfers
 static const size_t DEFAULT_XFER_SIZE = 32*512; //bytes
@@ -58,7 +58,7 @@ struct lut_result_t
         completed = 0;
         status = LIBUSB_TRANSFER_COMPLETED;
         actual_length = 0;
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
         start_time = 0;
         buff_num = -1;
 #endif
@@ -69,7 +69,7 @@ struct lut_result_t
     boost::mutex mut;
     boost::condition_variable usb_transfer_complete;
 
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
     // These are fore debugging
     long start_time;
     int buff_num;
@@ -84,7 +84,7 @@ struct lut_result_completed {
     bool operator()() const {return (_result.completed ? true : false);}
 };
 
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
 static std::string dbg_prefix("libusb1_zero_copy,");
 static void libusb1_zerocopy_dbg_print_err(std::string msg){
 	msg = dbg_prefix + msg;
@@ -106,7 +106,7 @@ static void LIBUSB_CALL libusb_async_cb(libusb_transfer *lut)
     r->actual_length = lut->actual_length;
     r->completed = 1;
     r->usb_transfer_complete.notify_one();  // wake up thread waiting in wait_for_completion() member function below
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
     long end_time = boost::get_system_time().time_of_day().total_microseconds();
     libusb1_zerocopy_dbg_print_err( (boost::format("libusb_async_cb,%s,%i,%i,%i,%ld,%ld") % (r->is_recv ? "rx":"tx") % r->buff_num % r->actual_length % r->status % end_time % r->start_time).str() );
 #endif
@@ -131,27 +131,27 @@ public:
     	_release_cb(this);
     }
 
-    UHD_INLINE void submit(void)
+    SHD_INLINE void submit(void)
     {
         _lut->length = int((_is_recv)? _frame_size : size()); //always set length
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
         result.start_time = boost::get_system_time().time_of_day().total_microseconds();
         result.buff_num = num();
         result.is_recv = _is_recv;
 #endif
 	int ret = libusb_submit_transfer(_lut);
         if (ret != LIBUSB_SUCCESS)
-	  throw uhd::usb_error(ret, str(boost::format(
+	  throw shd::usb_error(ret, str(boost::format(
             "usb %s submit failed: %s") % _name % libusb_error_name(ret)));
     }
 
     template <typename buffer_type>
-    UHD_INLINE typename buffer_type::sptr get_new(const double timeout)
+    SHD_INLINE typename buffer_type::sptr get_new(const double timeout)
     {
         if (wait_for_completion(timeout))
         {
             if (result.status != LIBUSB_TRANSFER_COMPLETED)
-                throw uhd::io_error(str(boost::format("usb %s transfer status: %d")
+                throw shd::io_error(str(boost::format("usb %s transfer status: %d")
                                         % _name % libusb_error_name(result.status)));
             result.completed = 0;
             return make(reinterpret_cast<buffer_type *>(this), _lut->buffer, (_is_recv)? size_t(result.actual_length) : _frame_size);
@@ -168,7 +168,7 @@ public:
      * \param timeout the wait timeout in seconds.  A negative value will wait forever.
      * \return true for completion, false for timeout
      */
-    UHD_INLINE bool wait_for_completion(const double timeout)
+    SHD_INLINE bool wait_for_completion(const double timeout)
     {
         boost::unique_lock<boost::mutex> lock(result.mut);
         if (!result.completed) {
@@ -238,7 +238,7 @@ public:
         for (size_t i = 0; i < get_num_frames(); i++)
         {
             libusb_transfer *lut = libusb_alloc_transfer(0);
-            UHD_ASSERT_THROW(lut != NULL);
+            SHD_ASSERT_THROW(lut != NULL);
 
             _mb_pool.push_back(boost::make_shared<libusb_zero_copy_mb>(
                 lut, this->get_frame_size(), boost::bind(&libusb_zero_copy_single::enqueue_buffer, this, _1), is_recv, name
@@ -293,7 +293,7 @@ public:
     }
 
     template <typename buffer_type>
-    UHD_INLINE typename buffer_type::sptr get_buff(double timeout)
+    SHD_INLINE typename buffer_type::sptr get_buff(double timeout)
     {
         typename buffer_type::sptr buff;
 
@@ -320,8 +320,8 @@ public:
         return buff;
     }
 
-    UHD_INLINE size_t get_num_frames(void) const { return _num_frames; }
-    UHD_INLINE size_t get_frame_size(void) const { return _frame_size; }
+    SHD_INLINE size_t get_num_frames(void) const { return _num_frames; }
+    SHD_INLINE size_t get_frame_size(void) const { return _frame_size; }
 
 private:
     libusb::device_handle::sptr _handle;
@@ -359,7 +359,7 @@ private:
                 _enqueued.push_back(_released.front());
                 _released.pop_front();
             }
-            catch (uhd::usb_error& e)
+            catch (shd::usb_error& e)
             {
                 _status = STATUS_ERROR;
                 throw e;

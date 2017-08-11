@@ -16,11 +16,11 @@
 //
 
 #include "graph.hpp"
-#include <uhd/rfnoc/rate_node_ctrl.hpp>
+#include <shd/rfnoc/rate_node_ctrl.hpp>
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 // test class derived, knows about rates
 class rate_aware_node : public test_node, public rate_node_ctrl
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(test_tree_downstream_search_throw)
     connect_nodes(node_B0, node_C0);
     connect_nodes(node_B0, node_C1);
 
-    BOOST_CHECK_THROW(node_A->get_input_samp_rate(), uhd::runtime_error);
+    BOOST_CHECK_THROW(node_A->get_input_samp_rate(), shd::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(test_skip_upstream_search)

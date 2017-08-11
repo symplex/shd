@@ -18,21 +18,21 @@
 #include <exception>
 #include <iostream>
 #include <boost/test/unit_test.hpp>
-#include <uhd/property_tree.hpp>
-#include <uhd/types/wb_iface.hpp>
-#include <uhd/device3.hpp>
-#include <uhd/rfnoc/block_ctrl.hpp>
-#include <uhd/rfnoc/graph.hpp>
+#include <shd/property_tree.hpp>
+#include <shd/types/wb_iface.hpp>
+#include <shd/device3.hpp>
+#include <shd/rfnoc/block_ctrl.hpp>
+#include <shd/rfnoc/graph.hpp>
 
-using namespace uhd;
-using namespace uhd::rfnoc;
+using namespace shd;
+using namespace shd::rfnoc;
 
 static const uint64_t TEST_NOC_ID = 0xAAAABBBBCCCCDDDD;
 static const sid_t TEST_SID0 = 0x00000200; // 0.0.2.0
 static const sid_t TEST_SID1 = 0x00000210; // 0.0.2.F
 
 // Pseudo-wb-iface
-class pseudo_wb_iface_impl : public uhd::wb_iface
+class pseudo_wb_iface_impl : public shd::wb_iface
 {
   public:
     pseudo_wb_iface_impl() {};
@@ -68,12 +68,12 @@ class pseudo_wb_iface_impl : public uhd::wb_iface
 };
 
 // Pseudo-device
-class pseudo_device3_impl : public uhd::device3
+class pseudo_device3_impl : public shd::device3
 {
   public:
     pseudo_device3_impl()
     {
-        _tree = uhd::property_tree::make();
+        _tree = shd::property_tree::make();
         _tree->create<std::string>("/name").set("Test Pseudo-Device3");
 
         // We can re-use this:
@@ -82,7 +82,7 @@ class pseudo_device3_impl : public uhd::device3
         ;
 
         // Add two block controls:
-        uhd::rfnoc::make_args_t make_args;
+        shd::rfnoc::make_args_t make_args;
         make_args.ctrl_ifaces = ctrl_ifaces;
         make_args.base_address = TEST_SID0.get_dst();
         make_args.device_index = 0;
@@ -97,15 +97,15 @@ class pseudo_device3_impl : public uhd::device3
     }
 
     rx_streamer::sptr get_rx_stream(const stream_args_t &args) {
-        throw uhd::not_implemented_error(args.args.to_string());
+        throw shd::not_implemented_error(args.args.to_string());
     }
 
     tx_streamer::sptr get_tx_stream(const stream_args_t &args) {
-        throw uhd::not_implemented_error(args.args.to_string());
+        throw shd::not_implemented_error(args.args.to_string());
     }
 
     bool recv_async_msg(async_metadata_t &async_metadata, double timeout) {
-        throw uhd::not_implemented_error(str(boost::format("%d %f") % async_metadata.channel % timeout));
+        throw shd::not_implemented_error(str(boost::format("%d %f") % async_metadata.channel % timeout));
     }
 
     rfnoc::graph::sptr create_graph(const std::string &) { return rfnoc::graph::sptr(); }
@@ -164,11 +164,11 @@ BOOST_AUTO_TEST_CASE(test_device3_fail) {
 
     BOOST_REQUIRE_THROW(
         my_device->get_block_ctrl(block_id_t("0/FooBarBlock_17")),
-        uhd::lookup_error
+        shd::lookup_error
     );
     BOOST_REQUIRE_THROW(
         my_device->get_block_ctrl<dummy_block_ctrl>(block_id_t("0/Block_1")),
-        uhd::lookup_error
+        shd::lookup_error
     );
 }
 

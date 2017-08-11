@@ -12,7 +12,7 @@
   <CompilationStatus/>
   <BitstreamVersion>2</BitstreamVersion>
   <VI>
-    <Name>USRP_X3x0_Top.vi</Name>
+    <Name>SMINI_X3x0_Top.vi</Name>
     <RegisterList>
       <Register>
         <Name>ViSignature</Name>

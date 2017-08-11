@@ -16,7 +16,7 @@
 //
 
 #include <boost/program_options.hpp>
-#include <uhd/utils/safe_main.hpp>
+#include <shd/utils/safe_main.hpp>
 #include <Responder.hpp>
 
 namespace po = boost::program_options;
@@ -30,7 +30,7 @@ get_program_options_description()
     desc.add_options()
         ("help", "help message")
         ("title", po::value<std::string>(&prog.test_title)->default_value(""), "title to show during test")
-        ("args", po::value<std::string>(&prog.device_args)->default_value(""), "single uhd device address args")
+        ("args", po::value<std::string>(&prog.device_args)->default_value(""), "single shd device address args")
         ("stats-file", po::value<std::string>(&prog.stats_filename)->default_value(""), "test statistics output filename (empty: auto-generate)")
         ("stats-file-prefix", po::value<std::string>(&prog.stats_filename_prefix)->default_value(""), "test statistics output filename prefix")
         ("stats-file-suffix", po::value<std::string>(&prog.stats_filename_suffix)->default_value(""), "test statistics output filename suffix")
@@ -111,9 +111,9 @@ read_program_options(po::variables_map vm)
 
 /*
  * This is the MAIN function!
- * UHD_SAFE_MAIN catches all errors and prints them to stderr.
+ * SHD_SAFE_MAIN catches all errors and prints them to stderr.
  */
-int UHD_SAFE_MAIN(int argc, char *argv[]){
+int SHD_SAFE_MAIN(int argc, char *argv[]){
     po::options_description desc = get_program_options_description();
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -122,7 +122,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     // Print help message instead of executing Responder.
     if (vm.count("help")){
-        cout << boost::format("UHD Latency Test %s") % desc;
+        cout << boost::format("SHD Latency Test %s") % desc;
         return Responder::RETCODE_OK;
     }
 

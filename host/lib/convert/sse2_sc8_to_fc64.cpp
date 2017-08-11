@@ -16,14 +16,14 @@
 //
 
 #include "convert_common.hpp"
-#include <uhd/utils/byteswap.hpp>
+#include <shd/utils/byteswap.hpp>
 #include <emmintrin.h>
 
-using namespace uhd::convert;
+using namespace shd::convert;
 
 static const __m128i zeroi = _mm_setzero_si128();
 
-UHD_INLINE void unpack_sc32_8x(
+SHD_INLINE void unpack_sc32_8x(
     const __m128i &in,
     __m128d &out0, __m128d &out1,
     __m128d &out2, __m128d &out3,
@@ -66,7 +66,7 @@ DECLARE_CONVERTER(sc8_item32_be, 1, fc64, 1, PRIORITY_SIMD){
     size_t num_samps = nsamps;
 
     if ((size_t(inputs[0]) & 0x3) != 0){
-        item32_sc8_to_xx<uhd::ntohx>(input++, output++, 1, scale_factor);
+        item32_sc8_to_xx<shd::ntohx>(input++, output++, 1, scale_factor);
         num_samps--;
     }
 
@@ -99,7 +99,7 @@ DECLARE_CONVERTER(sc8_item32_be, 1, fc64, 1, PRIORITY_SIMD){
     }
 
     //convert remainder
-    item32_sc8_to_xx<uhd::ntohx>(input+i, output+j, num_samps-j, scale_factor);
+    item32_sc8_to_xx<shd::ntohx>(input+i, output+j, num_samps-j, scale_factor);
 }
 
 DECLARE_CONVERTER(sc8_item32_le, 1, fc64, 1, PRIORITY_SIMD){
@@ -113,7 +113,7 @@ DECLARE_CONVERTER(sc8_item32_le, 1, fc64, 1, PRIORITY_SIMD){
     size_t num_samps = nsamps;
 
     if ((size_t(inputs[0]) & 0x3) != 0){
-        item32_sc8_to_xx<uhd::wtohx>(input++, output++, 1, scale_factor);
+        item32_sc8_to_xx<shd::wtohx>(input++, output++, 1, scale_factor);
         num_samps--;
     }
 
@@ -147,5 +147,5 @@ DECLARE_CONVERTER(sc8_item32_le, 1, fc64, 1, PRIORITY_SIMD){
     }
 
     //convert remainder
-    item32_sc8_to_xx<uhd::wtohx>(input+i, output+j, num_samps-j, scale_factor);
+    item32_sc8_to_xx<shd::wtohx>(input+i, output+j, num_samps-j, scale_factor);
 }

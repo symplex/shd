@@ -15,17 +15,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/rfnoc/dma_fifo_block_ctrl.hpp>
+#include <shd/rfnoc/dma_fifo_block_ctrl.hpp>
 #include "dma_fifo_core_3000.hpp"
 #include "wb_iface_adapter.hpp"
-#include <uhd/convert.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/types/wb_iface.hpp>
+#include <shd/convert.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/types/wb_iface.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/thread/mutex.hpp>
 
-using namespace uhd;
-using namespace uhd::rfnoc;
+using namespace shd;
+using namespace shd::rfnoc;
 
 //TODO (Ashish): This should come from the framework
 static const double BUS_CLK_RATE = 166.67e6;
@@ -35,7 +35,7 @@ class dma_fifo_block_ctrl_impl : public dma_fifo_block_ctrl
 public:
     static const uint32_t DEFAULT_SIZE = 32*1024*1024;
 
-    UHD_RFNOC_BLOCK_CONSTRUCTOR(dma_fifo_block_ctrl)
+    SHD_RFNOC_BLOCK_CONSTRUCTOR(dma_fifo_block_ctrl)
     {
         _perifs.resize(get_input_ports().size());
         for(size_t i = 0; i < _perifs.size(); i++) {
@@ -64,20 +64,20 @@ public:
             _perifs[i].depth = DEFAULT_SIZE;
             _perifs[i].core = dma_fifo_core_3000::make(_perifs[i].ctrl, USER_SR_BASE, USER_RB_BASE);
             _perifs[i].core->resize(_perifs[i].base_addr, _perifs[i].depth);
-            UHD_MSG(status) << boost::format("[DMA FIFO] Running BIST for FIFO %d... ") % i;
+            SHD_MSG(status) << boost::format("[DMA FIFO] Running BIST for FIFO %d... ") % i;
             if (_perifs[i].core->ext_bist_supported()) {
                 uint32_t bisterr = _perifs[i].core->run_bist();
                 if (bisterr != 0) {
-                    throw uhd::runtime_error(str(boost::format("BIST failed! (code: %d)\n") % bisterr));
+                    throw shd::runtime_error(str(boost::format("BIST failed! (code: %d)\n") % bisterr));
                 } else {
                     double throughput = _perifs[i].core->get_bist_throughput(BUS_CLK_RATE);
-                    UHD_MSG(status) << (boost::format("pass (Throughput: %.1fMB/s)") % (throughput/1e6)) << std::endl;
+                    SHD_MSG(status) << (boost::format("pass (Throughput: %.1fMB/s)") % (throughput/1e6)) << std::endl;
                 }
             } else {
                 if (_perifs[i].core->run_bist() == 0) {
-                    UHD_MSG(status) << "pass\n";
+                    SHD_MSG(status) << "pass\n";
                 } else {
-                    throw uhd::runtime_error("BIST failed!\n");
+                    throw shd::runtime_error("BIST failed!\n");
                 }
             }
             _tree->access<int>(get_arg_path("base_addr/value", i))
@@ -119,4 +119,4 @@ private:
     boost::mutex _config_mutex;
 };
 
-UHD_RFNOC_BLOCK_REGISTER(dma_fifo_block_ctrl, "DmaFIFO");
+SHD_RFNOC_BLOCK_REGISTER(dma_fifo_block_ctrl, "DmaFIFO");

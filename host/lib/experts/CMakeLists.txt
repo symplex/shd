@@ -20,15 +20,15 @@
 ########################################################################
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
-LIBUHD_APPEND_SOURCES(
+LIBSHD_APPEND_SOURCES(
     ${CMAKE_CURRENT_SOURCE_DIR}/expert_container.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/expert_factory.cpp
 )
 
 # Verbose Debug output for send/recv
-SET( UHD_EXPERT_LOGGING OFF CACHE BOOL "Enable verbose logging for experts" )
-OPTION( UHD_EXPERT_LOGGING "Enable verbose logging for experts" "" )
-IF(UHD_EXPERT_LOGGING)
+SET( SHD_EXPERT_LOGGING OFF CACHE BOOL "Enable verbose logging for experts" )
+OPTION( SHD_EXPERT_LOGGING "Enable verbose logging for experts" "" )
+IF(SHD_EXPERT_LOGGING)
     MESSAGE(STATUS "Enabling verbose logging for experts")
-    ADD_DEFINITIONS(-DUHD_EXPERT_LOGGING)
+    ADD_DEFINITIONS(-DSHD_EXPERT_LOGGING)
 ENDIF()

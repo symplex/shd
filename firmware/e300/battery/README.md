@@ -1,7 +1,7 @@
-USRP E312 Firmware
+SMINI E312 Firmware
 ==================
 
-Welcome to the NI Ettus Research USRP E310/E312 Firmware distribution.
+Welcome to the NI Ettus Research SMINI E310/E312 Firmware distribution.
 
 # Dependencies
 

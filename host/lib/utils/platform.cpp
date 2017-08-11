@@ -15,19 +15,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/platform.hpp>
-#include <uhd/config.hpp>
+#include <shd/utils/platform.hpp>
+#include <shd/config.hpp>
 #include <boost/functional/hash.hpp>
-#ifdef UHD_PLATFORM_WIN32
+#ifdef SHD_PLATFORM_WIN32
 #include <windows.h>
 #else
 #include <unistd.h>
 #endif
 
-namespace uhd {
+namespace shd {
 
     int32_t get_process_id() {
-#ifdef UHD_PLATFORM_WIN32
+#ifdef SHD_PLATFORM_WIN32
     return int32_t(GetCurrentProcessId());
 #else
     return int32_t(getpid());
@@ -35,7 +35,7 @@ namespace uhd {
     }
 
     uint32_t get_host_id() {
-#ifdef UHD_PLATFORM_WIN32
+#ifdef SHD_PLATFORM_WIN32
         //extract volume serial number
         char szVolName[MAX_PATH+1], szFileSysName[MAX_PATH+1];
         DWORD dwSerialNumber, dwMaxComponentLen, dwFileSysFlags;
@@ -51,8 +51,8 @@ namespace uhd {
 
     uint32_t get_process_hash() {
         size_t hash = 0;
-        boost::hash_combine(hash, uhd::get_process_id());
-        boost::hash_combine(hash, uhd::get_host_id());
+        boost::hash_combine(hash, shd::get_process_id());
+        boost::hash_combine(hash, shd::get_host_id());
         return uint32_t(hash);
     }
 }

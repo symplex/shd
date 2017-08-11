@@ -11,7 +11,7 @@ parameters control how the transport object allocates memory, resizes
 kernel buffers, spawns threads, etc. When not specified, the transport
 layer will use values for these parameters that are known to perform
 well on a variety of systems. The transport parameters are defined below
-for the various transports in the UHD software:
+for the various transports in the SHD software:
 
 \section transport_udp UDP Transport (Sockets)
 
@@ -21,7 +21,7 @@ standard Berkeley sockets API using `send()`/`recv()`.
 \subsection transport_udp_params Transport parameters
 
 The following parameters can be used to alter the transport's default
-behavior (these options can be passed to a USRP device as arguments
+behavior (these options can be passed to a SMINI device as arguments
 at initialization time, see also \ref config_devaddr):
 
 -   `recv_frame_size:` The size of a single receive buffer in bytes
@@ -29,8 +29,8 @@ at initialization time, see also \ref config_devaddr):
 -   `send_frame_size:` The size of a single send buffer in bytes
 -   `num_send_frames:` The number of send buffers to allocate
 -   `recv_buff_fullness:` The targeted fullness factor of the the buffer (typically around 90%)
--   `ups_per_sec`: USRP2 only. Flow control ACKs per second on TX.
--   `ups_per_fifo`: USRP2 only. Flow control ACKs per total buffer size (in packets) on TX.
+-   `ups_per_sec`: SMINI2 only. Flow control ACKs per second on TX.
+-   `ups_per_fifo`: SMINI2 only. Flow control ACKs per total buffer size (in packets) on TX.
 
 <b>Notes:</b>
 - `num_recv_frames` does not affect performance.
@@ -120,7 +120,7 @@ of the sockets stack. This can be adjusted with the
     -   <http://www.microsoft.com/windows/windowsmedia/howto/articles/optimize_web.aspx#appendix_e>
 
 -   Double click and run
-    `<install-path>/share/uhd/FastSendDatagramThreshold.reg`
+    `<install-path>/share/shd/FastSendDatagramThreshold.reg`
 -   A system reboot is recommended after the registry key change.
 
 <b>Power profile:</b> The Windows power profile can seriously impact
@@ -150,20 +150,20 @@ On Linux, Udev handles USB plug and unplug events. The following
 commands install a Udev rule so that non-root users may access the
 device:
 
-    cd <install-path>/lib/uhd/utils
-    sudo cp uhd-usrp.rules /etc/udev/rules.d/
+    cd <install-path>/lib/shd/utils
+    sudo cp shd-smini.rules /etc/udev/rules.d/
     sudo udevadm control --reload-rules
     sudo udevadm trigger
 
 \subsection transport_usb_installwin Install USB driver (Windows)
 
-A driver package must be installed to use a USB-based product with UHD
+A driver package must be installed to use a USB-based product with SHD
 software:
 
--   Download the driver from the UHD wiki page
-    <a href="http://files.ettus.com/binaries/misc/erllc_uhd_winusb_driver.zip">here</a>.
+-   Download the driver from the SHD wiki page
+    <a href="http://files.ettus.com/binaries/misc/erllc_shd_winusb_driver.zip">here</a>.
 -   Unzip the file into a known location. We will refer to this as the `<directory>`.
--   Open the device manager and plug in the USRP device. You will see an
+-   Open the device manager and plug in the SMINI device. You will see an
     unrecognized USB device in the device manager.
 -   Right click on the unrecognized USB device and select update/install
     driver software (may vary for your OS).

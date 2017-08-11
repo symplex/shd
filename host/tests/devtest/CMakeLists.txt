@@ -20,7 +20,7 @@ MESSAGE(STATUS "")
 
 # All devtest files get installed:
 FILE(GLOB py_devtest_files "*.py")
-UHD_INSTALL(PROGRAMS
+SHD_INSTALL(PROGRAMS
     ${py_devtest_files}
     DESTINATION ${PKG_LIB_DIR}/tests/devtest
     COMPONENT tests

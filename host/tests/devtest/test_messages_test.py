@@ -18,9 +18,9 @@
 """ Test the test_messages example. """
 
 import re
-from uhd_test_base import uhd_example_test_case
+from shd_test_base import shd_example_test_case
 
-class uhd_test_messages_test(uhd_example_test_case):
+class shd_test_messages_test(shd_example_test_case):
     """
     Run test_messages and check output.
     """
@@ -30,7 +30,7 @@ class uhd_test_messages_test(uhd_example_test_case):
         """
         Set args.
         """
-        self.test_params = uhd_test_messages_test.tests
+        self.test_params = shd_test_messages_test.tests
 
     def run_test(self, test_name, test_args):
         """ Run the app and scrape for the failure messages. """

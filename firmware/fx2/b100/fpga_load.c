@@ -1,5 +1,5 @@
 /* 
- * USRP - Universal Software Radio Peripheral
+ * SMINI - Universal Software Radio Peripheral
  *
  * Copyright (C) 2003 Free Software Foundation, Inc.
  *
@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Boston, MA  02110-1301  USA
  */
 
-#include "usrp_common.h"
+#include "smini_common.h"
 #include "fpga_load.h"
 #include "delay.h"
 
@@ -36,9 +36,9 @@
 unsigned char
 fpga_load_begin (void)
 {
-  USRP_ALTERA_CONFIG &= ~bmALTERA_BITS;		// clear all bits (NCONFIG low)
+  SMINI_ALTERA_CONFIG &= ~bmALTERA_BITS;		// clear all bits (NCONFIG low)
   udelay (40);					// wait 40 us
-  USRP_ALTERA_CONFIG |= bmALTERA_NCONFIG;	// set NCONFIG high
+  SMINI_ALTERA_CONFIG |= bmALTERA_NCONFIG;	// set NCONFIG high
 
   // ready to xfer now
 
@@ -168,7 +168,7 @@ fpga_load_xfer (xdata unsigned char *p, unsigned char bytecount)
 unsigned char
 fpga_load_end (void)
 {
-  unsigned char status = USRP_ALTERA_CONFIG;
+  unsigned char status = SMINI_ALTERA_CONFIG;
 
   if (!UC_BOARD_HAS_FPGA)			// always true if we don't have FPGA
     return 1;

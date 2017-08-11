@@ -15,18 +15,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_LIBUHD_RFNOC_TERMINATOR_SEND_HPP
-#define INCLUDED_LIBUHD_RFNOC_TERMINATOR_SEND_HPP
+#ifndef INCLUDED_LIBSHD_RFNOC_TERMINATOR_SEND_HPP
+#define INCLUDED_LIBSHD_RFNOC_TERMINATOR_SEND_HPP
 
-#include <uhd/rfnoc/source_node_ctrl.hpp>
-#include <uhd/rfnoc/rate_node_ctrl.hpp>
-#include <uhd/rfnoc/tick_node_ctrl.hpp>
-#include <uhd/rfnoc/scalar_node_ctrl.hpp>
-#include <uhd/rfnoc/terminator_node_ctrl.hpp>
-#include <uhd/rfnoc/block_ctrl_base.hpp> // For the block macros
-#include <uhd/utils/msg.hpp>
+#include <shd/rfnoc/source_node_ctrl.hpp>
+#include <shd/rfnoc/rate_node_ctrl.hpp>
+#include <shd/rfnoc/tick_node_ctrl.hpp>
+#include <shd/rfnoc/scalar_node_ctrl.hpp>
+#include <shd/rfnoc/terminator_node_ctrl.hpp>
+#include <shd/rfnoc/block_ctrl_base.hpp> // For the block macros
+#include <shd/utils/msg.hpp>
 
-namespace uhd {
+namespace shd {
     namespace rfnoc {
 
 /*! \brief Terminator node for Tx streamers.
@@ -42,16 +42,16 @@ class tx_stream_terminator :
     public terminator_node_ctrl
 {
 public:
-    UHD_RFNOC_BLOCK_OBJECT(tx_stream_terminator)
+    SHD_RFNOC_BLOCK_OBJECT(tx_stream_terminator)
 
     static sptr make()
     {
         return sptr(new tx_stream_terminator);
     }
 
-    void issue_stream_cmd(const uhd::stream_cmd_t &, const size_t)
+    void issue_stream_cmd(const shd::stream_cmd_t &, const size_t)
     {
-        UHD_RFNOC_BLOCK_TRACE() << "tx_stream_terminator::issue_stream_cmd()" << std::endl;
+        SHD_RFNOC_BLOCK_TRACE() << "tx_stream_terminator::issue_stream_cmd()" << std::endl;
     }
 
     // If this is called, then by a send terminator at the other end
@@ -84,7 +84,7 @@ private:
 
 }; /* class tx_stream_terminator */
 
-}} /* namespace uhd::rfnoc */
+}} /* namespace shd::rfnoc */
 
-#endif /* INCLUDED_LIBUHD_RFNOC_TERMINATOR_SEND_HPP */
+#endif /* INCLUDED_LIBSHD_RFNOC_TERMINATOR_SEND_HPP */
 // vim: sw=4 et:

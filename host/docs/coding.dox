@@ -4,27 +4,27 @@
 
 \section coding_api Various API interfaces
 
-\subsection coding_api_hilevel High-Level: The Multi-USRP
+\subsection coding_api_hilevel High-Level: The Multi-SMINI
 
-The Multi-USRP class provides a high-level interface to a single USRP device
-with one or more channels, or multiple USRP devices in a homogeneous
-setup. See the documentation for uhd::usrp::multi_usrp.
+The Multi-SMINI class provides a high-level interface to a single SMINI device
+with one or more channels, or multiple SMINI devices in a homogeneous
+setup. See the documentation for shd::smini::multi_smini.
 
-\subsection coding_api_hilevelclock High-Level: The Multi-USRP-Clock
+\subsection coding_api_hilevelclock High-Level: The Multi-SMINI-Clock
 
-The Multi-USRP-Clock class provides a high-level interface to a single clock
+The Multi-SMINI-Clock class provides a high-level interface to a single clock
 device or set of clock devices, from which the time can be queried. See the
-documentation for uhd::usrp_clock::multi_usrp_clock.
+documentation for shd::smini_clock::multi_smini_clock.
 
 \subsection coding_api_hilevelc High-Level: The C API
 
-Both USRP and clock devices can be interacted with using a C API wrapper included
-by default in all UHD builds. More information can be found \subpage page_c_api "here".
+Both SMINI and clock devices can be interacted with using a C API wrapper included
+by default in all SHD builds. More information can be found \subpage page_c_api "here".
 
 \subsection coding_api_lowlevel Low-Level: The device API
 
 A device is an abstraction for hardware that is connected to the host
-system. For a USRP device, this means that the motherboard and
+system. For a SMINI device, this means that the motherboard and
 everything on it would be considered to be a "device". For a clock device, the
 device itself would be considered a "device" in software. The device API
 provides ways to:
@@ -37,7 +37,7 @@ provides ways to:
 -   Set and get properties on the device object.
 -   Access various sensors on the device.
 
-See the documentation for uhd::device.
+See the documentation for shd::device.
 
 */
 // vim:ft=doxygen:

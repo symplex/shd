@@ -15,13 +15,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_LIBUHD_RFNOC_GRAPH_IMPL_HPP
-#define INCLUDED_LIBUHD_RFNOC_GRAPH_IMPL_HPP
+#ifndef INCLUDED_LIBSHD_RFNOC_GRAPH_IMPL_HPP
+#define INCLUDED_LIBSHD_RFNOC_GRAPH_IMPL_HPP
 
-#include <uhd/rfnoc/graph.hpp>
-#include <uhd/device3.hpp>
+#include <shd/rfnoc/graph.hpp>
+#include <shd/device3.hpp>
 
-namespace uhd { namespace rfnoc {
+namespace shd { namespace rfnoc {
 
 class graph_impl : public graph
 {
@@ -33,7 +33,7 @@ public:
      */
     graph_impl(
             const std::string &name,
-            boost::weak_ptr<uhd::device3> device_ptr
+            boost::weak_ptr<shd::device3> device_ptr
             //async_msg_handler::sptr msg_handler
     );
     virtual ~graph_impl() {};
@@ -66,11 +66,11 @@ private:
     const std::string _name;
 
     //! Reference to the generating device object
-    const boost::weak_ptr<uhd::device3> _device_ptr;
+    const boost::weak_ptr<shd::device3> _device_ptr;
 
 };
 
-}} /* namespace uhd::rfnoc */
+}} /* namespace shd::rfnoc */
 
-#endif /* INCLUDED_LIBUHD_RFNOC_GRAPH_IMPL_HPP */
+#endif /* INCLUDED_LIBSHD_RFNOC_GRAPH_IMPL_HPP */
 // vim: sw=4 et:

@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/smini/multi_smini.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 #include <boost/thread.hpp>
@@ -26,8 +26,8 @@
 
 namespace po = boost::program_options;
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+int SHD_SAFE_MAIN(int argc, char *argv[]){
+    shd::set_thread_priority_safe();
 
     //variables to be set by po
     std::string args;
@@ -37,7 +37,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "help message")
-        ("args", po::value<std::string>(&args)->default_value(""), "single uhd device address args")
+        ("args", po::value<std::string>(&args)->default_value(""), "single shd device address args")
         ("source", po::value<std::string>(&time_source)->default_value(""), "the time source (gpsdo, external) or blank for default")
     ;
     po::variables_map vm;
@@ -46,7 +46,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //print the help message
     if (vm.count("help")){
-        std::cout << boost::format("UHD Test PPS Input %s") % desc << std::endl;
+        std::cout << boost::format("SHD Test PPS Input %s") % desc << std::endl;
         std::cout
                 << std::endl
                 << "Tests if the PPS input signal is working. Will throw an error if not."
@@ -55,21 +55,21 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         return ~0;
     }
 
-    //create a usrp device
+    //create a smini device
     std::cout << std::endl;
-    std::cout << boost::format("Creating the usrp device with: %s...") % args << std::endl;
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
-    std::cout << boost::format("Using Device: %s") % usrp->get_pp_string() << std::endl;
+    std::cout << boost::format("Creating the smini device with: %s...") % args << std::endl;
+    shd::smini::multi_smini::sptr smini = shd::smini::multi_smini::make(args);
+    std::cout << boost::format("Using Device: %s") % smini->get_pp_string() << std::endl;
 
     //sleep off if gpsdo detected and time next pps already set
     boost::this_thread::sleep(boost::posix_time::seconds(1));
 
     //set time source if specified
-    if (not time_source.empty()) usrp->set_time_source(time_source);
+    if (not time_source.empty()) smini->set_time_source(time_source);
 
     //set the time at an unknown pps (will throw if no pps)
     std::cout << std::endl << "Attempt to detect the PPS and set the time..." << std::endl << std::endl;
-    usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));
+    smini->set_time_unknown_pps(shd::time_spec_t(0.0));
     std::cout << std::endl << "Success!" << std::endl << std::endl;
     return EXIT_SUCCESS;
 }

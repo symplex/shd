@@ -15,11 +15,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/exception.hpp>
-#include <uhd/rfnoc/constants.hpp>
-#include <uhd/rfnoc/blockdef.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/utils/paths.hpp>
+#include <shd/exception.hpp>
+#include <shd/rfnoc/constants.hpp>
+#include <shd/rfnoc/blockdef.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/utils/paths.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
@@ -30,8 +30,8 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <cstdlib>
 
-using namespace uhd;
-using namespace uhd::rfnoc;
+using namespace shd;
+using namespace shd::rfnoc;
 namespace fs = boost::filesystem;
 namespace pt = boost::property_tree;
 
@@ -185,7 +185,7 @@ public:
         }
 
         // Finally, the default path
-        const boost::filesystem::path pkg_path = uhd::get_pkg_path();
+        const boost::filesystem::path pkg_path = shd::get_pkg_path();
         paths.push_back(pkg_path / XML_DEFAULT_PATH);
 
         return paths;
@@ -201,9 +201,9 @@ public:
         if (lhs.size() > 2 and lhs[0] == '0' and lhs[1] == 'X') {
             lhs = lhs.substr(2);
         }
-        UHD_ASSERT_THROW(rhs.size() == 16);
+        SHD_ASSERT_THROW(rhs.size() == 16);
         if (lhs.size() < 4 or lhs.size() > 16) {
-            throw uhd::value_error(str(boost::format(
+            throw shd::value_error(str(boost::format(
                     "%s is not a valid NoC ID (must be hexadecimal, min 4 and max 16 characters)"
             ) % lhs_));
         }
@@ -224,7 +224,7 @@ public:
                 }
             }
         } catch (std::exception &e) {
-            UHD_MSG(warning) << "has_noc_id(): caught exception " << e.what() << std::endl;
+            SHD_MSG(warning) << "has_noc_id(): caught exception " << e.what() << std::endl;
             return false;
         }
         return false;
@@ -234,7 +234,7 @@ public:
         _type(type),
         _noc_id(noc_id)
     {
-        //UHD_MSG(status) << "Reading XML file: " << filename.string().c_str() << std::endl;
+        //SHD_MSG(status) << "Reading XML file: " << filename.string().c_str() << std::endl;
         read_xml(filename.string(), _pt);
         try {
             // Check key is valid
@@ -245,13 +245,13 @@ public:
             ports_t in = get_input_ports();
             ports_t out = get_output_ports();
             if (in.empty() and out.empty()) {
-                throw uhd::runtime_error("Block does not define inputs or outputs.");
+                throw shd::runtime_error("Block does not define inputs or outputs.");
             }
             // Check args are valid
             get_args();
             // TODO any more checks?
         } catch (const std::exception &e) {
-            throw uhd::runtime_error(str(
+            throw shd::runtime_error(str(
                         boost::format("Invalid block definition in %s: %s")
                         % filename.string() % e.what()
             ));
@@ -317,13 +317,13 @@ public:
             try {
                 new_port_number = boost::lexical_cast<size_t>(port["port"]);
             } catch (const boost::bad_lexical_cast &e) {
-                throw uhd::value_error(str(
+                throw shd::value_error(str(
                         boost::format("Invalid port number '%s' on port '%s'")
                         % port["port"] % port["name"]
                 ));
             }
             if (port_numbers.count(new_port_number) or new_port_number > MAX_NUM_PORTS) {
-                throw uhd::value_error(str(
+                throw shd::value_error(str(
                         boost::format("Port '%s' has invalid port number %d!")
                         % port["name"] % new_port_number
                 ));
@@ -363,13 +363,13 @@ public:
                 arg["type"] = "string";
             }
             if (not arg.is_valid()) {
-                UHD_MSG(warning) << boost::format("Found invalid argument: %s") % arg.to_string() << std::endl;
+                SHD_MSG(warning) << boost::format("Found invalid argument: %s") % arg.to_string() << std::endl;
                 is_valid = false;
             }
             args.push_back(arg);
         }
         if (not is_valid) {
-            throw uhd::runtime_error(str(
+            throw shd::runtime_error(str(
                     boost::format("Found invalid arguments for block %s.")
                     % get_name()
             ));
@@ -428,9 +428,9 @@ blockdef::sptr blockdef::make_from_noc_id(uint64_t noc_id)
 
     if (valid.empty())
     {
-        throw uhd::assertion_error(
+        throw shd::assertion_error(
             "Failed to find a valid XML path for RFNoC blocks.\n"
-            "Try setting the enviroment variable UHD_RFNOC_DIR "
+            "Try setting the enviroment variable SHD_RFNOC_DIR "
             "to the correct location"
         );
     }

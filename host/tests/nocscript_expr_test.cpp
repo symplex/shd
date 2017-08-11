@@ -36,8 +36,8 @@ BOOST_AUTO_TEST_CASE(test_literals)
     BOOST_CHECK_EQUAL(literal_int.infer_type(), expression::TYPE_INT);
     BOOST_CHECK_EQUAL(literal_int.get_int(), 5);
     BOOST_CHECK_EQUAL(literal_int.to_bool(), true);
-    BOOST_REQUIRE_THROW(literal_int.get_string(), uhd::type_error);
-    BOOST_REQUIRE_THROW(literal_int.get_bool(), uhd::type_error);
+    BOOST_REQUIRE_THROW(literal_int.get_string(), shd::type_error);
+    BOOST_REQUIRE_THROW(literal_int.get_bool(), shd::type_error);
 
     expression_literal literal_int0("0", expression::TYPE_INT);
     BOOST_CHECK_EQUAL(literal_int0.infer_type(), expression::TYPE_INT);
@@ -47,30 +47,30 @@ BOOST_AUTO_TEST_CASE(test_literals)
     BOOST_CHECK_EQUAL(literal_double.infer_type(), expression::TYPE_DOUBLE);
     BOOST_CHECK_CLOSE(literal_double.get_double(), 2.3, 0.01);
     BOOST_CHECK_EQUAL(literal_double.to_bool(), true);
-    BOOST_REQUIRE_THROW(literal_double.get_string(), uhd::type_error);
-    BOOST_REQUIRE_THROW(literal_double.get_bool(), uhd::type_error);
+    BOOST_REQUIRE_THROW(literal_double.get_string(), shd::type_error);
+    BOOST_REQUIRE_THROW(literal_double.get_bool(), shd::type_error);
 
     expression_literal literal_bool(true);
     BOOST_CHECK_EQUAL(literal_bool.infer_type(), expression::TYPE_BOOL);
     BOOST_CHECK_EQUAL(literal_bool.get_bool(), true);
     BOOST_CHECK_EQUAL(literal_bool.to_bool(), true);
     BOOST_CHECK_EQUAL(literal_bool.eval().get_bool(), true);
-    BOOST_REQUIRE_THROW(literal_bool.get_string(), uhd::type_error);
-    BOOST_REQUIRE_THROW(literal_bool.get_int(), uhd::type_error);
+    BOOST_REQUIRE_THROW(literal_bool.get_string(), shd::type_error);
+    BOOST_REQUIRE_THROW(literal_bool.get_int(), shd::type_error);
 
     expression_literal literal_bool_false(false);
     BOOST_CHECK_EQUAL(literal_bool_false.infer_type(), expression::TYPE_BOOL);
     BOOST_CHECK_EQUAL(literal_bool_false.get_bool(), false);
     BOOST_CHECK_EQUAL(literal_bool_false.to_bool(), false);
     BOOST_REQUIRE_EQUAL(literal_bool_false.eval().get_bool(), false);
-    BOOST_REQUIRE_THROW(literal_bool_false.get_string(), uhd::type_error);
-    BOOST_REQUIRE_THROW(literal_bool_false.get_int(), uhd::type_error);
+    BOOST_REQUIRE_THROW(literal_bool_false.get_string(), shd::type_error);
+    BOOST_REQUIRE_THROW(literal_bool_false.get_int(), shd::type_error);
 
     expression_literal literal_string("'foo bar'", expression::TYPE_STRING);
     BOOST_CHECK_EQUAL(literal_string.infer_type(), expression::TYPE_STRING);
     BOOST_CHECK_EQUAL(literal_string.get_string(), "foo bar");
-    BOOST_REQUIRE_THROW(literal_string.get_bool(), uhd::type_error);
-    BOOST_REQUIRE_THROW(literal_string.get_int(), uhd::type_error);
+    BOOST_REQUIRE_THROW(literal_string.get_bool(), shd::type_error);
+    BOOST_REQUIRE_THROW(literal_string.get_int(), shd::type_error);
 
     expression_literal literal_int_vec("[1, 2, 3]", expression::TYPE_INT_VECTOR);
     BOOST_CHECK_EQUAL(literal_int_vec.infer_type(), expression::TYPE_INT_VECTOR);
@@ -78,8 +78,8 @@ BOOST_AUTO_TEST_CASE(test_literals)
     std::vector<int> result = literal_int_vec.get_int_vector();
     BOOST_CHECK_EQUAL_COLLECTIONS(test_data.begin(), test_data.end(),
                                   result.begin(), result.end());
-    BOOST_REQUIRE_THROW(literal_int_vec.get_bool(), uhd::type_error);
-    BOOST_REQUIRE_THROW(literal_int_vec.get_int(), uhd::type_error);
+    BOOST_REQUIRE_THROW(literal_int_vec.get_bool(), shd::type_error);
+    BOOST_REQUIRE_THROW(literal_int_vec.get_int(), shd::type_error);
 }
 
 
@@ -95,7 +95,7 @@ expression::type_t variable_get_type(const std::string &var_name)
         return expression::TYPE_BOOL;
     }
 
-    throw uhd::syntax_error("Cannot infer type (unknown variable)");
+    throw shd::syntax_error("Cannot infer type (unknown variable)");
 }
 
 expression_literal variable_get_value(const std::string &var_name)
@@ -109,7 +109,7 @@ expression_literal variable_get_value(const std::string &var_name)
         return expression_literal(true);
     }
 
-    throw uhd::syntax_error("Cannot read value (unknown variable)");
+    throw shd::syntax_error("Cannot read value (unknown variable)");
 }
 
 BOOST_AUTO_TEST_CASE(test_variables)
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(test_variables)
                 "foo", // Invalid token
                 boost::bind(&variable_get_type, _1), boost::bind(&variable_get_value, _1)
         ),
-        uhd::assertion_error
+        shd::assertion_error
     );
 
     expression_variable v(
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(test_container)
 
     // Now it'll throw:
     c.set_combiner(expression_container::COMBINE_ALL);
-    BOOST_REQUIRE_THROW(c.eval(), uhd::syntax_error);
+    BOOST_REQUIRE_THROW(c.eval(), shd::syntax_error);
 
     std::cout << "Checking type inference on ',' sequences: " << std::endl;
     // Check types match
@@ -252,7 +252,7 @@ class functable_mockup_impl : public function_table
             const expression_function::argtype_list_type &arg_types
     ) const {
         if (not function_exists(name, arg_types)) {
-            throw uhd::syntax_error(str(
+            throw shd::syntax_error(str(
                 boost::format("[EXPR_TEXT] get_type(): Unknown function: %s, %d arguments")
                 % name % arg_types.size()
             ));
@@ -264,7 +264,7 @@ class functable_mockup_impl : public function_table
         if (name == "ADD") {
             return arg_types[0];
         }
-        UHD_THROW_INVALID_CODE_PATH();
+        SHD_THROW_INVALID_CODE_PATH();
     }
 
     expression_literal eval(
@@ -280,7 +280,7 @@ class functable_mockup_impl : public function_table
                 or args[0]->infer_type() != expression::TYPE_BOOL
                 or args[1]->infer_type() != expression::TYPE_BOOL
             ) {
-                throw uhd::syntax_error("eval(): XOR type mismatch");
+                throw shd::syntax_error("eval(): XOR type mismatch");
             }
             return expression_literal(bool(
                 args[0]->eval().get_bool() xor args[1]->eval().get_bool()
@@ -295,7 +295,7 @@ class functable_mockup_impl : public function_table
                 or args[0]->infer_type() != expression::TYPE_BOOL
                 or args[1]->infer_type() != expression::TYPE_BOOL
             ) {
-                throw uhd::syntax_error("eval(): AND type mismatch");
+                throw shd::syntax_error("eval(): AND type mismatch");
             }
             std::cout << "Calling AND" << std::endl;
             and_counter++;
@@ -306,7 +306,7 @@ class functable_mockup_impl : public function_table
 
         if (name == "ADD") {
             if (args.size() != 2) {
-                throw uhd::syntax_error("eval(): ADD type mismatch");
+                throw shd::syntax_error("eval(): ADD type mismatch");
             }
             if ((args[0]->infer_type() == expression::TYPE_INT) and
                 (args[1]->infer_type() == expression::TYPE_INT)) {
@@ -320,9 +320,9 @@ class functable_mockup_impl : public function_table
                     args[0]->eval().get_double() + args[1]->eval().get_double()
                 ));
             }
-            throw uhd::syntax_error("eval(): ADD type mismatch");
+            throw shd::syntax_error("eval(): ADD type mismatch");
         }
-        throw uhd::syntax_error("eval(): unknown function");
+        throw shd::syntax_error("eval(): unknown function");
     }
 
     // We don't actually need this

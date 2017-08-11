@@ -58,7 +58,7 @@ LFTX Bandwidth:
 \subsection dboards_dbsrx DBSRX
 
 The DBSRX board has 1 quadrature frontend. It defaults to direct
-conversion but can use a low IF through lo_offset in uhd::tune_request_t.
+conversion but can use a low IF through lo_offset in shd::tune_request_t.
 
 Receive Antennas: **J3**
 
@@ -80,7 +80,7 @@ Sensors:
 \subsection dboards_dbsrx2 DBSRX2
 
 The DBSRX2 board has 1 quadrature frontend. It defaults to direct
-conversion, but can use a low IF through `lo_offset` in uhd::tune_request_t.
+conversion, but can use a low IF through `lo_offset` in shd::tune_request_t.
 
 Frequency Range: 800 MHz to 2.3 GHz
 
@@ -108,7 +108,7 @@ Notes:
 
 The RFX Series boards have 2 quadrature frontends: Transmit and Receive.
 Transmit defaults to low IF, and Receive defaults to direct conversion.
-The IF can be adjusted through lo_offset in uhd::tune_request_t.
+The IF can be adjusted through lo_offset in shd::tune_request_t.
 
 The RFX Series boards have independent receive and transmit LO's and
 synthesizers allowing full-duplex operation on different transmit and
@@ -139,7 +139,7 @@ Sensors:
 
 The XCVR2450 has 2 quadrature frontends, one transmit, one receive.
 Transmit and Receive default to direct conversion but can be used in low
-IF mode through lo_offset in uhd::tune_request_t.
+IF mode through lo_offset in shd::tune_request_t.
 
 The XCVR2450 has a non-contiguous tuning range consisting of a high band
 (4.9-6.0 GHz) and a low band (2.4-2.5 GHz).
@@ -183,11 +183,11 @@ Features:
 
 -   2 quadrature frontends (1 transmit, 1 receive)
     -   Defaults to direct conversion
-    -   Can be used in low IF mode through lo_offset with uhd::tune_request_t
+    -   Can be used in low IF mode through lo_offset with shd::tune_request_t
 -   Independent receive and transmit LO's and synthesizers
     -   Allows for full-duplex operation on different transmit and receive frequencies
     -   Can be set to use Integer-N tuning for better spur performance
-        with uhd::tune_request_t
+        with shd::tune_request_t
 
 Frequency Range: 50 MHz to 2.2 GHz
 
@@ -220,11 +220,11 @@ Features:
 
 -   2 quadrature frontends (1 transmit, 1 receive)
     -   Defaults to direct conversion
-    -   Can be used in low IF mode through lo_offset with uhd::tune_request_t
+    -   Can be used in low IF mode through lo_offset with shd::tune_request_t
 -   Independent receive and transmit LO's and synthesizers
     -   Allows for full-duplex operation on different transmit and
         receive frequencies
-    -   Can be set to use Integer-N tuning for better spur performance with uhd::tune_request_t
+    -   Can be set to use Integer-N tuning for better spur performance with shd::tune_request_t
 
 Frequency Range: 400 MHz to 4.4 GHz
 
@@ -264,11 +264,11 @@ LEDs:
 Features:
 -   2 quadrature frontends (1 transmit, 1 receive)
     -   Defaults to direct conversion
-    -   Can be used in low IF mode through lo_offset with uhd::tune_request_t
+    -   Can be used in low IF mode through lo_offset with shd::tune_request_t
 -   Independent receive and transmit LO's and synthesizers
     -   Allows for full-duplex operation on different transmit and
         receive frequencies
-    -   Can be set to use Integer-N tuning for better spur performance with uhd::tune_request_t
+    -   Can be set to use Integer-N tuning for better spur performance with shd::tune_request_t
 
 Frequency Range: 1.2 GHz to 6 GHz
 
@@ -308,11 +308,11 @@ LEDs:
 Features:
 -   2 quadrature frontends (1 transmit, 1 receive)
     -   Defaults to direct conversion
-    -   Can be used in low IF mode through lo_offset with uhd::tune_request_t
+    -   Can be used in low IF mode through lo_offset with shd::tune_request_t
 -   Independent receive and transmit LO's and synthesizers
     -   Allows for full-duplex operation on different transmit and
         receive frequencies
-    -   Can be set to use Integer-N tuning for better spur performance with uhd::tune_request_t
+    -   Can be set to use Integer-N tuning for better spur performance with shd::tune_request_t
 
 Frequency Range: 10 MHz to 6 GHz
 
@@ -406,7 +406,7 @@ Please refer to \ref e3x0_dboard_e310.
 
 \subsection dboards_clock_rate Daughterboard reference clock
 
-The USRP motherboard provides a reference clock to the daughterboards, which
+The SMINI motherboard provides a reference clock to the daughterboards, which
 the daughterboards will use to generate LO signals or anything else that
 requires a reference clock.
 
@@ -416,13 +416,13 @@ However, it can provide only one daughterboard clock per device, which can
 lead to conflicts. It might not be possible to use a specific daughterboard
 together with all others.
 
-\subsection dboards_dbsrxmod DBSRX - Modifying for other boards that USRP1
+\subsection dboards_dbsrxmod DBSRX - Modifying for other boards that SMINI1
 
 Due to different clocking capabilities, the DBSRX will require
-modifications to operate on a non-USRP1 motherboard. On a USRP1
+modifications to operate on a non-SMINI1 motherboard. On a SMINI1
 motherboard, a divided clock is provided from an FPGA pin because the
 standard daughterboard clock lines cannot provided a divided clock.
-However, on other USRP motherboards, the divided clock is provided over
+However, on other SMINI motherboards, the divided clock is provided over
 the standard daughterboard clock lines.
 
 \subsubsection dboards_dbsrxmod_1 Step 1: Move the clock configuration resistor
@@ -440,18 +440,18 @@ there.
 
 With the daughterboard plugged-in, run the following commands:
 
-    cd <install-path>/lib/uhd/utils
-    ./usrp_burn_db_eeprom --id=0x000d --unit=RX --args=<args> --slot=<slot>
+    cd <install-path>/lib/shd/utils
+    ./smini_burn_db_eeprom --id=0x000d --unit=RX --args=<args> --slot=<slot>
 
--   `<args>` are device address arguments (optional if only one USRP
+-   `<args>` are device address arguments (optional if only one SMINI
     device is on your machine)
 -   `<slot>` is the name of the daughterboard slot (optional if the
-    USRP device has only one slot)
+    SMINI device has only one slot)
 
 \subsection dboards_rfxmod RFX - Modify to use motherboard oscillator
 
 Older RFX boards require modifications to use the motherboard
-oscillator. If this is the case, UHD software will print a warning about
+oscillator. If this is the case, SHD software will print a warning about
 the modification. Please follow the modification procedures below:
 
 - Step 1: Disable the daughterboard clocks**
@@ -467,9 +467,9 @@ so if you lose one, just short across the appropriate pads.
 
 With the daughterboard plugged in, run the following commands: :
 
-    cd <install-path>/lib/uhd/utils
-    ./usrp_burn_db_eeprom --id=<rx_id> --unit=RX --args=<args> --slot=<slot>
-    ./usrp_burn_db_eeprom --id=<tx_id> --unit=TX --args=<args> --slot=<slot>
+    cd <install-path>/lib/shd/utils
+    ./smini_burn_db_eeprom --id=<rx_id> --unit=RX --args=<args> --slot=<slot>
+    ./smini_burn_db_eeprom --id=<tx_id> --unit=TX --args=<args> --slot=<slot>
 
 -   `<rx_id>` choose the appropriate RX ID for your daughterboard
     -   **RFX400:** 0x0024
@@ -483,8 +483,8 @@ With the daughterboard plugged in, run the following commands: :
     -   **RFX1800:** 0x0035
     -   **RFX1200:** 0x002a
     -   **RFX2400:** 0x002b
--   `<args>` are device address arguments (optional if only one USRP device is on your machine)
--   `<slot>` is the name of the daughterboard slot (optional if the USRP device has only one slot)
+-   `<args>` are device address arguments (optional if only one SMINI device is on your machine)
+-   `<slot>` is the name of the daughterboard slot (optional if the SMINI device has only one slot)
 
 
 */

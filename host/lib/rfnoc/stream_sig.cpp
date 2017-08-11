@@ -15,11 +15,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/rfnoc/stream_sig.hpp>
-#include <uhd/convert.hpp>
+#include <shd/rfnoc/stream_sig.hpp>
+#include <shd/convert.hpp>
 #include <boost/format.hpp>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 stream_sig_t::stream_sig_t() :
     item_type(""),
@@ -54,7 +54,7 @@ size_t stream_sig_t::get_bytes_per_item() const
         return 0;
     }
 
-    return uhd::convert::get_bytes_per_item(item_type);
+    return shd::convert::get_bytes_per_item(item_type);
 }
 
 bool stream_sig_t::is_compatible(const stream_sig_t &output_sig, const stream_sig_t &input_sig)

@@ -16,10 +16,10 @@
 //
 
 #include "convert_common.hpp"
-#include <uhd/utils/byteswap.hpp>
+#include <shd/utils/byteswap.hpp>
 #include <emmintrin.h>
 
-using namespace uhd::convert;
+using namespace shd::convert;
 
 DECLARE_CONVERTER(fc32, 1, sc16_item32_le, 1, PRIORITY_SIMD){
     const fc32_t *input = reinterpret_cast<const fc32_t *>(inputs[0]);
@@ -57,7 +57,7 @@ DECLARE_CONVERTER(fc32, 1, sc16_item32_le, 1, PRIORITY_SIMD){
         break;
     case 0x8:
         // the first sample is 8-byte aligned - process it to align the remainder of the samples to 16-bytes
-        xx_to_item32_sc16<uhd::htowx>(input, output, 1, scale_factor);
+        xx_to_item32_sc16<shd::htowx>(input, output, 1, scale_factor);
         i++;
         // do faster processing of the bulk of the samples now that we are 16-byte aligned
         convert_fc32_1_to_item32_1_nswap_guts(_)
@@ -68,7 +68,7 @@ DECLARE_CONVERTER(fc32, 1, sc16_item32_le, 1, PRIORITY_SIMD){
     }
 
     // convert any remaining samples
-    xx_to_item32_sc16<uhd::htowx>(input+i, output+i, nsamps-i, scale_factor);
+    xx_to_item32_sc16<shd::htowx>(input+i, output+i, nsamps-i, scale_factor);
 }
 
 DECLARE_CONVERTER(fc32, 1, sc16_item32_be, 1, PRIORITY_SIMD){
@@ -106,7 +106,7 @@ DECLARE_CONVERTER(fc32, 1, sc16_item32_be, 1, PRIORITY_SIMD){
         break;
     case 0x8:
         // the first value is 8-byte aligned - process it and prepare the bulk of the data for fast conversion
-        xx_to_item32_sc16<uhd::htonx>(input, output, 1, scale_factor);
+        xx_to_item32_sc16<shd::htonx>(input, output, 1, scale_factor);
         i++;
         // do faster processing of the remaining samples now that we are 16-byte aligned
         convert_fc32_1_to_item32_1_bswap_guts(_)
@@ -117,5 +117,5 @@ DECLARE_CONVERTER(fc32, 1, sc16_item32_be, 1, PRIORITY_SIMD){
     }
 
     // convert any remaining samples
-    xx_to_item32_sc16<uhd::htonx>(input+i, output+i, nsamps-i, scale_factor);
+    xx_to_item32_sc16<shd::htonx>(input+i, output+i, nsamps-i, scale_factor);
 }

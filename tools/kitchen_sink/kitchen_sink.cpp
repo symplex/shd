@@ -15,10 +15,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/convert.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/convert.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/smini/multi_smini.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 #include <boost/thread/thread.hpp>
@@ -35,7 +35,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <csignal>
-#include <uhd/utils/msg.hpp>
+#include <shd/utils/msg.hpp>
 
 namespace po = boost::program_options;
 
@@ -86,7 +86,7 @@ unsigned long long num_send_calls = 0;
 
 static boost::condition_variable rx_thread_complete, tx_thread_complete, tx_async_thread_complete;
 static boost::condition_variable begin, abort_event, rx_thread_begin, tx_thread_begin, recv_done/*, tx_async_begin*/;
-static uhd::rx_metadata_t last_rx_md;
+static shd::rx_metadata_t last_rx_md;
 static size_t last_rx_samps;
 static boost::mutex last_rx_md_mutex, begin_rx_mutex, begin_tx_mutex, begin_tx_async_begin, stop_mutex;
 static volatile bool running = false;
@@ -227,9 +227,9 @@ static void print_msgs(void)
     }
 }
 
-static void msg_handler(uhd::msg::type_t type, const std::string& msg)
+static void msg_handler(shd::msg::type_t type, const std::string& msg)
 {
-    if ((type == uhd::msg::fastpath) && (msg.size() == 1))
+    if ((type == shd::msg::fastpath) && (msg.size() == 1))
     {
         char c = msg.c_str()[0];
 
@@ -272,7 +272,7 @@ static void msg_handler(uhd::msg::type_t type, const std::string& msg)
  * Checker thread
  **********************************************************************/
 
-void check_thread(uhd::usrp::multi_usrp::sptr usrp)
+void check_thread(shd::smini::multi_smini::sptr smini)
 {
     {
         std::stringstream ss;
@@ -282,7 +282,7 @@ void check_thread(uhd::usrp::multi_usrp::sptr usrp)
     
     while (running)
     {
-        uhd::sensor_value_t ref_locked = usrp->get_mboard_sensor("ref_locked");
+        shd::sensor_value_t ref_locked = smini->get_mboard_sensor("ref_locked");
         if (ref_locked.to_bool() == false) {
             std::stringstream ss;
             ss << HEADER_WARN"(" << get_stringified_time() << ") " << boost::format("ref_locked: unlocked") << std::endl;
@@ -302,7 +302,7 @@ void check_thread(uhd::usrp::multi_usrp::sptr usrp)
 typedef struct RxParams {
     size_t samps_per_packet;
     size_t samps_per_buff;
-    uhd::time_spec_t start_time;
+    shd::time_spec_t start_time;
     double start_time_delay;
     double recv_timeout;
     bool one_packet_at_a_time;
@@ -328,29 +328,29 @@ static boost::system_time recv_samp_count_progress_update;
 static size_t rx_sleep_delay_now = 0;
 
 void benchmark_rx_rate(
-    uhd::usrp::multi_usrp::sptr usrp,
+    shd::smini::multi_smini::sptr smini,
     const std::string &rx_cpu,
-    uhd::rx_streamer::sptr rx_stream,
+    shd::rx_streamer::sptr rx_stream,
     RX_PARAMS& params)
 {
-    uhd::set_thread_priority_safe();
+    shd::set_thread_priority_safe();
 
     boost::mutex::scoped_lock l(begin_rx_mutex);
 
     rx_interrupt_disabler = new boost::this_thread::disable_interruption();
 
     //setup variables and allocate buffer
-    size_t bytes_per_samp = uhd::convert::get_bytes_per_item(rx_cpu);
+    size_t bytes_per_samp = shd::convert::get_bytes_per_item(rx_cpu);
     std::vector<char> buff(params.samps_per_buff * bytes_per_samp * rx_stream->get_num_channels());
     std::vector<void *> buffs;
     for (size_t ch = 0; ch < rx_stream->get_num_channels(); ch++)
         buffs.push_back(&buff.front() + (params.samps_per_buff * bytes_per_samp * ch)); //same buffer for each channel
 
     bool had_an_overflow = false;
-    uhd::time_spec_t last_time;
-    const double rate = usrp->get_rx_rate();
-    const double master_clock_rate = usrp->get_master_clock_rate();
-    uhd::rx_metadata_t md;
+    shd::time_spec_t last_time;
+    const double rate = smini->get_rx_rate();
+    const double master_clock_rate = smini->get_master_clock_rate();
+    shd::rx_metadata_t md;
 
     if (params.set_rx_freq)
     {
@@ -358,9 +358,9 @@ void benchmark_rx_rate(
         {
             std::cout << boost::format(HEADER_RX"Setting RX freq: %f (LO offset: %f Hz)") % params.rx_freq % params.rx_lo_offset << std::endl;
 
-            uhd::tune_request_t tune_request = uhd::tune_request_t(params.rx_freq, params.rx_lo_offset);
+            shd::tune_request_t tune_request = shd::tune_request_t(params.rx_freq, params.rx_lo_offset);
             for (size_t ch = 0; ch < rx_stream->get_num_channels(); ch++)
-                usrp->set_rx_freq(tune_request, ch);
+                smini->set_rx_freq(tune_request, ch);
         }
     }
 
@@ -375,16 +375,16 @@ void benchmark_rx_rate(
         std::cout << ss.str();
     }
 
-    uhd::time_spec_t time_now = usrp->get_time_now();
-    uhd::time_spec_t diff = time_now - params.start_time;
-    std::cout << boost::format(HEADER_RX"USRP time difference between right now and start time: %ld ticks (%f seconds)") % diff.to_ticks(rate) % diff.get_real_secs() << std::endl;
+    shd::time_spec_t time_now = smini->get_time_now();
+    shd::time_spec_t diff = time_now - params.start_time;
+    std::cout << boost::format(HEADER_RX"SMINI time difference between right now and start time: %ld ticks (%f seconds)") % diff.to_ticks(rate) % diff.get_real_secs() << std::endl;
 
-    uhd::time_spec_t actual_start_time = params.start_time + uhd::time_spec_t(params.start_time_delay);
+    shd::time_spec_t actual_start_time = params.start_time + shd::time_spec_t(params.start_time_delay);
 
     if (params.start_time_delay >= 0.0)
         std::cout << HEADER_RX"Will begin streaming at time " << boost::format("%.6f") % actual_start_time.get_real_secs() << std::endl;
 
-    uhd::stream_cmd_t cmd((params.rx_sample_limit == 0) ? uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS : uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE); // FIXME: The other streaming modes
+    shd::stream_cmd_t cmd((params.rx_sample_limit == 0) ? shd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS : shd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE); // FIXME: The other streaming modes
     cmd.num_samps = params.rx_sample_limit;
     cmd.time_spec = actual_start_time;
     cmd.stream_now = (params.start_time_delay == 0.0);
@@ -396,14 +396,14 @@ void benchmark_rx_rate(
         {
             std::cout << boost::format(HEADER_RX"Scheduling RX freq in %d seconds: %f (LO offset: %f Hz)") % params.rx_freq_delay % params.rx_freq % params.rx_lo_offset << std::endl;
 
-            uhd::time_spec_t tune_time = params.start_time + uhd::time_spec_t(params.rx_freq_delay);
-            usrp->set_command_time(tune_time);
+            shd::time_spec_t tune_time = params.start_time + shd::time_spec_t(params.rx_freq_delay);
+            smini->set_command_time(tune_time);
 
-            uhd::tune_request_t tune_request = uhd::tune_request_t(params.rx_freq, params.rx_lo_offset);
+            shd::tune_request_t tune_request = shd::tune_request_t(params.rx_freq, params.rx_lo_offset);
             for (size_t ch = 0; ch < rx_stream->get_num_channels(); ch++)
-                usrp->set_rx_freq(tune_request, ch);
+                smini->set_rx_freq(tune_request, ch);
 
-            usrp->clear_command_time();
+            smini->clear_command_time();
         }
     }
 
@@ -549,7 +549,7 @@ void benchmark_rx_rate(
             //handle the error codes
             switch(md.error_code)
             {
-                case uhd::rx_metadata_t::ERROR_CODE_NONE:
+                case shd::rx_metadata_t::ERROR_CODE_NONE:
                 {
                     if (had_an_overflow)
                     {
@@ -560,7 +560,7 @@ void benchmark_rx_rate(
                 }
 
                 // ERROR_CODE_OVERFLOW can indicate overflow or sequence error
-                case uhd::rx_metadata_t::ERROR_CODE_OVERFLOW:   // 'recv_samps' should be 0
+                case shd::rx_metadata_t::ERROR_CODE_OVERFLOW:   // 'recv_samps' should be 0
                     last_time = md.time_spec;
                     had_an_overflow = true;
 #if HAS_RX_METADATA_OUT_OF_SEQUENCE
@@ -570,7 +570,7 @@ void benchmark_rx_rate(
                         num_overflows++;
                     break;
 
-                case uhd::rx_metadata_t::ERROR_CODE_TIMEOUT:
+                case shd::rx_metadata_t::ERROR_CODE_TIMEOUT:
                 {
                     std::stringstream ss;
                     ss << HEADER_RX"(" << get_stringified_time() << ") ";
@@ -581,7 +581,7 @@ void benchmark_rx_rate(
                     break;
                 }
 
-                case uhd::rx_metadata_t::ERROR_CODE_LATE_COMMAND:
+                case shd::rx_metadata_t::ERROR_CODE_LATE_COMMAND:
                 {
                     std::stringstream ss;
                     ss << HEADER_RX"(" << get_stringified_time() << ") ";
@@ -592,7 +592,7 @@ void benchmark_rx_rate(
                     break;
                 }
 
-                case uhd::rx_metadata_t::ERROR_CODE_BAD_PACKET:
+                case shd::rx_metadata_t::ERROR_CODE_BAD_PACKET:
                 {
                     std::stringstream ss;
                     ss << HEADER_RX"(" << get_stringified_time() << ") ";
@@ -630,7 +630,7 @@ void benchmark_rx_rate(
     if (params.rx_sample_limit == 0)
     {
         std::cout << HEADER_RX"Stopping streaming..." << std::endl;
-        rx_stream->issue_stream_cmd(uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS);
+        rx_stream->issue_stream_cmd(shd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS);
     }
 
     if (params.capture_files.empty() == false)
@@ -664,7 +664,7 @@ void benchmark_rx_rate(
 static size_t tx_sleep_delay_now = 0;
 
 typedef struct TxParams {
-    uhd::time_spec_t start_time;
+    shd::time_spec_t start_time;
     double send_timeout;
     double send_start_delay;
     bool use_tx_eob;
@@ -688,20 +688,20 @@ typedef struct TxParams {
 } TX_PARAMS;
 
 void benchmark_tx_rate(
-    uhd::usrp::multi_usrp::sptr usrp,
+    shd::smini::multi_smini::sptr smini,
     const std::string &tx_cpu,
-    uhd::tx_streamer::sptr tx_stream,
+    shd::tx_streamer::sptr tx_stream,
     TX_PARAMS& params
     )
 {
-    uhd::set_thread_priority_safe();
+    shd::set_thread_priority_safe();
 
     boost::mutex::scoped_lock l(begin_tx_mutex);
 
     tx_interrupt_disabler = new boost::this_thread::disable_interruption();
 
     //setup variables and allocate buffer
-    const double rate = usrp->get_tx_rate();
+    const double rate = smini->get_tx_rate();
     const size_t max_samps_per_packet = tx_stream->get_max_num_samps();
 
     if (params.tx_burst_length == 0)
@@ -710,10 +710,10 @@ void benchmark_tx_rate(
     }
     size_t total_length = params.tx_burst_length + params.tx_flush_length;
 
-    uhd::time_spec_t packet_time = uhd::time_spec_t::from_ticks(total_length, rate);
+    shd::time_spec_t packet_time = shd::time_spec_t::from_ticks(total_length, rate);
     size_t total_packet_count = (total_length / max_samps_per_packet) + ((total_length % max_samps_per_packet) ? 1 : 0);
     if ((params.use_tx_eob) && (params.tx_time_between_bursts > 0))
-        packet_time += uhd::time_spec_t(params.tx_time_between_bursts);
+        packet_time += shd::time_spec_t(params.tx_time_between_bursts);
     size_t max_late_count = (size_t)(rate / (double)packet_time.to_ticks(rate)) * total_packet_count * tx_stream->get_num_channels();   // Also need to take into account number of radios
 
     // Will be much higher L values (e.g. 31K) on e.g. B200 when entire TX pipeline is full of late packets (large size due to total TX buffering throughout transport & DSP)
@@ -722,7 +722,7 @@ void benchmark_tx_rate(
     std::cout << boost::format(HEADER_TX"Max late packet count: %lu") % max_late_count << std::endl;
 
     std::vector<const void *> buffs;
-    std::vector<char> buff(max_samps_per_packet * uhd::convert::get_bytes_per_item(tx_cpu), 0);
+    std::vector<char> buff(max_samps_per_packet * shd::convert::get_bytes_per_item(tx_cpu), 0);
     float* pResponse = NULL;
     if (tx_cpu == "fc32")
     {
@@ -761,29 +761,29 @@ void benchmark_tx_rate(
         {
             std::cout << boost::format(HEADER_TX"Scheduling TX freq in %d seconds: %f (LO offset: %f Hz)") % params.tx_freq_delay % params.tx_freq % params.tx_lo_offset << std::endl;
 
-            uhd::time_spec_t tune_time = params.start_time + uhd::time_spec_t(params.tx_freq_delay);
-            usrp->set_command_time(tune_time);
+            shd::time_spec_t tune_time = params.start_time + shd::time_spec_t(params.tx_freq_delay);
+            smini->set_command_time(tune_time);
         }
         else
             std::cout << boost::format(HEADER_TX"Setting TX freq: %f (LO offset: %f Hz)") % params.tx_freq % params.tx_lo_offset << std::endl;
 
-        uhd::tune_request_t tune_request = uhd::tune_request_t(params.tx_freq, params.tx_lo_offset);
+        shd::tune_request_t tune_request = shd::tune_request_t(params.tx_freq, params.tx_lo_offset);
         for (size_t ch = 0; ch < tx_stream->get_num_channels(); ch++)
-            usrp->set_tx_freq(tune_request, ch);
+            smini->set_tx_freq(tune_request, ch);
 
         if (params.tx_freq_delay > 0)
         {
-            usrp->clear_command_time();
+            smini->clear_command_time();
         }
     }
 
     if ((params.use_tx_timespec) && (params.tx_rx_sync == false)) {
-        uhd::time_spec_t time_now  = usrp->get_time_now();
-        uhd::time_spec_t diff = time_now - params.start_time;
+        shd::time_spec_t time_now  = smini->get_time_now();
+        shd::time_spec_t diff = time_now - params.start_time;
         std::cout << boost::format(HEADER_TX"Now - start time: %ld ticks (%f seconds)") % diff.to_ticks(rate) % diff.get_real_secs() << std::endl;
     }
 
-    uhd::tx_metadata_t md;
+    shd::tx_metadata_t md;
     //md.start_of_burst;    // Currently not used on any HW
     md.end_of_burst = params.use_tx_eob;
 
@@ -798,7 +798,7 @@ void benchmark_tx_rate(
     begin.wait(l);
     l.unlock();
 
-    uhd::time_spec_t last_recv_time;
+    shd::time_spec_t last_recv_time;
 
     if ((params.use_tx_timespec)/* && (params.send_start_delay > 0)*/) {
         if ((params.tx_rx_sync) || (params.follow_rx_timestamps)) {
@@ -818,15 +818,15 @@ void benchmark_tx_rate(
             last_recv_time = last_rx_md.time_spec;
 
             if (params.tx_rx_sync)
-                params.start_time = last_rx_md.time_spec + uhd::time_spec_t(params.tx_time_offset);
+                params.start_time = last_rx_md.time_spec + shd::time_spec_t(params.tx_time_offset);
         }
         else
         {
             std::stringstream ss;
-            ss << HEADER_TX"(" << get_stringified_time() << ") "<< boost::format("TX will start %lld ticks in the future") % uhd::time_spec_t(params.send_start_delay).to_ticks(rate) << std::endl;
+            ss << HEADER_TX"(" << get_stringified_time() << ") "<< boost::format("TX will start %lld ticks in the future") % shd::time_spec_t(params.send_start_delay).to_ticks(rate) << std::endl;
             std::cout << ss.str();
 
-            params.start_time += uhd::time_spec_t(params.send_start_delay);
+            params.start_time += shd::time_spec_t(params.send_start_delay);
         }
 
         md.time_spec = params.start_time;
@@ -858,12 +858,12 @@ void benchmark_tx_rate(
     // o Detect Ls -> re-sync relative
 
     size_t loops_to_send = 0;
-    uhd::time_spec_t next;
+    shd::time_spec_t next;
     boost::system_time time_now = boost::get_system_time();
     boost::system_time last_late_check_time = time_now;
     unsigned long long last_num_late_packets = 0;
     bool resync_time = false;
-    uhd::time_spec_t follow_time_target = md.time_spec;
+    shd::time_spec_t follow_time_target = md.time_spec;
 
     //while (not boost::this_thread::interruption_requested()){
     while (running)
@@ -879,7 +879,7 @@ void benchmark_tx_rate(
         {
             boost::mutex::scoped_lock lock(last_rx_md_mutex);
 
-            uhd::time_spec_t diff = last_rx_md.time_spec - last_recv_time;
+            shd::time_spec_t diff = last_rx_md.time_spec - last_recv_time;
 
             if ((resync_time) || /*(num_send_calls == 0) || */((diff.get_real_secs() == 0) && (md.time_spec >= follow_time_target)))
             {
@@ -890,7 +890,7 @@ void benchmark_tx_rate(
                     resync_time = false;
 
                     last_recv_time = last_rx_md.time_spec;
-                    md.time_spec = last_rx_md.time_spec + uhd::time_spec_t(params.tx_time_offset);
+                    md.time_spec = last_rx_md.time_spec + shd::time_spec_t(params.tx_time_offset);
                     follow_time_target = md.time_spec;
 
                     continue;
@@ -964,10 +964,10 @@ void benchmark_tx_rate(
 
             if ((params.use_relative_timestamps) && (params.use_tx_timespec) && (md.has_time_spec))
             {
-                md.time_spec += uhd::time_spec_t::from_ticks(nsent, rate);
+                md.time_spec += shd::time_spec_t::from_ticks(nsent, rate);
 
                 if (params.tx_time_between_bursts)
-                    md.time_spec += uhd::time_spec_t(params.tx_time_between_bursts);
+                    md.time_spec += shd::time_spec_t(params.tx_time_between_bursts);
             }
         }
 
@@ -1005,7 +1005,7 @@ void benchmark_tx_rate(
                     if ((params.tx_rx_sync) && (params.follow_rx_timestamps))
                         resync_time = true;
                     else
-                        md.time_spec = usrp->get_time_now() + uhd::time_spec_t(params.tx_time_offset);
+                        md.time_spec = smini->get_time_now() + shd::time_spec_t(params.tx_time_offset);
                 }
                 last_num_late_packets = /*num_late_packets*/num_late_packets_msg;
                 last_late_check_time = time_now;
@@ -1048,7 +1048,7 @@ void benchmark_tx_rate(
 }
 
 void benchmark_tx_rate_async_helper(
-    uhd::tx_streamer::sptr tx_stream,
+    shd::tx_streamer::sptr tx_stream,
     double timeout)
 {
     boost::mutex::scoped_lock l(begin_tx_async_begin);
@@ -1058,7 +1058,7 @@ void benchmark_tx_rate_async_helper(
     std::cout << HEADER_AS"Running..." << std::endl;
 
     //setup variables and allocate buffer
-    uhd::async_metadata_t async_md;
+    shd::async_metadata_t async_md;
 
     l.unlock();
 
@@ -1080,27 +1080,27 @@ void benchmark_tx_rate_async_helper(
         //handle the error codes
         switch(async_md.event_code)
         {
-            case uhd::async_metadata_t::EVENT_CODE_BURST_ACK:
+            case shd::async_metadata_t::EVENT_CODE_BURST_ACK:
                 num_tx_acks++;
                 return;
 
-            case uhd::async_metadata_t::EVENT_CODE_UNDERFLOW:
+            case shd::async_metadata_t::EVENT_CODE_UNDERFLOW:
                 num_underflows++;
                 break;
 
-            case uhd::async_metadata_t::EVENT_CODE_UNDERFLOW_IN_PACKET:
+            case shd::async_metadata_t::EVENT_CODE_UNDERFLOW_IN_PACKET:
                 num_underflows_in_packet++;
                 break;
 
-            case uhd::async_metadata_t::EVENT_CODE_SEQ_ERROR:
+            case shd::async_metadata_t::EVENT_CODE_SEQ_ERROR:
                 num_seq_errors++;
                 break;
 
-            case uhd::async_metadata_t::EVENT_CODE_SEQ_ERROR_IN_BURST:
+            case shd::async_metadata_t::EVENT_CODE_SEQ_ERROR_IN_BURST:
                 num_seq_errors_in_burst++;
                 break;
 
-            case uhd::async_metadata_t::EVENT_CODE_TIME_ERROR:
+            case shd::async_metadata_t::EVENT_CODE_TIME_ERROR:
                 num_late_packets++;
                 break;
 
@@ -1150,8 +1150,8 @@ std::vector<size_t> get_channels(const std::string& channel_list, size_t max = -
 /***********************************************************************
  * Main code + dispatcher
  **********************************************************************/
-int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+int SHD_SAFE_MAIN(int argc, char *argv[]){
+    shd::set_thread_priority_safe();
 
     //variables to be set by po
     std::string args;
@@ -1196,7 +1196,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "help message")
-        ("args", po::value<std::string>(&args)->default_value(""), "single uhd device address args")
+        ("args", po::value<std::string>(&args)->default_value(""), "single shd device address args")
         ("duration", po::value<double>(&duration)->default_value(0.0), "duration for the test in seconds (0 = forever)")
         ("rate", po::value<double>(&rate)->default_value(rate), "specify to perform a TX & RX rate test (sps)")
         ("rx-rate", po::value<double>(&rx_rate), "specify to perform a RX rate test (sps)")
@@ -1222,7 +1222,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("rx-start-delay", po::value<double>(&recv_start_delay)->default_value(0.0), "recv start delay (seconds)")
         ("tx-start-delay", po::value<double>(&send_start_delay)->default_value(0.0), "send start delay (seconds)")
         ("interrupt-timeout", po::value<double>(&interrupt_timeout)->default_value(0.0), "time before re-enabling boost thread interruption")
-        ("msg-interval", po::value<double>(&msg_print_interval)->default_value(0.0), "seconds between printing UHD fastpath status messages")
+        ("msg-interval", po::value<double>(&msg_print_interval)->default_value(0.0), "seconds between printing SHD fastpath status messages")
         ("progress-interval", po::value<double>(&progress_interval)->default_value(progress_interval), "seconds between bandwidth updates (0 disables)")
         ("rx-progress-interval", po::value<double>(&rx_progress_interval), "seconds between RX bandwidth updates (0 disables)")
         ("tx-progress-interval", po::value<double>(&tx_progress_interval), "seconds between TX bandwidth updates (0 disables)")
@@ -1299,7 +1299,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //print the help message
     if (vm.count("help") or ((rx_rate + tx_rate) == 0)){
-        std::cout << boost::format("UHD Kitchen Sink %s") % desc << std::endl;
+        std::cout << boost::format("SHD Kitchen Sink %s") % desc << std::endl;
         std::cout <<
         "    By default, performs single-channel full-duplex test at 1 Msps with continuous streaming.\n"
         "    Specify --channels to set RX & TX,\n"
@@ -1349,19 +1349,19 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     try
     {
-        //create a usrp device
-        uhd::device_addrs_t device_addrs = uhd::device::find(args);
-        if (not device_addrs.empty() and device_addrs.at(0).get("type", "") == "usrp1"){
-            std::cerr << HEADER_WARN"Benchmark results will be inaccurate on USRP1 due to insufficient hardware features.\n" << std::endl;
+        //create a smini device
+        shd::device_addrs_t device_addrs = shd::device::find(args);
+        if (not device_addrs.empty() and device_addrs.at(0).get("type", "") == "smini1"){
+            std::cerr << HEADER_WARN"Benchmark results will be inaccurate on SMINI1 due to insufficient hardware features.\n" << std::endl;
         }
-        std::cout << boost::format(HEADER "Creating the usrp device with args \"%s\"") % args << std::endl;
-        uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
+        std::cout << boost::format(HEADER "Creating the smini device with args \"%s\"") % args << std::endl;
+        shd::smini::multi_smini::sptr smini = shd::smini::multi_smini::make(args);
         std::cout << std::endl;
-        std::cout << boost::format(HEADER "Using Device: %s") % usrp->get_pp_string() << std::endl;
+        std::cout << boost::format(HEADER "Using Device: %s") % smini->get_pp_string() << std::endl;
 
         //std::vector<size_t> channel_nums = get_channels(channel_list);
-        std::vector<size_t> rx_channel_nums = get_channels((/*rx_channel_list.size() ? */rx_channel_list/* : channel_list*/), usrp->get_rx_num_channels());
-        std::vector<size_t> tx_channel_nums = get_channels((/*tx_channel_list.size() ? */tx_channel_list/* : channel_list*/), usrp->get_tx_num_channels());
+        std::vector<size_t> rx_channel_nums = get_channels((/*rx_channel_list.size() ? */rx_channel_list/* : channel_list*/), smini->get_rx_num_channels());
+        std::vector<size_t> tx_channel_nums = get_channels((/*tx_channel_list.size() ? */tx_channel_list/* : channel_list*/), smini->get_tx_num_channels());
 
         if ((rx_channel_nums.size() == 0) && (tx_channel_nums.size() == 0))
         {
@@ -1416,15 +1416,15 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         if (master_clock_rate > 0)
         {
             std::cout << boost::format(HEADER "Requested master clock rate: %f") % master_clock_rate << std::endl;
-            usrp->set_master_clock_rate(master_clock_rate);
+            smini->set_master_clock_rate(master_clock_rate);
         }
 
-        std::cout << boost::format(HEADER "Actual master clock rate: %f") % usrp->get_master_clock_rate() << std::endl;
+        std::cout << boost::format(HEADER "Actual master clock rate: %f") % smini->get_master_clock_rate() << std::endl;
 
         if (mode == "mimo") // FIXME: Warn if time/clock sources manually set
         {
-            usrp->set_clock_source("mimo", 0);  // FIXME: Check this (that it's specific to mboard 0)
-            usrp->set_time_source("mimo", 0);
+            smini->set_clock_source("mimo", 0);  // FIXME: Check this (that it's specific to mboard 0)
+            smini->set_time_source("mimo", 0);
 
             std::cout << HEADER "Sleeping after setting clock & time sources" << std::endl;
             boost::this_thread::sleep(boost::posix_time::seconds(1));   // MAGIC
@@ -1433,13 +1433,13 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         {
             if (clock_source.empty() == false)	// Set clock first (stable clock for PPS registration)
             {
-                usrp->set_clock_source(clock_source);
+                smini->set_clock_source(clock_source);
                 std::cout << boost::format(HEADER "Clock source set to: %s") % clock_source << std::endl;
             }
 
             if (time_source.empty() == false)
             {
-                usrp->set_time_source(time_source);
+                smini->set_time_source(time_source);
                 std::cout << boost::format(HEADER "Time source set to: %s") % time_source << std::endl;
             }
 
@@ -1447,18 +1447,18 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
             {
                 if (set_time_mode == "now")
                 {
-                    usrp->set_time_now(uhd::time_spec_t(0.0));
+                    smini->set_time_now(shd::time_spec_t(0.0));
                     std::cout << boost::format(HEADER "Time set now") << std::endl;
                 }
                 else if (set_time_mode == "next_pps")
                 {
-                    usrp->set_time_next_pps(uhd::time_spec_t(0.0));
+                    smini->set_time_next_pps(shd::time_spec_t(0.0));
                     sleep(1);
                     std::cout << boost::format(HEADER "Time set next PPS") << std::endl;
                 }
                 else if (set_time_mode == "unknown_pps")
                 {
-                    usrp->set_time_unknown_pps(uhd::time_spec_t(0.0));
+                    smini->set_time_unknown_pps(shd::time_spec_t(0.0));
                     std::cout << boost::format(HEADER "Time set unknown PPS") << std::endl;
                 }
                 else
@@ -1472,34 +1472,34 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         {
             if (rx_subdev.empty() == false)
             {
-                usrp->set_rx_subdev_spec(rx_subdev);
-                std::cout << boost::format(HEADER_RX"RX sub-device spec: %s") % usrp->get_rx_subdev_spec().to_string() << std::endl;
+                smini->set_rx_subdev_spec(rx_subdev);
+                std::cout << boost::format(HEADER_RX"RX sub-device spec: %s") % smini->get_rx_subdev_spec().to_string() << std::endl;
             }
             
-            usrp->set_rx_rate(rx_rate);
-            double actual_rx_rate = usrp->get_rx_rate();
+            smini->set_rx_rate(rx_rate);
+            double actual_rx_rate = smini->get_rx_rate();
             std::cout << boost::format(HEADER_RX"Actual RX rate: %f") % actual_rx_rate << std::endl;
 
             if (rx_ant.empty() == false)
             {
                 std::cout << boost::format(HEADER_RX"Selecting RX antenna: %s") % rx_ant << std::endl;
                 for (size_t ch = 0; ch < rx_channel_nums.size(); ch++)
-                    usrp->set_rx_antenna(rx_ant, ch);
+                    smini->set_rx_antenna(rx_ant, ch);
             }
 
             if (vm.count("rx-freq-init") > 0)
             {
                 std::cout << boost::format(HEADER_RX"Setting initial RX freq: %f (LO offset: %f Hz)") % rx_freq_init % rx_lo_offset << std::endl;
-                uhd::tune_request_t tune_request = uhd::tune_request_t(rx_freq_init, rx_lo_offset);
+                shd::tune_request_t tune_request = shd::tune_request_t(rx_freq_init, rx_lo_offset);
                 for (size_t ch = 0; ch < rx_channel_nums.size(); ch++)
-                    usrp->set_rx_freq(tune_request, ch);
+                    smini->set_rx_freq(tune_request, ch);
             }
 
             if (vm.count("rx-gain") > 0)
             {
                 std::cout << boost::format(HEADER_RX"Setting RX gain: %f") % rx_gain << std::endl;
                 for (size_t ch = 0; ch < rx_channel_nums.size(); ch++)
-                    usrp->set_rx_gain(rx_gain, ch);
+                    smini->set_rx_gain(rx_gain, ch);
             }
         }
 
@@ -1507,46 +1507,46 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         {
             if (tx_subdev.empty() == false)
             {
-                usrp->set_tx_subdev_spec(tx_subdev);
-                std::cout << boost::format(HEADER_TX"TX sub-device spec: %s") % usrp->get_tx_subdev_spec().to_string() << std::endl;
+                smini->set_tx_subdev_spec(tx_subdev);
+                std::cout << boost::format(HEADER_TX"TX sub-device spec: %s") % smini->get_tx_subdev_spec().to_string() << std::endl;
             }
             
-            usrp->set_tx_rate(tx_rate);
-            double actual_tx_rate = usrp->get_tx_rate();
+            smini->set_tx_rate(tx_rate);
+            double actual_tx_rate = smini->get_tx_rate();
             std::cout << boost::format(HEADER_TX"Actual TX rate: %f") % actual_tx_rate << std::endl;
 
             if (tx_ant.empty() == false)
             {
                 std::cout << boost::format(HEADER_TX"Selecting TX antenna: %s") % tx_ant << std::endl;
                 for (size_t ch = 0; ch < tx_channel_nums.size(); ch++)
-                    usrp->set_tx_antenna(tx_ant, ch);
+                    smini->set_tx_antenna(tx_ant, ch);
             }
 
             if (vm.count("tx-freq-init") > 0)
             {
                 std::cout << boost::format(HEADER_TX"Setting initial TX freq: %f Hz (LO offset: %f Hz)") % tx_freq_init % tx_lo_offset << std::endl;
-                uhd::tune_request_t tune_request = uhd::tune_request_t(tx_freq_init, tx_lo_offset);
+                shd::tune_request_t tune_request = shd::tune_request_t(tx_freq_init, tx_lo_offset);
                 for (size_t ch = 0; ch < tx_channel_nums.size(); ch++)
-                    usrp->set_tx_freq(tune_request, ch);
+                    smini->set_tx_freq(tune_request, ch);
             }
 
             if (vm.count("tx-gain") > 0)
             {
                 std::cout << boost::format(HEADER_TX"Setting TX gain: %f") % tx_gain << std::endl;
                 for (size_t ch = 0; ch < tx_channel_nums.size(); ch++)
-                    usrp->set_tx_gain(tx_gain, ch);
+                    smini->set_tx_gain(tx_gain, ch);
             }
         }
 
-        if (usrp->get_time_source(0) == "gpsdo")
+        if (smini->get_time_source(0) == "gpsdo")
         {
             std::cout << boost::format(HEADER "Waiting for GPSDO time to latch") << std::endl;
             sleep(1);
         }
 
-        uhd::time_spec_t time_start = usrp->get_time_now();	// Usually DSP #0 on mboard #0
+        shd::time_spec_t time_start = smini->get_time_now();	// Usually DSP #0 on mboard #0
 
-        std::cout << boost::format(HEADER "Time now:  %f seconds (%llu ticks)") % time_start.get_real_secs() % time_start.to_ticks(usrp->get_master_clock_rate()) << std::endl;
+        std::cout << boost::format(HEADER "Time now:  %f seconds (%llu ticks)") % time_start.get_real_secs() % time_start.to_ticks(smini->get_master_clock_rate()) << std::endl;
 
         boost::thread_group thread_group;
 
@@ -1560,19 +1560,19 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
             if (rx_channel_nums.size() > 0)
             {
                 //create a receive streamer
-                size_t bytes_per_rx_sample = uhd::convert::get_bytes_per_item(rx_cpu);
+                size_t bytes_per_rx_sample = shd::convert::get_bytes_per_item(rx_cpu);
                 std::cout << boost::format(HEADER_RX"CPU bytes per RX sample: %d for '%s'") % bytes_per_rx_sample % rx_cpu << std::endl;
-                size_t wire_bytes_per_rx_sample = uhd::convert::get_bytes_per_item(rx_otw);
+                size_t wire_bytes_per_rx_sample = shd::convert::get_bytes_per_item(rx_otw);
                 std::cout << boost::format(HEADER_RX"OTW bytes per RX sample: %d for '%s'") % wire_bytes_per_rx_sample % rx_otw << std::endl;
 
-                uhd::stream_args_t rx_stream_args(rx_cpu, rx_otw);
+                shd::stream_args_t rx_stream_args(rx_cpu, rx_otw);
                 rx_stream_args.channels = rx_channel_nums;
                 if (samps_per_packet > 0)
                 {
                     std::cout << boost::format(HEADER_RX"Samples per RX packet requested: %d") % samps_per_packet << std::endl;
                     rx_stream_args.args["spp"] = str(boost::format("%d") % samps_per_packet);
                 }
-                uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(rx_stream_args);
+                shd::rx_streamer::sptr rx_stream = smini->get_rx_stream(rx_stream_args);
                 samps_per_packet = rx_stream->get_max_num_samps();
                 std::cout << boost::format(HEADER_RX"Max samples per RX packet: %d") % samps_per_packet << std::endl;
 
@@ -1649,7 +1649,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
                 std::cout << boost::format(
                     HEADER_RX"Testing receive rate %f Msps on %u channels: %s"
-                ) % (usrp->get_rx_rate()/1e6) % rx_stream->get_num_channels() % rx_channel_list << std::endl;
+                ) % (smini->get_rx_rate()/1e6) % rx_stream->get_num_channels() % rx_channel_list << std::endl;
 
                 rx_params.samps_per_packet = samps_per_packet;
                 rx_params.samps_per_buff = samps_per_buff;
@@ -1673,7 +1673,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
                 thread_group.create_thread(boost::bind(
                     &benchmark_rx_rate,
-                    usrp,
+                    smini,
                     rx_cpu,
                     rx_stream,
                     rx_params));
@@ -1681,12 +1681,12 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
             if (tx_channel_nums.size() > 0) {
                 //create a transmit streamer
-                size_t bytes_per_tx_sample = uhd::convert::get_bytes_per_item(tx_cpu);
+                size_t bytes_per_tx_sample = shd::convert::get_bytes_per_item(tx_cpu);
                 std::cout << boost::format(HEADER_TX"CPU bytes per TX sample: %d for '%s'") % bytes_per_tx_sample % tx_cpu << std::endl;
-                size_t wire_bytes_per_tx_sample = uhd::convert::get_bytes_per_item(tx_otw);
+                size_t wire_bytes_per_tx_sample = shd::convert::get_bytes_per_item(tx_otw);
                 std::cout << boost::format(HEADER_TX"OTW bytes per TX sample: %d for '%s'") % wire_bytes_per_tx_sample % tx_otw << std::endl;
 
-                uhd::stream_args_t tx_stream_args(tx_cpu, tx_otw);
+                shd::stream_args_t tx_stream_args(tx_cpu, tx_otw);
                 tx_stream_args.channels = tx_channel_nums;
                 /*
                  * In the "next_burst" mode, the DSP drops incoming packets until a new burst is started.
@@ -1700,13 +1700,13 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
                 else
                     std::cout << HEADER_TX"Default underflow policy: allow late bursts ('next_packet')" << std::endl;
 
-                uhd::tx_streamer::sptr tx_stream = usrp->get_tx_stream(tx_stream_args);
+                shd::tx_streamer::sptr tx_stream = smini->get_tx_stream(tx_stream_args);
 
                 std::cout << boost::format(HEADER_TX"Max TX samples per packet: %d") % tx_stream->get_max_num_samps() << std::endl;
 
                 std::cout << boost::format(
                     HEADER_TX"Testing transmit rate %f Msps on %u channels: %s"
-                ) % (usrp->get_tx_rate()/1e6) % tx_stream->get_num_channels() % tx_channel_list << std::endl;
+                ) % (smini->get_tx_rate()/1e6) % tx_stream->get_num_channels() % tx_channel_list << std::endl;
 
                 if ((send_start_delay > 0) && (use_tx_timespec == false))   // FIXME: Don't display warnings if tx-follows-rx
                 {
@@ -1772,7 +1772,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
                 tx_params.tx_lo_offset = tx_lo_offset;
 
                 thread_group.create_thread(boost::bind(&benchmark_tx_rate,
-                    usrp,
+                    smini,
                     tx_cpu,
                     tx_stream,
                     tx_params));
@@ -1788,7 +1788,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
             running = true;
             std::cout << HEADER "Begin..." << std::endl;
 
-            thread_group.create_thread(boost::bind(&check_thread, usrp));
+            thread_group.create_thread(boost::bind(&check_thread, smini));
 
             if (tx_channel_nums.size() > 0)
                 tx_thread_begin.wait(l_tx);
@@ -1797,14 +1797,14 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
             std::signal(SIGINT, &sig_int_handler);
 
-            uhd::msg::register_handler(&msg_handler);
+            shd::msg::register_handler(&msg_handler);
 
             begin.notify_all();
 
             // RTT is longer, so skip this
-            //time_start = usrp->get_time_now();	// Usually DSP #0 on mboard #0
+            //time_start = smini->get_time_now();	// Usually DSP #0 on mboard #0
             //tx_params.start_time = rx_params.start_time = time_start;   // Update to ignore thread start-up time
-            //std::cout << boost::format("Time now:  %f seconds (%llu ticks)") % time_start.get_real_secs() % time_start.to_ticks(usrp->get_master_clock_rate()) << std::endl;
+            //std::cout << boost::format("Time now:  %f seconds (%llu ticks)") % time_start.get_real_secs() % time_start.to_ticks(smini->get_master_clock_rate()) << std::endl;
         }   // TX/RX locks will be released
 
         std::cout << HEADER << "(" << get_stringified_time() << ") Running..." << std::endl;

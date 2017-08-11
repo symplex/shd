@@ -16,23 +16,23 @@
 //
 
 #include "utils.hpp"
-#include <uhd/rfnoc/source_block_ctrl_base.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/rfnoc/constants.hpp>
+#include <shd/rfnoc/source_block_ctrl_base.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/rfnoc/constants.hpp>
 
-using namespace uhd;
-using namespace uhd::rfnoc;
+using namespace shd;
+using namespace shd::rfnoc;
 
 /***********************************************************************
  * Streaming operations
  **********************************************************************/
 void source_block_ctrl_base::issue_stream_cmd(
-        const uhd::stream_cmd_t &stream_cmd,
+        const shd::stream_cmd_t &stream_cmd,
         const size_t chan
 ) {
-    UHD_RFNOC_BLOCK_TRACE() << "source_block_ctrl_base::issue_stream_cmd()" << std::endl;
+    SHD_RFNOC_BLOCK_TRACE() << "source_block_ctrl_base::issue_stream_cmd()" << std::endl;
     if (_upstream_nodes.empty()) {
-        UHD_MSG(warning) << "issue_stream_cmd() not implemented for " << get_block_id() << std::endl;
+        SHD_MSG(warning) << "issue_stream_cmd() not implemented for " << get_block_id() << std::endl;
         return;
     }
 
@@ -49,7 +49,7 @@ void source_block_ctrl_base::issue_stream_cmd(
 stream_sig_t source_block_ctrl_base::get_output_signature(size_t block_port) const
 {
     if (not _tree->exists(_root_path / "ports" / "out" / block_port)) {
-        throw uhd::runtime_error(str(
+        throw shd::runtime_error(str(
                 boost::format("Invalid port number %d for block %s")
                 % block_port % unique_id()
         ));
@@ -77,21 +77,21 @@ void source_block_ctrl_base::set_destination(
         uint32_t next_address,
         size_t output_block_port
 ) {
-    UHD_RFNOC_BLOCK_TRACE() << "source_block_ctrl_base::set_destination() " << uhd::sid_t(next_address) << std::endl;
+    SHD_RFNOC_BLOCK_TRACE() << "source_block_ctrl_base::set_destination() " << shd::sid_t(next_address) << std::endl;
     sid_t new_sid(next_address);
     new_sid.set_src(get_address(output_block_port));
-    UHD_RFNOC_BLOCK_TRACE() << "  Setting SID: " << new_sid << std::endl << "  ";
+    SHD_RFNOC_BLOCK_TRACE() << "  Setting SID: " << new_sid << std::endl << "  ";
     sr_write(SR_NEXT_DST_SID, (1<<16) | next_address, output_block_port);
 }
 
 void source_block_ctrl_base::configure_flow_control_out(
             size_t buf_size_pkts,
             size_t block_port,
-            UHD_UNUSED(const uhd::sid_t &sid)
+            SHD_UNUSED(const shd::sid_t &sid)
 ) {
-    UHD_RFNOC_BLOCK_TRACE() << "source_block_ctrl_base::configure_flow_control_out() buf_size_pkts==" << buf_size_pkts << std::endl;
+    SHD_RFNOC_BLOCK_TRACE() << "source_block_ctrl_base::configure_flow_control_out() buf_size_pkts==" << buf_size_pkts << std::endl;
     if (buf_size_pkts < 2) {
-      throw uhd::runtime_error(str(
+      throw shd::runtime_error(str(
               boost::format("Invalid window size %d for block %s. Window size must at least be 2.")
               % buf_size_pkts % unique_id()
       ));
@@ -129,7 +129,7 @@ void source_block_ctrl_base::configure_flow_control_out(
  **********************************************************************/
 size_t source_block_ctrl_base::_request_output_port(
         const size_t suggested_port,
-        const uhd::device_addr_t &
+        const shd::device_addr_t &
 ) const {
     const std::set<size_t> valid_output_ports = utils::str_list_to_set<size_t>(_tree->list(_root_path / "ports" / "out"));
     return utils::node_map_find_first_free(_downstream_nodes, suggested_port, valid_output_ports);

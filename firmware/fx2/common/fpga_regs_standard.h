@@ -186,7 +186,7 @@
 
 // ------------------------------------------------------------------------
 // Registers 64 to 95 are reserved for user custom FPGA builds.
-// The standard USRP software will not touch these.
+// The standard SMINI software will not touch these.
 
 #define FR_USER_0	64
 #define FR_USER_1	65
@@ -221,7 +221,7 @@
 #define FR_USER_30	94
 #define FR_USER_31	95
 
-//Registers needed for multi usrp master/slave configuration
+//Registers needed for multi smini master/slave configuration
 //
 //Rx Master/slave control register (FR_RX_MASTER_SLAVE = FR_USER_0)
 //
@@ -241,17 +241,17 @@
                                                           //0 This is not an rx sync slave.
 
 //Caution The master settings will output values on the io lines.
-//They inheritely enable these lines as output. If you have a daughtercard which uses these lines also as output then you will burn your usrp and daughtercard.
-//If you set the slave bits then your usrp won't do anything if you don't connect a master.
+//They inheritely enable these lines as output. If you have a daughtercard which uses these lines also as output then you will burn your smini and daughtercard.
+//If you set the slave bits then your smini won't do anything if you don't connect a master.
 // Rx Master/slave control register
 //
-// The way this is supposed to be used is connecting a (short) 16pin flatcable from an rx daughterboard in RXA master io_rx[8..15] to slave io_rx[8..15] on RXA of slave usrp
+// The way this is supposed to be used is connecting a (short) 16pin flatcable from an rx daughterboard in RXA master io_rx[8..15] to slave io_rx[8..15] on RXA of slave smini
 // This can be done with basic_rx boards or dbsrx boards
 //dbsrx: connect master-J25 to slave-J25
 //basic rx: connect J25 to slave-J25
 //CAUTION: pay attention to the lineup of your connector.
 //The red line (pin1) should be at the same side of the daughterboards on master and slave.
-//If you turnaround the cable on one end you will burn your usrp.
+//If you turnaround the cable on one end you will burn your smini.
 
 //You cannot use a 16pin flatcable if you are using FLEX400 or FLEX2400 daughterboards, since these use a lot of the io pins.
 //You can still link them but you must use only a 2pin or 1pin cable

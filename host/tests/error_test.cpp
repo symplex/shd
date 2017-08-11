@@ -16,16 +16,16 @@
 //
 
 #include <boost/test/unit_test.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/utils/assert_has.hpp>
+#include <shd/exception.hpp>
+#include <shd/utils/assert_has.hpp>
 #include <vector>
 #include <iostream>
 
 BOOST_AUTO_TEST_CASE(test_exception_methods){
     try{
-        throw uhd::assertion_error("your assertion failed: 1 != 2");
+        throw shd::assertion_error("your assertion failed: 1 != 2");
     }
-    catch(const uhd::exception &e){
+    catch(const shd::exception &e){
         std::cout << "what: " << e.what() << std::endl;
         std::cout << "code: " << e.code() << std::endl;
     }
@@ -37,13 +37,13 @@ BOOST_AUTO_TEST_CASE(test_assert_has){
     vec.push_back(3);
     vec.push_back(5);
 
-    //verify the uhd::has utility
-    BOOST_CHECK(uhd::has(vec, 2));
-    BOOST_CHECK(not uhd::has(vec, 1));
+    //verify the shd::has utility
+    BOOST_CHECK(shd::has(vec, 2));
+    BOOST_CHECK(not shd::has(vec, 1));
 
     std::cout << "The output of the assert_has error:" << std::endl;
     try{
-        uhd::assert_has(vec, 1, "prime");
+        shd::assert_has(vec, 1, "prime");
     }
     catch(const std::exception &e){
         std::cout << e.what() << std::endl;
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(test_assert_has){
 BOOST_AUTO_TEST_CASE(test_assert_throw){
     std::cout << "The output of the assert throw error:" << std::endl;
     try{
-        UHD_ASSERT_THROW(2 + 2 == 5);
+        SHD_ASSERT_THROW(2 + 2 == 5);
     }
     catch(const std::exception &e){
         std::cout << e.what() << std::endl;
@@ -61,13 +61,13 @@ BOOST_AUTO_TEST_CASE(test_assert_throw){
 }
 
 BOOST_AUTO_TEST_CASE(test_exception_dynamic){
-    uhd::exception *exception_clone;
+    shd::exception *exception_clone;
 
     //throw an exception and dynamically clone it
     try{
-        throw uhd::runtime_error("noooooo");
+        throw shd::runtime_error("noooooo");
     }
-    catch(const uhd::exception &e){
+    catch(const shd::exception &e){
         std::cout << e.what() << std::endl;
         exception_clone = e.dynamic_clone();
     }
@@ -76,15 +76,15 @@ BOOST_AUTO_TEST_CASE(test_exception_dynamic){
     try{
         exception_clone->dynamic_throw();
     }
-    catch(const uhd::assertion_error &e){
+    catch(const shd::assertion_error &e){
         std::cout << e.what() << std::endl;
         BOOST_CHECK(false);
     }
-    catch(const uhd::runtime_error &e){
+    catch(const shd::runtime_error &e){
         std::cout << e.what() << std::endl;
         BOOST_CHECK(true);
     }
-    catch(const uhd::exception &e){
+    catch(const shd::exception &e){
         std::cout << e.what() << std::endl;
         BOOST_CHECK(false);
     }

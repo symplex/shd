@@ -129,7 +129,7 @@ def print_debug_table(args, csv_output):
 def setup_argparse():
     """ Configure arg parser. """
     parser = argparse.ArgumentParser(
-        description="UHD Converter Benchmark + Debugging Utility.",
+        description="SHD Converter Benchmark + Debugging Utility.",
     )
     parser.add_argument(
         "-i", "--in", required=True,

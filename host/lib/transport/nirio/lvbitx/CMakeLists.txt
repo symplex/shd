@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-MACRO(LIBUHD_LVBITX_GEN_SOURCE_AND_BITSTREAM lvbitx binfile)
+MACRO(LIBSHD_LVBITX_GEN_SOURCE_AND_BITSTREAM lvbitx binfile)
     GET_FILENAME_COMPONENT(lvbitxprefix ${lvbitx} NAME_WE)
 
     IF( ${binfile} STREQUAL "OFF" )
@@ -27,7 +27,7 @@ MACRO(LIBUHD_LVBITX_GEN_SOURCE_AND_BITSTREAM lvbitx binfile)
     ENDIF( ${binfile} STREQUAL "OFF" )
 
     SET(OUTPUT_PATH_OPT --output-src-path=${CMAKE_CURRENT_BINARY_DIR})
-    SET(IMAGES_PATH_OPT --uhd-images-path=${UHD_IMAGES_DIR})
+    SET(IMAGES_PATH_OPT --shd-images-path=${SHD_IMAGES_DIR})
 
     ADD_CUSTOM_COMMAND(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${lvbitxprefix}_lvbitx.cpp
@@ -40,10 +40,10 @@ MACRO(LIBUHD_LVBITX_GEN_SOURCE_AND_BITSTREAM lvbitx binfile)
         COMMENT "Generating ${CMAKE_CURRENT_BINARY_DIR}/${lvbitxprefix}_lvbitx.cpp"
     )
 
-    #make libuhd depend on the output file
-    LIBUHD_APPEND_SOURCES(${CMAKE_CURRENT_BINARY_DIR}/${lvbitxprefix}_lvbitx.hpp)
-    LIBUHD_APPEND_SOURCES(${CMAKE_CURRENT_BINARY_DIR}/${lvbitxprefix}_lvbitx.cpp)
-ENDMACRO(LIBUHD_LVBITX_GEN_SOURCE_AND_BITSTREAM)
+    #make libshd depend on the output file
+    LIBSHD_APPEND_SOURCES(${CMAKE_CURRENT_BINARY_DIR}/${lvbitxprefix}_lvbitx.hpp)
+    LIBSHD_APPEND_SOURCES(${CMAKE_CURRENT_BINARY_DIR}/${lvbitxprefix}_lvbitx.cpp)
+ENDMACRO(LIBSHD_LVBITX_GEN_SOURCE_AND_BITSTREAM)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -55,7 +55,7 @@ MESSAGE(STATUS "")
 MESSAGE(STATUS "Processing NI-RIO FPGA LVBITX Bitstreams...")
 
 # X300 Stuff
-LIBUHD_LVBITX_GEN_SOURCE_AND_BITSTREAM(x300.lvbitx_base OFF)
+LIBSHD_LVBITX_GEN_SOURCE_AND_BITSTREAM(x300.lvbitx_base OFF)
 
 # X310 Stuff
-LIBUHD_LVBITX_GEN_SOURCE_AND_BITSTREAM(x310.lvbitx_base OFF)
+LIBSHD_LVBITX_GEN_SOURCE_AND_BITSTREAM(x310.lvbitx_base OFF)

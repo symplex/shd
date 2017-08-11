@@ -15,14 +15,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/rfnoc/block_ctrl.hpp>
+#include <shd/rfnoc/block_ctrl.hpp>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 class block_ctrl_impl : public block_ctrl
 {
 public:
-    UHD_RFNOC_BLOCK_CONSTRUCTOR(block_ctrl)
+    SHD_RFNOC_BLOCK_CONSTRUCTOR(block_ctrl)
     {
         // nop
     }
@@ -30,4 +30,4 @@ public:
     // Very empty class, this one
 };
 
-UHD_RFNOC_BLOCK_REGISTER(block_ctrl, DEFAULT_BLOCK_NAME);
+SHD_RFNOC_BLOCK_REGISTER(block_ctrl, DEFAULT_BLOCK_NAME);

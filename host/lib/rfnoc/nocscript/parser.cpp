@@ -16,7 +16,7 @@
 //
 
 #include "parser.hpp"
-#include <uhd/utils/cast.hpp>
+#include <shd/utils/cast.hpp>
 #include <boost/spirit/include/lex_lexertl.hpp>
 #include <boost/format.hpp>
 #include <boost/bind.hpp>
@@ -25,7 +25,7 @@
 #include <sstream>
 #include <stack>
 
-using namespace uhd::rfnoc::nocscript;
+using namespace shd::rfnoc::nocscript;
 namespace lex = boost::spirit::lex;
 
 class parser_impl : public parser
@@ -109,14 +109,14 @@ class parser_impl : public parser
         ) : ftable(ftable_), var_type_getter(var_type_getter_), var_value_getter(var_value_getter_),
             function_name("")
         {
-            UHD_ASSERT_THROW(expr_stack.empty());
+            SHD_ASSERT_THROW(expr_stack.empty());
             // Push an empty container to the stack to hold the result
             expr_stack.push(expression_container::make());
         }
 
         expression::sptr get_result()
         {
-            UHD_ASSERT_THROW(expr_stack.size() == 1);
+            SHD_ASSERT_THROW(expr_stack.size() == 1);
             return expr_stack.top();
         }
     };
@@ -176,7 +176,7 @@ class parser_impl : public parser
                         } else if (val == "OR") {
                             P.expr_stack.top()->set_combiner_safe(expression_container::COMBINE_OR);
                         }
-                    } catch (const uhd::syntax_error &e) {
+                    } catch (const shd::syntax_error &e) {
                         P.error = str(boost::format("Operator %s is mixing operator types within this container.") % val);
                     }
                     // Right now, we can't have multiple operator types within a container.
@@ -298,7 +298,7 @@ class parser_impl : public parser
                     case ID_LITERAL_HEX: token_type = expression::TYPE_INT; break;
                     case ID_LITERAL_STR: token_type = expression::TYPE_STRING; break;
                     case ID_LITERAL_VECTOR_INT: token_type = expression::TYPE_INT_VECTOR; break;
-                    default: UHD_THROW_INVALID_CODE_PATH();
+                    default: SHD_THROW_INVALID_CODE_PATH();
                 }
                 P.expr_stack.top()->add(boost::make_shared<expression_literal>(val, token_type));
                 next_valid_state = VALID_OPERATOR | VALID_COMMA | VALID_PARENS_CLOSE;
@@ -332,7 +332,7 @@ class parser_impl : public parser
         // Check the parsing worked:
         if (not r or P.expr_stack.size() != 1) {
             std::string rest(first, last);
-            throw uhd::syntax_error(str(
+            throw shd::syntax_error(str(
                     boost::format("Parsing stopped at: %s\nError message: %s")
                     % rest % P.error
             ));

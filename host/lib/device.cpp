@@ -15,13 +15,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/device.hpp>
-#include <uhd/types/dict.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/utils/log.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/utils/static.hpp>
-#include <uhd/utils/algorithm.hpp>
+#include <shd/device.hpp>
+#include <shd/types/dict.hpp>
+#include <shd/exception.hpp>
+#include <shd/utils/log.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/utils/static.hpp>
+#include <shd/utils/algorithm.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <boost/weak_ptr.hpp>
@@ -29,7 +29,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/thread/mutex.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 static boost::mutex _device_mutex;
 
@@ -53,7 +53,7 @@ static size_t hash_device_addr(
         boost::hash_combine(hash, dev_addr["resource"]);
     }
     else {
-        BOOST_FOREACH(const std::string &key, uhd::sorted(dev_addr.keys())){
+        BOOST_FOREACH(const std::string &key, shd::sorted(dev_addr.keys())){
             boost::hash_combine(hash, key);
             boost::hash_combine(hash, dev_addr[key]);
         }
@@ -67,14 +67,14 @@ static size_t hash_device_addr(
 typedef boost::tuple<device::find_t, device::make_t, device::device_filter_t> dev_fcn_reg_t;
 
 // instantiate the device function registry container
-UHD_SINGLETON_FCN(std::vector<dev_fcn_reg_t>, get_dev_fcn_regs)
+SHD_SINGLETON_FCN(std::vector<dev_fcn_reg_t>, get_dev_fcn_regs)
 
 void device::register_device(
     const find_t &find,
     const make_t &make,
     const device_filter_t filter
 ){
-    UHD_LOGV(always) << "registering device" << std::endl;
+    SHD_LOGV(always) << "registering device" << std::endl;
     get_dev_fcn_regs().push_back(dev_fcn_reg_t(find, make, filter));
 }
 
@@ -102,7 +102,7 @@ device_addrs_t device::find(const device_addr_t &hint, device_filter_t filter){
             }
         }
         catch (const std::exception &e) {
-            UHD_MSG(error) << "Device discovery error: " << e.what() << std::endl;
+            SHD_MSG(error) << "Device discovery error: " << e.what() << std::endl;
         }
     }
 
@@ -128,20 +128,20 @@ device::sptr device::make(const device_addr_t &hint, device_filter_t filter, siz
             }
         }
         catch(const std::exception &e){
-            UHD_MSG(error) << "Device discovery error: " << e.what() << std::endl;
+            SHD_MSG(error) << "Device discovery error: " << e.what() << std::endl;
         }
     }
 
     //check that we found any devices
     if (dev_addr_makers.size() == 0){
-        throw uhd::key_error(str(
+        throw shd::key_error(str(
             boost::format("No devices found for ----->\n%s") % hint.to_pp_string()
         ));
     }
 
     //check that the which index is valid
     if (dev_addr_makers.size() <= which){
-        throw uhd::index_error(str(
+        throw shd::index_error(str(
             boost::format("No device at index %d for ----->\n%s") % which % hint.to_pp_string()
         ));
     }
@@ -150,7 +150,7 @@ device::sptr device::make(const device_addr_t &hint, device_filter_t filter, siz
     device_addr_t dev_addr; make_t maker;
     boost::tie(dev_addr, maker) = dev_addr_makers.at(which);
     size_t dev_hash = hash_device_addr(dev_addr);
-    UHD_LOG << boost::format("Device hash: %u") % dev_hash << std::endl;
+    SHD_LOG << boost::format("Device hash: %u") % dev_hash << std::endl;
 
     //copy keys that were in hint but not in dev_addr
     //this way, we can pass additional transport arguments
@@ -159,7 +159,7 @@ device::sptr device::make(const device_addr_t &hint, device_filter_t filter, siz
     }
 
     //map device address hash to created devices
-    static uhd::dict<size_t, boost::weak_ptr<device> > hash_to_device;
+    static shd::dict<size_t, boost::weak_ptr<device> > hash_to_device;
 
     //try to find an existing device
     if (hash_to_device.has_key(dev_hash) and not hash_to_device[dev_hash].expired()){
@@ -173,7 +173,7 @@ device::sptr device::make(const device_addr_t &hint, device_filter_t filter, siz
     }
 }
 
-uhd::property_tree::sptr
+shd::property_tree::sptr
 device::get_tree(void) const
 {
     return _tree;

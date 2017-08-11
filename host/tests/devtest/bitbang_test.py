@@ -17,9 +17,9 @@
 """ Test for gpio --bitbang. """
 
 import re
-from uhd_test_base import uhd_example_test_case
+from shd_test_base import shd_example_test_case
 
-class bitbang_test(uhd_example_test_case):
+class bitbang_test(shd_example_test_case):
     """ Run gpio --bitbang. """
     tests = {'default': {},}
 

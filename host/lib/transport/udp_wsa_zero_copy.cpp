@@ -16,16 +16,16 @@
 //
 
 #include "udp_common.hpp"
-#include <uhd/transport/udp_zero_copy.hpp>
-#include <uhd/transport/udp_simple.hpp> //mtu
-#include <uhd/transport/buffer_pool.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/utils/log.hpp>
+#include <shd/transport/udp_zero_copy.hpp>
+#include <shd/transport/udp_simple.hpp> //mtu
+#include <shd/transport/buffer_pool.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/utils/log.hpp>
 #include <boost/format.hpp>
 #include <vector>
 
-using namespace uhd;
-using namespace uhd::transport;
+using namespace shd;
+using namespace shd::transport;
 namespace asio = boost::asio;
 
 //A reasonable number of frames for send/recv and async/sync
@@ -47,7 +47,7 @@ static void check_registry_for_fast_send_threshold(const size_t mtu){
         reg_key.Open(HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Services\\AFD\\Parameters", KEY_READ) != ERROR_SUCCESS or
         reg_key.QueryDWORDValue("FastSendDatagramThreshold", threshold) != ERROR_SUCCESS or threshold < mtu
     ){
-        UHD_MSG(warning) << boost::format(
+        SHD_MSG(warning) << boost::format(
             "The MTU (%d) is larger than the FastSendDatagramThreshold (%d)!\n"
             "This will negatively affect the transmit performance.\n"
             "See the transport application notes for more detail.\n"
@@ -61,13 +61,13 @@ static void check_registry_for_fast_send_threshold(const size_t mtu){
 /***********************************************************************
  * Static initialization to take care of WSA init and cleanup
  **********************************************************************/
-struct uhd_wsa_control{
-    uhd_wsa_control(void){
+struct shd_wsa_control{
+    shd_wsa_control(void){
         WSADATA wsaData;
         WSAStartup(MAKEWORD(2, 2), &wsaData); /*windows socket startup */
     }
 
-    ~uhd_wsa_control(void){
+    ~shd_wsa_control(void){
         WSACleanup();
     }
 };
@@ -85,7 +85,7 @@ public:
         _wsa_buff.buf = reinterpret_cast<char *>(mem);
         ZeroMemory(&_overlapped, sizeof(_overlapped));
         _overlapped.hEvent = WSACreateEvent();
-        UHD_ASSERT_THROW(_overlapped.hEvent != WSA_INVALID_EVENT);
+        SHD_ASSERT_THROW(_overlapped.hEvent != WSA_INVALID_EVENT);
         this->release(); //makes buffer available via get_new
     }
 
@@ -99,7 +99,7 @@ public:
         WSARecv(_sock_fd, &_wsa_buff, 1, &_wsa_buff.len, &_flags, &_overlapped, NULL);
     }
 
-    UHD_INLINE sptr get_new(const double timeout, size_t &index){
+    SHD_INLINE sptr get_new(const double timeout, size_t &index){
         const DWORD result = WSAWaitForMultipleEvents(
             1, &_overlapped.hEvent, true, DWORD(timeout*1000), true
         );
@@ -133,7 +133,7 @@ public:
         _wsa_buff.buf = reinterpret_cast<char *>(mem);
         ZeroMemory(&_overlapped, sizeof(_overlapped));
         _overlapped.hEvent = WSACreateEvent();
-        UHD_ASSERT_THROW(_overlapped.hEvent != WSA_INVALID_EVENT);
+        SHD_ASSERT_THROW(_overlapped.hEvent != WSA_INVALID_EVENT);
         WSASetEvent(_overlapped.hEvent); //makes buffer available via get_new
     }
 
@@ -146,7 +146,7 @@ public:
         WSASend(_sock_fd, &_wsa_buff, 1, NULL, 0, &_overlapped, NULL);
     }
 
-    UHD_INLINE sptr get_new(const double timeout, size_t &index){
+    SHD_INLINE sptr get_new(const double timeout, size_t &index){
         const DWORD result = WSAWaitForMultipleEvents(
             1, &_overlapped.hEvent, true, DWORD(timeout*1000), true
         );
@@ -197,10 +197,10 @@ public:
         check_registry_for_fast_send_threshold(this->get_send_frame_size());
         #endif /*CHECK_REG_SEND_THRESH*/
 
-        UHD_MSG(status) << boost::format("Creating WSA UDP transport for %s:%s") % addr % port << std::endl;
-        static uhd_wsa_control uhd_wsa; //makes wsa start happen via lazy initialization
+        SHD_MSG(status) << boost::format("Creating WSA UDP transport for %s:%s") % addr % port << std::endl;
+        static shd_wsa_control shd_wsa; //makes wsa start happen via lazy initialization
 
-        UHD_ASSERT_THROW(_num_send_frames <= WSA_MAXIMUM_WAIT_EVENTS);
+        SHD_ASSERT_THROW(_num_send_frames <= WSA_MAXIMUM_WAIT_EVENTS);
 
         //resolve the address
         asio::io_service io_service;
@@ -212,7 +212,7 @@ public:
         _sock_fd = WSASocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP, NULL, 0, WSA_FLAG_OVERLAPPED);
         if (_sock_fd == INVALID_SOCKET){
             const DWORD error = WSAGetLastError();
-            throw uhd::os_error(str(boost::format("WSASocket() failed with error %d") % error));
+            throw shd::os_error(str(boost::format("WSASocket() failed with error %d") % error));
         }
 
         //set the socket non-blocking for recv
@@ -230,7 +230,7 @@ public:
         if (WSAConnect(_sock_fd, (const struct sockaddr *)&servaddr, sizeof(servaddr), NULL, NULL, NULL, NULL) != 0){
             const DWORD error = WSAGetLastError();
             closesocket(_sock_fd);
-            throw uhd::os_error(str(boost::format("WSAConnect() failed with error %d") % error));
+            throw shd::os_error(str(boost::format("WSAConnect() failed with error %d") % error));
         }
 
         //allocate re-usable managed receive buffers
@@ -327,11 +327,11 @@ void check_usr_buff_size(
     size_t user_buff_size, // Set this to zero for no user-defined preference
     const std::string tx_rx
 ){
-    UHD_LOG << boost::format(
+    SHD_LOG << boost::format(
         "Target %s sock buff size: %d bytes\n"
         "Actual %s sock buff size: %d bytes"
     ) % tx_rx % user_buff_size % tx_rx % actual_buff_size << std::endl;
-    if ((user_buff_size != 0.0) and (actual_buff_size < user_buff_size)) UHD_MSG(warning) << boost::format(
+    if ((user_buff_size != 0.0) and (actual_buff_size < user_buff_size)) SHD_MSG(warning) << boost::format(
         "The %s buffer could not be resized sufficiently.\n"
         "Target sock buff size: %d bytes.\n"
         "Actual sock buff size: %d bytes.\n"
@@ -361,14 +361,14 @@ udp_zero_copy::sptr udp_zero_copy::make(
     size_t usr_send_buff_size = size_t(hints.cast<double>("send_buff_size", 0.0));
     if (hints.has_key("recv_buff_size")) {
         if (usr_recv_buff_size < xport_params.recv_frame_size * xport_params.num_recv_frames) {
-            throw uhd::value_error((boost::format(
+            throw shd::value_error((boost::format(
                 "recv_buff_size must be equal to or greater than (num_recv_frames * recv_frame_size) where num_recv_frames=%d, recv_frame_size=%d")
                 % xport_params.num_recv_frames % xport_params.recv_frame_size).str());
         }
     }
     if (hints.has_key("send_buff_size")) {
         if (usr_send_buff_size < xport_params.send_frame_size * xport_params.num_send_frames) {
-            throw uhd::value_error((boost::format(
+            throw shd::value_error((boost::format(
                 "send_buff_size must be equal to or greater than (num_send_frames * send_frame_size) where num_send_frames=%d, send_frame_size=%d")
                 % xport_params.num_send_frames % xport_params.send_frame_size).str());
         }

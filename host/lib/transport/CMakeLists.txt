@@ -33,8 +33,8 @@ IF(ENABLE_USB)
     MESSAGE(STATUS "")
     MESSAGE(STATUS "USB support enabled via libusb.")
     INCLUDE_DIRECTORIES(${LIBUSB_INCLUDE_DIRS})
-    LIBUHD_APPEND_LIBS(${LIBUSB_LIBRARIES})
-    LIBUHD_APPEND_SOURCES(
+    LIBSHD_APPEND_LIBS(${LIBUSB_LIBRARIES})
+    LIBSHD_APPEND_SOURCES(
         ${CMAKE_CURRENT_SOURCE_DIR}/libusb1_control.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/libusb1_zero_copy.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/libusb1_base.cpp
@@ -45,7 +45,7 @@ IF(ENABLE_USB)
         PROPERTIES COMPILE_DEFINITIONS "${LIBUSB_DEFINITIONS}"
     )
 ELSE(ENABLE_USB)
-    LIBUHD_APPEND_SOURCES(
+    LIBSHD_APPEND_SOURCES(
         ${CMAKE_CURRENT_SOURCE_DIR}/usb_dummy_impl.cpp
     )
 ENDIF(ENABLE_USB)
@@ -90,15 +90,15 @@ SET_SOURCE_FILES_PROPERTIES(
 # Setup UDP
 ########################################################################
 IF(WIN32)
-    LIBUHD_APPEND_SOURCES(${CMAKE_CURRENT_SOURCE_DIR}/udp_wsa_zero_copy.cpp)
+    LIBSHD_APPEND_SOURCES(${CMAKE_CURRENT_SOURCE_DIR}/udp_wsa_zero_copy.cpp)
 ELSE()
-    LIBUHD_APPEND_SOURCES(${CMAKE_CURRENT_SOURCE_DIR}/udp_zero_copy.cpp)
+    LIBSHD_APPEND_SOURCES(${CMAKE_CURRENT_SOURCE_DIR}/udp_zero_copy.cpp)
 ENDIF()
 
 #On windows, the boost asio implementation uses the winsock2 library.
 #Note: we exclude the .lib extension for cygwin and mingw platforms.
 IF(WIN32)
-    LIBUHD_APPEND_LIBS(ws2_32)
+    LIBSHD_APPEND_LIBS(ws2_32)
 ENDIF()
 
 #atlbase.h is not included with visual studio express
@@ -114,14 +114,14 @@ IF(HAVE_ATLBASE_H)
 ENDIF(HAVE_ATLBASE_H)
 
 ########################################################################
-# Append to the list of sources for lib uhd
+# Append to the list of sources for lib shd
 ########################################################################
-LIBUHD_PYTHON_GEN_SOURCE(
+LIBSHD_PYTHON_GEN_SOURCE(
     ${CMAKE_CURRENT_SOURCE_DIR}/gen_vrt_if_packet.py
     ${CMAKE_CURRENT_BINARY_DIR}/vrt_if_packet.cpp
 )
 
-LIBUHD_APPEND_SOURCES(
+LIBSHD_APPEND_SOURCES(
     ${CMAKE_CURRENT_SOURCE_DIR}/zero_copy_recv_offload.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tcp_zero_copy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/buffer_pool.cpp
@@ -133,16 +133,16 @@ LIBUHD_APPEND_SOURCES(
 )
 
 IF(ENABLE_X300)
-    LIBUHD_APPEND_SOURCES(
+    LIBSHD_APPEND_SOURCES(
         ${CMAKE_CURRENT_SOURCE_DIR}/nirio_zero_copy.cpp
     )
 ENDIF(ENABLE_X300)
 
 # Verbose Debug output for send/recv
-SET( UHD_TXRX_DEBUG_PRINTS OFF CACHE BOOL "Use verbose debug output for send/recv" )
-OPTION( UHD_TXRX_DEBUG_PRINTS "Use verbose debug output for send/recv" "" )
-IF(UHD_TXRX_DEBUG_PRINTS)
+SET( SHD_TXRX_DEBUG_PRINTS OFF CACHE BOOL "Use verbose debug output for send/recv" )
+OPTION( SHD_TXRX_DEBUG_PRINTS "Use verbose debug output for send/recv" "" )
+IF(SHD_TXRX_DEBUG_PRINTS)
 	MESSAGE(STATUS "Using verbose debug output for send/recv")
-	ADD_DEFINITIONS(-DUHD_TXRX_DEBUG_PRINTS)
+	ADD_DEFINITIONS(-DSHD_TXRX_DEBUG_PRINTS)
 ENDIF()
 

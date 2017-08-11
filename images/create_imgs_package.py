@@ -21,7 +21,7 @@ Command-line utility to create a .zip-file with the current image set.
 
 import re
 import os
-import uhdimgs
+import shdimgs
 import glob
 import subprocess
 import argparse
@@ -48,7 +48,7 @@ def parse_args():
     parser.add_argument('--commit', default=None,
                        help='Supply a commit message to the changes to host/CMakeLists.txt.')
     parser.add_argument('-r', '--release-mode', default="",
-                       help='Specify UHD_RELEASE_MODE. Typically "release" or "rc1" or similar.')
+                       help='Specify SHD_RELEASE_MODE. Typically "release" or "rc1" or similar.')
     parser.add_argument('--skip-edit', default=False, action='store_true',
                        help='Do not edit the CMakeLists.txt file.')
     parser.add_argument('--skip-move', default=False, action='store_true',
@@ -70,15 +70,15 @@ def move_zip_to_repo(base_url, zipfilename):
 def main():
     " Go, go, go! "
     args = parse_args()
-    img_root_dir = os.path.join(uhdimgs.get_images_dir(), 'images')
-    os.chdir(uhdimgs.get_images_dir())
+    img_root_dir = os.path.join(shdimgs.get_images_dir(), 'images')
+    os.chdir(shdimgs.get_images_dir())
     print "== Clearing out the images directory..."
     clear_img_dir(img_root_dir)
     print "== Creating archives..."
     cpack_cmd = ["./make_zip.sh",]
     cpack_cmd.append(args.release_mode)
     if args.patch is not None:
-        cpack_cmd.append("-DUHD_PATCH_OVERRIDE={}".format(args.patch))
+        cpack_cmd.append("-DSHD_PATCH_OVERRIDE={}".format(args.patch))
     try:
         cpack_output = subprocess.check_output(cpack_cmd)
     except subprocess.CalledProcessError as e:
@@ -87,17 +87,17 @@ def main():
     zipfilename = get_zipfilename_from_cpack_output(cpack_output)
     print "Filename: ", zipfilename
     print "== Calculating MD5 sum of ZIP archive..."
-    md5 = uhdimgs.md5_checksum(zipfilename)
+    md5 = shdimgs.md5_checksum(zipfilename)
     print 'MD5: ', md5
-    base_url = uhdimgs.get_base_url()
-    if not args.skip_move and uhdimgs.base_url_is_local(base_url) and os.access(base_url, os.W_OK):
+    base_url = shdimgs.get_base_url()
+    if not args.skip_move and shdimgs.base_url_is_local(base_url) and os.access(base_url, os.W_OK):
         print "== Moving ZIP file to {0}...".format(base_url)
         move_zip_to_repo(base_url, zipfilename)
     print "== Updating CMakeLists.txt..."
-    uhdimgs.update_main_cmake_file(md5, zipfilename)
+    shdimgs.update_main_cmake_file(md5, zipfilename)
     if args.commit is not None:
         print "== Committing changes..."
-        subprocess.check_call(['git', 'commit', '-m', args.commit, uhdimgs.get_cmake_main_file()])
+        subprocess.check_call(['git', 'commit', '-m', args.commit, shdimgs.get_cmake_main_file()])
     print "== Done!"
 
 if __name__ == "__main__":

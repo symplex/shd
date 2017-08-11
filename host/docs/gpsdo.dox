@@ -1,10 +1,10 @@
-/*! \page page_gpsdo Internal GPSDO (USRP-N2x0/E1X0 Models)
+/*! \page page_gpsdo Internal GPSDO (SMINI-N2x0/E1X0 Models)
 
 \tableofcontents
 
 This application note describes the use of integrated GPS-disciplined
-oscillators (GPSDOs) for the USRP N-Series and E1xx. For information
-regarding the GPSDO that is compatible with the USRP X-Series, please
+oscillators (GPSDOs) for the SMINI N-Series and E1xx. For information
+regarding the GPSDO that is compatible with the SMINI X-Series, please
 see: \ref page_gpsdo_x3x0
 
 
@@ -28,12 +28,12 @@ supporting passive antennas.
 
 \section gpsdo_install Installation Instructions
 
-Instructions for mounting the GPSDO kit onto your USRP device can be
+Instructions for mounting the GPSDO kit onto your SMINI device can be
 found here: http://www.ettus.com/content/files/gpsdo-kit_2.pdf
 
 \subsection gspdo_install_post Post-installation Task (N-Series only)
 
-<b>Note:</b> The following instructions are only necessary for UHD 3.4.\*
+<b>Note:</b> The following instructions are only necessary for SHD 3.4.\*
 and below.
 
 This is necessary if you require absolute GPS time in your application
@@ -41,18 +41,18 @@ or need to communicate with the GPSDO to obtain location, satellite
 info, etc. If you only require 10 MHz and PPS signals for reference or
 MIMO use (see \ref page_sync), it is not necessary to perform this step.
 
-To configure the USRP to communicate with the GPSDO, use the
-`usrp_burn_mb_eeprom` utility:
+To configure the SMINI to communicate with the GPSDO, use the
+`smini_burn_mb_eeprom` utility:
 
-    cd <install-path>/lib/uhd/utils
-    ./usrp_burn_mb_eeprom --args=<optional device args> --values="gpsdo=internal"
+    cd <install-path>/lib/shd/utils
+    ./smini_burn_mb_eeprom --args=<optional device args> --values="gpsdo=internal"
 
     -- restore original setting --
-    ./usrp_burn_mb_eeprom --args=<optional device args> --values="gpsdo=internal"
+    ./smini_burn_mb_eeprom --args=<optional device args> --values="gpsdo=internal"
 
 \section gpsdo_use Using the GPSDO in Your Application
 
-By default, if a GPSDO is detected at startup, the USRP will be
+By default, if a GPSDO is detected at startup, the SMINI will be
 configured to use it as a frequency and time reference. The internal
 VITA timestamp will be initialized to the GPS time, and the internal
 oscillator will be phase-locked to the 10 MHz GPSDO reference. If the
@@ -63,7 +63,7 @@ GPS data is obtained through the **mboard_sensors** interface. To
 retrieve the current GPS time, use the **gps_time** sensor:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-    usrp->get_mboard_sensor("gps_time");
+    smini->get_mboard_sensor("gps_time");
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The returned value will be the current epoch time, in seconds since

@@ -15,10 +15,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/math.hpp>
+#include <shd/utils/math.hpp>
 #include <boost/test/unit_test.hpp>
 
-using namespace uhd::math::fp_compare;
+using namespace shd::math::fp_compare;
 
 BOOST_AUTO_TEST_CASE(fp_compare_delta_constructors) {
     // Test default constructor
@@ -29,9 +29,9 @@ BOOST_AUTO_TEST_CASE(fp_compare_delta_constructors) {
 
     // Test constructor with specified delta
     fp_compare_delta<float> foxtrot = fp_compare_delta<float>(alpha._value,
-            uhd::math::SINGLE_PRECISION_DELTA);
+            shd::math::SINGLE_PRECISION_DELTA);
     fp_compare_delta<float> gamma = fp_compare_delta<float>(alpha._value,
-            2 * uhd::math::SINGLE_PRECISION_DELTA);
+            2 * shd::math::SINGLE_PRECISION_DELTA);
     BOOST_CHECK_EQUAL(alpha._delta, foxtrot._delta);
     BOOST_CHECK(not (alpha._delta == gamma._delta));
 
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(double_compare_constructors) {
 
     // Test constructor with specified delta
     fp_compare_delta<double> foxtrot = fp_compare_delta<double>(alpha._value,
-            uhd::math::DOUBLE_PRECISION_DELTA);
+            shd::math::DOUBLE_PRECISION_DELTA);
     fp_compare_delta<double> gamma = fp_compare_delta<double>(alpha._value, 2.0e-6);
     BOOST_CHECK_EQUAL(alpha._delta, foxtrot._delta);
     BOOST_CHECK(not (alpha._delta == gamma._delta));
@@ -80,9 +80,9 @@ BOOST_AUTO_TEST_CASE(float_equality_operators) {
 
     // Test equality edge case at difference = delta
     fp_compare_delta<float> charlie = fp_compare_delta<float>(alpha._value
-            + uhd::math::SINGLE_PRECISION_DELTA);
+            + shd::math::SINGLE_PRECISION_DELTA);
     BOOST_CHECK(not (alpha == charlie));
-    BOOST_CHECK(not (alpha == float(alpha._value + uhd::math::SINGLE_PRECISION_DELTA)));
+    BOOST_CHECK(not (alpha == float(alpha._value + shd::math::SINGLE_PRECISION_DELTA)));
 }
 
 BOOST_AUTO_TEST_CASE(double_equality_operators) {
@@ -94,9 +94,9 @@ BOOST_AUTO_TEST_CASE(double_equality_operators) {
 
     // Test equality edge case at delta = delta
     fp_compare_delta<double> charlie = fp_compare_delta<double>(alpha._value
-            + uhd::math::DOUBLE_PRECISION_DELTA);
+            + shd::math::DOUBLE_PRECISION_DELTA);
     BOOST_CHECK(not (alpha == charlie));
-    BOOST_CHECK(not (alpha == double(alpha._value + uhd::math::DOUBLE_PRECISION_DELTA)));
+    BOOST_CHECK(not (alpha == double(alpha._value + shd::math::DOUBLE_PRECISION_DELTA)));
 }
 
 BOOST_AUTO_TEST_CASE(float_inequality_operators) {
@@ -247,12 +247,12 @@ BOOST_AUTO_TEST_CASE(fp_compare_large_delta) {
 
 BOOST_AUTO_TEST_CASE(frequency_compare_function) {
 
-    BOOST_CHECK(uhd::math::frequencies_are_equal(6817333232.0, 6817333232.0));
-    BOOST_CHECK(!uhd::math::frequencies_are_equal(6817333233.0, 6817333232.0));
-    BOOST_CHECK(uhd::math::frequencies_are_equal(6817333232.1, 6817333232.1));
-    BOOST_CHECK(!uhd::math::frequencies_are_equal(6817333232.5, 6817333232.6));
-    BOOST_CHECK(uhd::math::frequencies_are_equal(16.8173332321e9, 16.8173332321e9));
-    BOOST_CHECK(!uhd::math::frequencies_are_equal(16.8173332322e9, 16.8173332321e9));
-    BOOST_CHECK(!uhd::math::frequencies_are_equal(5.0, 4.0));
-    BOOST_CHECK(uhd::math::frequencies_are_equal(48750000.0, 48749999.9946));
+    BOOST_CHECK(shd::math::frequencies_are_equal(6817333232.0, 6817333232.0));
+    BOOST_CHECK(!shd::math::frequencies_are_equal(6817333233.0, 6817333232.0));
+    BOOST_CHECK(shd::math::frequencies_are_equal(6817333232.1, 6817333232.1));
+    BOOST_CHECK(!shd::math::frequencies_are_equal(6817333232.5, 6817333232.6));
+    BOOST_CHECK(shd::math::frequencies_are_equal(16.8173332321e9, 16.8173332321e9));
+    BOOST_CHECK(!shd::math::frequencies_are_equal(16.8173332322e9, 16.8173332321e9));
+    BOOST_CHECK(!shd::math::frequencies_are_equal(5.0, 4.0));
+    BOOST_CHECK(shd::math::frequencies_are_equal(48750000.0, 48749999.9946));
 }

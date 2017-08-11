@@ -19,7 +19,7 @@
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 // test class derived, this is what we search for
 class result_node : public test_node

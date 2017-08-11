@@ -28,8 +28,8 @@ COMMON_TMPL = """<% import time %>\
 #ifndef INCLUDED_${name.upper()}_HPP
 #define INCLUDED_${name.upper()}_HPP
 
-#include <uhd/config.hpp>
-#include <uhd/exception.hpp>
+#include <shd/config.hpp>
+#include <shd/exception.hpp>
 #include <set>
 #include <stdint.h>
 
@@ -67,7 +67,7 @@ public:
     }
 
     template<typename T> std::set<T> get_changed_addrs(void){
-        if (_state == NULL) throw uhd::runtime_error("no saved state");
+        if (_state == NULL) throw shd::runtime_error("no saved state");
         //check each register for changes
         std::set<T> addrs;
         % for reg in regs:

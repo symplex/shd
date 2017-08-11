@@ -16,6 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-echo 'Uninstalling UHD.'
-rm /etc/udev/rules.d/uhd-usrp.rules
+echo 'Uninstalling SHD.'
+rm /etc/udev/rules.d/shd-smini.rules
 udevadm control --reload-rules

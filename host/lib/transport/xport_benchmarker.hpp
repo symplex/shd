@@ -15,17 +15,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_LIBUHD_XPORT_BENCHMARKER_HPP
-#define INCLUDED_LIBUHD_XPORT_BENCHMARKER_HPP
+#ifndef INCLUDED_LIBSHD_XPORT_BENCHMARKER_HPP
+#define INCLUDED_LIBSHD_XPORT_BENCHMARKER_HPP
 
-#include <uhd/transport/zero_copy.hpp>
-#include <uhd/types/device_addr.hpp>
-#include <uhd/utils/msg.hpp>
+#include <shd/transport/zero_copy.hpp>
+#include <shd/types/device_addr.hpp>
+#include <shd/utils/msg.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/thread.hpp>
-#include <uhd/transport/vrt_if_packet.hpp>
+#include <shd/transport/vrt_if_packet.hpp>
 
-namespace uhd { namespace transport {
+namespace shd { namespace transport {
 
 //Test class to benchmark a low-level transport object with a VITA/C-VITA data stream
 class xport_benchmarker : boost::noncopyable {
@@ -74,4 +74,4 @@ private:
 
 }} //namespace
 
-#endif /* INCLUDED_LIBUHD_XPORT_BENCHMARKER_HPP */
+#endif /* INCLUDED_LIBSHD_XPORT_BENCHMARKER_HPP */

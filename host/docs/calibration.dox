@@ -4,11 +4,11 @@
 
 \section calibration_self Self-Calibration
 
-UHD software comes with several self-calibration utilities for
+SHD software comes with several self-calibration utilities for
 minimizing IQ imbalance and DC offset. These utilities perform
 calibration sweeps using transmit leakage into the receive path (special
 equipment is not required). The results from a calibration are written
-to a CSV file in the user's home directory. UHD software will
+to a CSV file in the user's home directory. SHD software will
 automatically apply corrections at runtime when the user re-tunes the
 daughterboard LO. Calibration results are specific to an individual RF
 board.
@@ -17,13 +17,13 @@ board.
 override the calibration settings through the API: the user should
 re-apply the desired setting every time the LO is re-tuned.
 
-UHD software comes with the following calibration utilities:
+SHD software comes with the following calibration utilities:
 
--   **uhd_cal_rx_iq_balance:** - minimizes RX IQ imbalance vs. LO
+-   **shd_cal_rx_iq_balance:** - minimizes RX IQ imbalance vs. LO
     frequency
--   **uhd_cal_tx_dc_offset:** - minimizes TX DC offset vs. LO
+-   **shd_cal_tx_dc_offset:** - minimizes TX DC offset vs. LO
     frequency
--   **uhd_cal_tx_iq_balance:** - minimizes TX IQ imbalance vs. LO
+-   **shd_cal_tx_iq_balance:** - minimizes TX IQ imbalance vs. LO
     frequency
 
 The following RF frontends are supported by the self-calibration
@@ -37,14 +37,14 @@ utilities:
 
 \subsection calibration_self_utils Calibration Utilities
 
-UHD software installs the calibration utilities into
+SHD software installs the calibration utilities into
 `<install-path>/bin`. **Disconnect** any external hardware from the
 RF antenna ports, and run the following from the command line. Each
 utility will take several minutes to complete:
 
-    uhd_cal_rx_iq_balance --verbose --args=<optional device args>
-    uhd_cal_tx_iq_balance --verbose --args=<optional device args>
-    uhd_cal_tx_dc_offset --verbose --args=<optional device args>
+    shd_cal_rx_iq_balance --verbose --args=<optional device args>
+    shd_cal_tx_iq_balance --verbose --args=<optional device args>
+    shd_cal_tx_dc_offset --verbose --args=<optional device args>
 
 See the output given by `--help` for more advanced options, such as
 manually choosing the frequency range and step size for the sweeps.
@@ -54,20 +54,20 @@ utility. Some older daughterboards may not have a serial number. If this
 is the case, run the following command to burn a serial number into the
 daughterboard's EEPROM:
 
-    <install dir>/lib/uhd/utils/usrp_burn_db_eeprom --ser=<desired serial> --args=<optional device args>
+    <install dir>/lib/shd/utils/smini_burn_db_eeprom --ser=<desired serial> --args=<optional device args>
 
 \subsection calibration_data Calibration Data
 
 By default, calibration files are stored in the user's home/application
 directory:
 
--   **Linux:** `${HOME}/.uhd/cal/`
--   **Windows:** `%APPDATA%\.uhd\cal\`
+-   **Linux:** `${HOME}/.shd/cal/`
+-   **Windows:** `%APPDATA%\.shd\cal\`
 
 If you would like to specify a custom directory, you can do so with the
-`$UHD_CONFIG_DIR` environment variable:
+`$SHD_CONFIG_DIR` environment variable:
 
--   **Custom (any OS):** `${UHD_CONFIG_DIR}/.uhd/cal/`
+-   **Custom (any OS):** `${SHD_CONFIG_DIR}/.shd/cal/`
 
 Calibration files can easily be moved from one machine to another by copying the
 "cal" directory. Re-running a calibration utility will replace the existing
@@ -78,14 +78,14 @@ recovered by the user.
 \subsection ignore_cal_file Ignoring Calibration Files
 
 At runtime, the user can choose to ignore a daughterboard's calibration file by
-adding "ignore-cal-file" to the arguments. With the UHD API, it can be done as
+adding "ignore-cal-file" to the arguments. With the SHD API, it can be done as
 follows:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-    uhd::device_addr_t hint;
-    hint["type"] = "usrp1";
+    shd::device_addr_t hint;
+    hint["type"] = "smini1";
     hint["ignore-cal-file"] = "";
-    uhd::device_addrs_t dev_addrs = uhd::device::find(hint);
+    shd::device_addrs_t dev_addrs = shd::device::find(hint);
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Using tx_waveforms as an example, the user can apply this argument as follows:

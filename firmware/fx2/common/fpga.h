@@ -24,7 +24,7 @@
 
 #include "fpga_load.h"
 
-#if defined(HAVE_USRP2)
+#if defined(HAVE_SMINI2)
 #include "fpga_rev2.h"
 #endif
 

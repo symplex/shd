@@ -16,12 +16,12 @@
 //
 
 #include "convert_common.hpp"
-#include <uhd/utils/byteswap.hpp>
-#include <uhd/utils/msg.hpp>
+#include <shd/utils/byteswap.hpp>
+#include <shd/utils/msg.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <vector>
 
-using namespace uhd::convert;
+using namespace shd::convert;
 
 typedef uint32_t (*tohost32_type)(uint32_t);
 
@@ -185,26 +185,26 @@ struct convert_sc12_item32_1_to_star_1 : public converter
 
 static converter::sptr make_convert_sc12_item32_le_1_to_fc32_1(void)
 {
-    return converter::sptr(new convert_sc12_item32_1_to_star_1<float, uhd::wtohx>());
+    return converter::sptr(new convert_sc12_item32_1_to_star_1<float, shd::wtohx>());
 }
 
 static converter::sptr make_convert_sc12_item32_be_1_to_fc32_1(void)
 {
-    return converter::sptr(new convert_sc12_item32_1_to_star_1<float, uhd::ntohx>());
+    return converter::sptr(new convert_sc12_item32_1_to_star_1<float, shd::ntohx>());
 }
 
-UHD_STATIC_BLOCK(register_convert_unpack_sc12)
+SHD_STATIC_BLOCK(register_convert_unpack_sc12)
 {
-    uhd::convert::register_bytes_per_item("sc12", 3/*bytes*/);
+    shd::convert::register_bytes_per_item("sc12", 3/*bytes*/);
 
-    uhd::convert::id_type id;
+    shd::convert::id_type id;
     id.num_inputs = 1;
     id.num_outputs = 1;
     id.output_format = "fc32";
 
     id.input_format = "sc12_item32_le";
-    uhd::convert::register_converter(id, &make_convert_sc12_item32_le_1_to_fc32_1, PRIORITY_GENERAL);
+    shd::convert::register_converter(id, &make_convert_sc12_item32_le_1_to_fc32_1, PRIORITY_GENERAL);
 
     id.input_format = "sc12_item32_be";
-    uhd::convert::register_converter(id, &make_convert_sc12_item32_be_1_to_fc32_1, PRIORITY_GENERAL);
+    shd::convert::register_converter(id, &make_convert_sc12_item32_be_1_to_fc32_1, PRIORITY_GENERAL);
 }

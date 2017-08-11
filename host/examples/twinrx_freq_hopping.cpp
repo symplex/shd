@@ -18,9 +18,9 @@
 // FFT conversion
 #include "ascii_art_dft.hpp"
 
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/smini/multi_smini.hpp>
 
 #include <boost/program_options.hpp>
 #include <boost/thread.hpp>
@@ -35,10 +35,10 @@
  * RX channels, each with a set of Local Oscillators (LOs). Either channel can be configured
  * to use either LO set, allowing for the two channels to share an LO source.
  *
- * The TwinRX can be used like any other daughterboard, as the multi_usrp::set_rx_freq()
+ * The TwinRX can be used like any other daughterboard, as the multi_smini::set_rx_freq()
  * function will automatically calculate and set the two LO frequencies as needed.
  * However, this adds to the overall tuning time. If the LO frequencies are manually set
- * with the multi_usrp::set_rx_lo_freq() function, the TwinRX will will not perform the
+ * with the multi_smini::set_rx_lo_freq() function, the TwinRX will will not perform the
  * calculation itself, resulting in a faster tune time. This example shows how to take
  * advantage of this as follows:
  *
@@ -57,14 +57,14 @@ typedef std::vector<std::complex<float> > recv_buff_t;
 typedef std::vector<recv_buff_t> recv_buffs_t;
 
 // Global objects
-static uhd::usrp::multi_usrp::sptr usrp;
-static uhd::rx_streamer::sptr rx_stream;
+static shd::smini::multi_smini::sptr smini;
+static shd::rx_streamer::sptr rx_stream;
 static recv_buffs_t buffs;
 static size_t recv_spb, spb;
 
 static std::vector<double> rf_freqs;
 
-static uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
+static shd::stream_cmd_t stream_cmd(shd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
 
 double receive_interval;
 
@@ -75,11 +75,11 @@ size_t UNUSED_CHAN = 1;
 const int X300_COMMAND_FIFO_DEPTH = 16;
 
 
-// This is a helper function for receiving samples from the USRP
+// This is a helper function for receiving samples from the SMINI
 static void twinrx_recv(recv_buff_t &buffer) {
 
     size_t num_acc_samps = 0;
-    uhd::rx_metadata_t md;
+    shd::rx_metadata_t md;
 
     // Repeatedly retrieve samples until the entire acquisition is received
     while (num_acc_samps < spb) {
@@ -88,7 +88,7 @@ static void twinrx_recv(recv_buff_t &buffer) {
         // recv call will block until samples are ready or the call times out
         size_t num_recvd = rx_stream->recv(&buffer[num_acc_samps], num_to_recv, md, receive_interval);
 
-        if(md.error_code != uhd::rx_metadata_t::ERROR_CODE_NONE) {
+        if(md.error_code != shd::rx_metadata_t::ERROR_CODE_NONE) {
             std::cout << md.strerror() << std::endl;
             break;
         }
@@ -108,8 +108,8 @@ static void write_fft_to_file(const std::string &fft_path) {
     std::cout << "done." << std::endl;
 }
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+int SHD_SAFE_MAIN(int argc, char *argv[]){
+    shd::set_thread_priority_safe();
 
     // Program options
     std::string args, fft_path, subdev, ant;
@@ -120,7 +120,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::options_description desc("Allowed options");
     desc.add_options()
             ("help", "Print this help message")
-            ("args", po::value<std::string>(&args)->default_value(""), "UHD device args")
+            ("args", po::value<std::string>(&args)->default_value(""), "SHD device args")
             ("subdev", po::value<std::string>(&subdev)->default_value("A:0 A:1"), "Subdevice specification")
             ("ant", po::value<std::string>(&ant)->default_value("RX1"), "RX Antenna")
             ("start-freq", po::value<double>(&start_freq), "Start frequency (defaults to lowest valid frequency)")
@@ -141,21 +141,21 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         return EXIT_SUCCESS;
     }
 
-    // Create a USRP device
-    std::cout << boost::format("\nCreating the USRP device with args: \"%s\"...\n") % args;
-    usrp = uhd::usrp::multi_usrp::make(args);
+    // Create a SMINI device
+    std::cout << boost::format("\nCreating the SMINI device with args: \"%s\"...\n") % args;
+    smini = shd::smini::multi_smini::make(args);
 
-    // Make sure the USRP is an X3xx with a TwinRX
-    uhd::dict<std::string, std::string> info = usrp->get_usrp_rx_info();
+    // Make sure the SMINI is an X3xx with a TwinRX
+    shd::dict<std::string, std::string> info = smini->get_smini_rx_info();
     if(info.get("mboard_id").find("X3") == std::string::npos) {
-        throw uhd::runtime_error("This example can only be used with an X-Series motherboard.");
+        throw shd::runtime_error("This example can only be used with an X-Series motherboard.");
     }
     if(info.get("rx_id").find("TwinRX") == std::string::npos) {
-        throw uhd::runtime_error("This example can only be used with a TwinRX daughterboard.");
+        throw shd::runtime_error("This example can only be used with a TwinRX daughterboard.");
     }
 
     // Validate frequency range
-    uhd::freq_range_t rx_freq_range = usrp->get_rx_freq_range();
+    shd::freq_range_t rx_freq_range = smini->get_rx_freq_range();
     if (!vm.count("start-freq")) {
         start_freq = rx_freq_range.start();
     }
@@ -163,39 +163,39 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         end_freq = rx_freq_range.stop();
     }
     if (start_freq < rx_freq_range.start() or end_freq > rx_freq_range.stop()) {
-        throw uhd::runtime_error((boost::format("Start and stop frequencies must be between %d and %d MHz")
+        throw shd::runtime_error((boost::format("Start and stop frequencies must be between %d and %d MHz")
                                             % ((rx_freq_range.start() / 1e6), (rx_freq_range.stop() / 1e6))).str());
     }
     if (start_freq > end_freq) {
-        throw uhd::runtime_error("Start frequency must be less than end frequency.");
+        throw shd::runtime_error("Start frequency must be less than end frequency.");
     }
     if ((end_freq - start_freq) > 0 and (end_freq - start_freq) < rate) {
-        throw uhd::runtime_error("The sample rate must be less than the range between the start and end frequencies.");
+        throw shd::runtime_error("The sample rate must be less than the range between the start and end frequencies.");
     }
 
     // Set TwinRX settings
-    usrp->set_rx_subdev_spec(subdev);
+    smini->set_rx_subdev_spec(subdev);
 
     // Set the unused channel to not use any LOs. This allows the active channel to control them.
-    usrp->set_rx_lo_source("disabled", uhd::usrp::multi_usrp::ALL_LOS, UNUSED_CHAN);
+    smini->set_rx_lo_source("disabled", shd::smini::multi_smini::ALL_LOS, UNUSED_CHAN);
 
     // Set user settings
     std::cout << boost::format("Setting antenna to:     %s\n") % ant;
-    usrp->set_rx_antenna(ant, ACTIVE_CHAN);
-    std::cout << boost::format("Actual antenna:         %s\n") % usrp->get_rx_antenna(ACTIVE_CHAN);
+    smini->set_rx_antenna(ant, ACTIVE_CHAN);
+    std::cout << boost::format("Actual antenna:         %s\n") % smini->get_rx_antenna(ACTIVE_CHAN);
 
     std::cout << boost::format("Setting sample rate to: %d\n") % rate;
-    usrp->set_rx_rate(rate);
-    std::cout << boost::format("Actual sample rate:     %d\n") % usrp->get_rx_rate();
+    smini->set_rx_rate(rate);
+    std::cout << boost::format("Actual sample rate:     %d\n") % smini->get_rx_rate();
 
     std::cout << boost::format("Setting gain to: %d\n") % gain;
-    usrp->set_rx_gain(gain);
-    std::cout << boost::format("Actual gain:     %d\n") % usrp->get_rx_gain();
+    smini->set_rx_gain(gain);
+    std::cout << boost::format("Actual gain:     %d\n") % smini->get_rx_gain();
 
     // Get an rx_streamer from the device
-    uhd::stream_args_t stream_args("fc32", "sc16");
+    shd::stream_args_t stream_args("fc32", "sc16");
     stream_args.channels.push_back(0);
-    rx_stream = usrp->get_rx_stream(stream_args);
+    rx_stream = smini->get_rx_stream(stream_args);
     recv_spb = rx_stream->get_max_num_samps();
 
     // Calculate the frequency hops
@@ -207,17 +207,17 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     // Set up buffers
     buffs = recv_buffs_t(rf_freqs.size(), recv_buff_t(spb));
 
-    // Tune the active channel to the first frequency and reset the USRP's time
-    usrp->set_rx_freq(rf_freqs[0], ACTIVE_CHAN);
-    usrp->set_time_now(uhd::time_spec_t(0.0));
+    // Tune the active channel to the first frequency and reset the SMINI's time
+    smini->set_rx_freq(rf_freqs[0], ACTIVE_CHAN);
+    smini->set_time_now(shd::time_spec_t(0.0));
 
     // Configure the stream command which will be issued to acquire samples at each frequency
     stream_cmd.num_samps = spb;
     stream_cmd.stream_now = false;
-    stream_cmd.time_spec = uhd::time_spec_t(0.0);
+    stream_cmd.time_spec = shd::time_spec_t(0.0);
 
     // Stream commands will be scheduled at regular intervals
-    uhd::time_spec_t receive_interval_ts = uhd::time_spec_t(receive_interval);
+    shd::time_spec_t receive_interval_ts = shd::time_spec_t(receive_interval);
 
     // Issue stream commands to fill the command queue on the FPGA
     size_t num_initial_cmds = std::min<size_t>(X300_COMMAND_FIFO_DEPTH, rf_freqs.size());
@@ -232,21 +232,21 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     while(1) {
 
         std::cout << "Scanning..." << std::endl;
-        uhd::time_spec_t start_time = uhd::time_spec_t::get_system_time();
+        shd::time_spec_t start_time = shd::time_spec_t::get_system_time();
 
         for (size_t i = 0; i < rf_freqs.size(); i++) {
             // Swap the mapping of synthesizers by setting the LO source
             // The unused channel will always
             std::string lo_src = (i % 2) ? "companion" : "internal";
-            usrp->set_rx_lo_source(lo_src, uhd::usrp::multi_usrp::ALL_LOS, ACTIVE_CHAN);
+            smini->set_rx_lo_source(lo_src, shd::smini::multi_smini::ALL_LOS, ACTIVE_CHAN);
 
             // Preconfigure the next frequency
-            usrp->set_rx_freq(rf_freqs[(i+1) % rf_freqs.size()], UNUSED_CHAN);
+            smini->set_rx_freq(rf_freqs[(i+1) % rf_freqs.size()], UNUSED_CHAN);
 
             // Program the current frequency
             // This frequency was already pre-programmed in the previous iteration so the local oscillators
             // are already tuned. This call will only configure front-end filter, amplifiers, etc
-            usrp->set_rx_freq(rf_freqs[i], ACTIVE_CHAN);
+            smini->set_rx_freq(rf_freqs[i], ACTIVE_CHAN);
 
             // Receive one burst of samples
             twinrx_recv(buffs[i]);
@@ -259,7 +259,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
             }
         }
 
-        uhd::time_spec_t end_time = uhd::time_spec_t::get_system_time();
+        shd::time_spec_t end_time = shd::time_spec_t::get_system_time();
         std::cout << boost::format("Sweep done in %d milliseconds.\n") % ((end_time - start_time).get_real_secs() * 1000);
 
         // Optionally convert received samples to FFT and write to file
@@ -274,7 +274,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     std::cout << "Done!" << std::endl;
 
-    usrp.reset();
+    smini.reset();
     return EXIT_SUCCESS;
 }
 

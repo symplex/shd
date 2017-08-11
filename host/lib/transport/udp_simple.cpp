@@ -16,11 +16,11 @@
 //
 
 #include "udp_common.hpp"
-#include <uhd/transport/udp_simple.hpp>
-#include <uhd/utils/log.hpp>
+#include <shd/transport/udp_simple.hpp>
+#include <shd/utils/log.hpp>
 #include <boost/format.hpp>
 
-using namespace uhd::transport;
+using namespace shd::transport;
 namespace asio = boost::asio;
 
 /***********************************************************************
@@ -31,7 +31,7 @@ public:
     udp_simple_impl(
         const std::string &addr, const std::string &port, bool bcast, bool connect
     ):_connected(connect){
-        UHD_LOG << boost::format("Creating udp transport for %s %s") % addr % port << std::endl;
+        SHD_LOG << boost::format("Creating udp transport for %s %s") % addr % port << std::endl;
 
         //resolve the address
         asio::ip::udp::resolver resolver(_io_service);
@@ -95,7 +95,7 @@ udp_simple::sptr udp_simple::make_broadcast(
  * Simple UART over UDP
  **********************************************************************/
 #include <boost/thread/thread.hpp>
-class udp_simple_uart_impl : public uhd::uart_iface{
+class udp_simple_uart_impl : public shd::uart_iface{
 public:
     udp_simple_uart_impl(udp_simple::sptr udp){
         _udp = udp;
@@ -138,6 +138,6 @@ private:
     std::string _line;
 };
 
-uhd::uart_iface::sptr udp_simple::make_uart(sptr udp){
+shd::uart_iface::sptr udp_simple::make_uart(sptr udp){
     return uart_iface::sptr(new udp_simple_uart_impl(udp));
 }

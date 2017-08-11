@@ -22,7 +22,7 @@
 #include <boost/format.hpp>
 #include <map>
 
-using namespace uhd::rfnoc::nocscript;
+using namespace shd::rfnoc::nocscript;
 
 class function_table_impl : public function_table
 {
@@ -71,7 +71,7 @@ class function_table_impl : public function_table
     ) const {
         table_type::const_iterator it = _table.find(name);
         if (it == _table.end() or (it->second.find(arg_types) == it->second.end())) {
-            throw uhd::syntax_error(str(
+            throw shd::syntax_error(str(
                     boost::format("Unable to retrieve return value for function %s")
                     % expression_function::to_string(name, arg_types)
             ));
@@ -85,7 +85,7 @@ class function_table_impl : public function_table
             expression_container::expr_list_type &arguments
     ) {
         if (not function_exists(name, arg_types)) {
-            throw uhd::syntax_error(str(
+            throw shd::syntax_error(str(
                         boost::format("Cannot eval() function %s, not a known signature")
                         % expression_function::to_string(name, arg_types)
             ));

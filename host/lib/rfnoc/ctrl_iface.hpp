@@ -15,23 +15,23 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_LIBUHD_RFNOC_CTRL_IFACE_HPP
-#define INCLUDED_LIBUHD_RFNOC_CTRL_IFACE_HPP
+#ifndef INCLUDED_LIBSHD_RFNOC_CTRL_IFACE_HPP
+#define INCLUDED_LIBSHD_RFNOC_CTRL_IFACE_HPP
 
-#include <uhd/utils/msg_task.hpp>
-#include <uhd/types/time_spec.hpp>
-#include <uhd/transport/zero_copy.hpp>
-#include <uhd/types/wb_iface.hpp>
+#include <shd/utils/msg_task.hpp>
+#include <shd/types/time_spec.hpp>
+#include <shd/transport/zero_copy.hpp>
+#include <shd/types/wb_iface.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/utility.hpp>
 #include <string>
 
-namespace uhd { namespace rfnoc {
+namespace shd { namespace rfnoc {
 
 /*!
  * Provide access to peek, poke for the radio ctrl module
  */
-class ctrl_iface : public uhd::timed_wb_iface
+class ctrl_iface : public shd::timed_wb_iface
 {
 public:
     typedef boost::shared_ptr<ctrl_iface> sptr;
@@ -41,28 +41,28 @@ public:
     //! Make a new control object
     static sptr make(
         const bool big_endian,
-        uhd::transport::zero_copy_if::sptr ctrl_xport,
-        uhd::transport::zero_copy_if::sptr resp_xport,
+        shd::transport::zero_copy_if::sptr ctrl_xport,
+        shd::transport::zero_copy_if::sptr resp_xport,
         const uint32_t sid,
         const std::string &name = "0"
     );
 
     //! Hold a ref to a task thats feeding push response
-    virtual void hold_task(uhd::msg_task::sptr task) = 0;
+    virtual void hold_task(shd::msg_task::sptr task) = 0;
 
     //! Push a response externall (resp_xport is NULL)
     virtual void push_response(const uint32_t *buff) = 0;
 
     //! Set the command time that will activate
-    virtual void set_time(const uhd::time_spec_t &time) = 0;
+    virtual void set_time(const shd::time_spec_t &time) = 0;
 
     //! Get the command time that will activate
-    virtual uhd::time_spec_t get_time(void) = 0;
+    virtual shd::time_spec_t get_time(void) = 0;
 
     //! Set the tick rate (converting time into ticks)
     virtual void set_tick_rate(const double rate) = 0;
 };
 
-}} /* namespace uhd::rfnoc */
+}} /* namespace shd::rfnoc */
 
-#endif /* INCLUDED_LIBUHD_RFNOC_CTRL_IFACE_HPP */
+#endif /* INCLUDED_LIBSHD_RFNOC_CTRL_IFACE_HPP */

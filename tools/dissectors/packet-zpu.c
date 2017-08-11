@@ -37,7 +37,7 @@
 #include <stdio.h>
 #include <endian.h>
 
-#include "../../host/lib/usrp/x300/x300_fw_common.h"
+#include "../../host/lib/smini/x300/x300_fw_common.h"
 #include "zpu_addr_names.h"
 
 #define LOG_HEADER  "[ZPU] "

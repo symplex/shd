@@ -15,11 +15,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/types/serial.hpp>
+#include <shd/types/serial.hpp>
 #include <boost/thread.hpp> //for sleeping
 #include <boost/assign/list_of.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 i2c_iface::~i2c_iface(void)
 {

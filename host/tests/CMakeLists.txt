@@ -18,7 +18,7 @@
 ########################################################################
 # unit test support
 ########################################################################
-include(UHDUnitTest)
+include(SHDUnitTest)
 
 ########################################################################
 # unit test suite
@@ -80,30 +80,30 @@ ENDIF(ENABLE_C_API)
 FOREACH(test_source ${test_sources})
     GET_FILENAME_COMPONENT(test_name ${test_source} NAME_WE)
     ADD_EXECUTABLE(${test_name} ${test_source})
-    TARGET_LINK_LIBRARIES(${test_name} uhd ${Boost_LIBRARIES})
-    UHD_ADD_TEST(${test_name} ${test_name})
-    UHD_INSTALL(TARGETS ${test_name} RUNTIME DESTINATION ${PKG_LIB_DIR}/tests COMPONENT tests)
+    TARGET_LINK_LIBRARIES(${test_name} shd ${Boost_LIBRARIES})
+    SHD_ADD_TEST(${test_name} ${test_name})
+    SHD_INSTALL(TARGETS ${test_name} RUNTIME DESTINATION ${PKG_LIB_DIR}/tests COMPONENT tests)
 ENDFOREACH(test_source)
 
-# Other tests that don't directly link with libuhd: (TODO find a nicer way to do this)
+# Other tests that don't directly link with libshd: (TODO find a nicer way to do this)
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/lib/rfnoc/nocscript/)
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/lib/rfnoc/nocscript/)
 ADD_EXECUTABLE(nocscript_expr_test
     nocscript_expr_test.cpp
     ${CMAKE_SOURCE_DIR}/lib/rfnoc/nocscript/expression.cpp
 )
-TARGET_LINK_LIBRARIES(nocscript_expr_test uhd ${Boost_LIBRARIES})
-UHD_ADD_TEST(nocscript_expr_test nocscript_expr_test)
-UHD_INSTALL(TARGETS nocscript_expr_test RUNTIME DESTINATION ${PKG_LIB_DIR}/tests COMPONENT tests)
+TARGET_LINK_LIBRARIES(nocscript_expr_test shd ${Boost_LIBRARIES})
+SHD_ADD_TEST(nocscript_expr_test nocscript_expr_test)
+SHD_INSTALL(TARGETS nocscript_expr_test RUNTIME DESTINATION ${PKG_LIB_DIR}/tests COMPONENT tests)
 
 ADD_EXECUTABLE(nocscript_ftable_test
     nocscript_ftable_test.cpp
     ${CMAKE_SOURCE_DIR}/lib/rfnoc/nocscript/function_table.cpp
     ${CMAKE_SOURCE_DIR}/lib/rfnoc/nocscript/expression.cpp
 )
-TARGET_LINK_LIBRARIES(nocscript_ftable_test uhd ${Boost_LIBRARIES})
-UHD_ADD_TEST(nocscript_ftable_test nocscript_ftable_test)
-UHD_INSTALL(TARGETS nocscript_ftable_test RUNTIME DESTINATION ${PKG_LIB_DIR}/tests COMPONENT tests)
+TARGET_LINK_LIBRARIES(nocscript_ftable_test shd ${Boost_LIBRARIES})
+SHD_ADD_TEST(nocscript_ftable_test nocscript_ftable_test)
+SHD_INSTALL(TARGETS nocscript_ftable_test RUNTIME DESTINATION ${PKG_LIB_DIR}/tests COMPONENT tests)
 
 ADD_EXECUTABLE(nocscript_parser_test
     nocscript_parser_test.cpp
@@ -111,16 +111,16 @@ ADD_EXECUTABLE(nocscript_parser_test
     ${CMAKE_SOURCE_DIR}/lib/rfnoc/nocscript/function_table.cpp
     ${CMAKE_SOURCE_DIR}/lib/rfnoc/nocscript/expression.cpp
 )
-TARGET_LINK_LIBRARIES(nocscript_parser_test uhd ${Boost_LIBRARIES})
-UHD_ADD_TEST(nocscript_parser_test nocscript_parser_test)
-UHD_INSTALL(TARGETS nocscript_parser_test RUNTIME DESTINATION ${PKG_LIB_DIR}/tests COMPONENT tests)
+TARGET_LINK_LIBRARIES(nocscript_parser_test shd ${Boost_LIBRARIES})
+SHD_ADD_TEST(nocscript_parser_test nocscript_parser_test)
+SHD_INSTALL(TARGETS nocscript_parser_test RUNTIME DESTINATION ${PKG_LIB_DIR}/tests COMPONENT tests)
 
 ########################################################################
 # demo of a loadable module
 ########################################################################
 IF(MSVC OR APPLE OR LINUX)
     ADD_LIBRARY(module_test MODULE module_test.cpp)
-    TARGET_LINK_LIBRARIES(module_test uhd)
+    TARGET_LINK_LIBRARIES(module_test shd)
 ENDIF()
 
 ADD_SUBDIRECTORY(devtest)

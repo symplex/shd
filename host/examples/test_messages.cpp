@@ -15,12 +15,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/config.hpp>
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/utils/static.hpp>
-#include <uhd/types/stream_cmd.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
+#include <shd/config.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/utils/static.hpp>
+#include <shd/types/stream_cmd.hpp>
+#include <shd/smini/multi_smini.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
@@ -38,33 +38,33 @@ namespace po = boost::program_options;
  *    Issue a stream command with a time that is in the past.
  *    We expect to get an inline late command message.
  */
-bool test_late_command_message(uhd::usrp::multi_usrp::sptr usrp, uhd::rx_streamer::sptr rx_stream, uhd::tx_streamer::sptr){
+bool test_late_command_message(shd::smini::multi_smini::sptr smini, shd::rx_streamer::sptr rx_stream, shd::tx_streamer::sptr){
     std::cout << "Test late command message... " << std::flush;
 
-    usrp->set_time_now(uhd::time_spec_t(200.0)); //set time
+    smini->set_time_now(shd::time_spec_t(200.0)); //set time
 
-    uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
+    shd::stream_cmd_t stream_cmd(shd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
     stream_cmd.num_samps = rx_stream->get_max_num_samps();
     stream_cmd.stream_now = false;
-    stream_cmd.time_spec = uhd::time_spec_t(100.0); //time in the past
+    stream_cmd.time_spec = shd::time_spec_t(100.0); //time in the past
     rx_stream->issue_stream_cmd(stream_cmd);
 
     std::vector<std::complex<float> > buff(rx_stream->get_max_num_samps());
-    uhd::rx_metadata_t md;
+    shd::rx_metadata_t md;
 
     const size_t nsamps = rx_stream->recv(
         &buff.front(), buff.size(), md
     );
 
     switch(md.error_code){
-    case uhd::rx_metadata_t::ERROR_CODE_LATE_COMMAND:
+    case shd::rx_metadata_t::ERROR_CODE_LATE_COMMAND:
         std::cout << boost::format(
             "success:\n"
             "    Got error code late command message.\n"
         ) << std::endl;
         return true;
 
-    case uhd::rx_metadata_t::ERROR_CODE_TIMEOUT:
+    case shd::rx_metadata_t::ERROR_CODE_TIMEOUT:
         std::cout << boost::format(
             "failed:\n"
             "    Inline message recv timed out.\n"
@@ -85,16 +85,16 @@ bool test_late_command_message(uhd::usrp::multi_usrp::sptr usrp, uhd::rx_streame
  *    Issue a stream command with num samps and more.
  *    We expect to get an inline broken chain message.
  */
-bool test_broken_chain_message(UHD_UNUSED(uhd::usrp::multi_usrp::sptr usrp), uhd::rx_streamer::sptr rx_stream, uhd::tx_streamer::sptr){
+bool test_broken_chain_message(SHD_UNUSED(shd::smini::multi_smini::sptr smini), shd::rx_streamer::sptr rx_stream, shd::tx_streamer::sptr){
     std::cout << "Test broken chain message... " << std::flush;
 
-    uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_MORE);
+    shd::stream_cmd_t stream_cmd(shd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_MORE);
     stream_cmd.stream_now = true;
     stream_cmd.num_samps = rx_stream->get_max_num_samps();
     rx_stream->issue_stream_cmd(stream_cmd);
 
     std::vector<std::complex<float> > buff(rx_stream->get_max_num_samps());
-    uhd::rx_metadata_t md;
+    shd::rx_metadata_t md;
 
     rx_stream->recv( //once for the requested samples
         &buff.front(), buff.size(), md
@@ -105,14 +105,14 @@ bool test_broken_chain_message(UHD_UNUSED(uhd::usrp::multi_usrp::sptr usrp), uhd
     );
 
     switch(md.error_code){
-    case uhd::rx_metadata_t::ERROR_CODE_BROKEN_CHAIN:
+    case shd::rx_metadata_t::ERROR_CODE_BROKEN_CHAIN:
         std::cout << boost::format(
             "success:\n"
             "    Got error code broken chain message.\n"
         ) << std::endl;
         return true;
 
-    case uhd::rx_metadata_t::ERROR_CODE_TIMEOUT:
+    case shd::rx_metadata_t::ERROR_CODE_TIMEOUT:
         std::cout << boost::format(
             "failed:\n"
             "    Inline message recv timed out.\n"
@@ -133,10 +133,10 @@ bool test_broken_chain_message(UHD_UNUSED(uhd::usrp::multi_usrp::sptr usrp), uhd
  *    Send a burst of many samples that will fragment internally.
  *    We expect to get an burst ack async message.
  */
-bool test_burst_ack_message(uhd::usrp::multi_usrp::sptr, uhd::rx_streamer::sptr, uhd::tx_streamer::sptr tx_stream){
+bool test_burst_ack_message(shd::smini::multi_smini::sptr, shd::rx_streamer::sptr, shd::tx_streamer::sptr tx_stream){
     std::cout << "Test burst ack message... " << std::flush;
 
-    uhd::tx_metadata_t md;
+    shd::tx_metadata_t md;
     md.start_of_burst = true;
     md.end_of_burst   = true;
     md.has_time_spec  = false;
@@ -145,7 +145,7 @@ bool test_burst_ack_message(uhd::usrp::multi_usrp::sptr, uhd::rx_streamer::sptr,
     std::vector<std::complex<float> > buff(tx_stream->get_max_num_samps()*3);
     tx_stream->send(&buff.front(), buff.size(), md);
 
-    uhd::async_metadata_t async_md;
+    shd::async_metadata_t async_md;
     if (not tx_stream->recv_async_msg(async_md)){
         std::cout << boost::format(
             "failed:\n"
@@ -155,7 +155,7 @@ bool test_burst_ack_message(uhd::usrp::multi_usrp::sptr, uhd::rx_streamer::sptr,
     }
 
     switch(async_md.event_code){
-    case uhd::async_metadata_t::EVENT_CODE_BURST_ACK:
+    case shd::async_metadata_t::EVENT_CODE_BURST_ACK:
         std::cout << boost::format(
             "success:\n"
             "    Got event code burst ack message.\n"
@@ -176,10 +176,10 @@ bool test_burst_ack_message(uhd::usrp::multi_usrp::sptr, uhd::rx_streamer::sptr,
  *    Send a start of burst packet with no following end of burst.
  *    We expect to get an underflow(within a burst) async message.
  */
-bool test_underflow_message(uhd::usrp::multi_usrp::sptr, uhd::rx_streamer::sptr, uhd::tx_streamer::sptr tx_stream){
+bool test_underflow_message(shd::smini::multi_smini::sptr, shd::rx_streamer::sptr, shd::tx_streamer::sptr tx_stream){
     std::cout << "Test underflow message... " << std::flush;
 
-    uhd::tx_metadata_t md;
+    shd::tx_metadata_t md;
     md.start_of_burst = true;
     md.end_of_burst   = false;
     md.has_time_spec  = false;
@@ -187,7 +187,7 @@ bool test_underflow_message(uhd::usrp::multi_usrp::sptr, uhd::rx_streamer::sptr,
     std::vector< std::complex<float> > buff(tx_stream->get_max_num_samps());
     tx_stream->send(&buff.front(), buff.size(), md);
 
-    uhd::async_metadata_t async_md;
+    shd::async_metadata_t async_md;
     if (not tx_stream->recv_async_msg(async_md, 1)){
         std::cout << boost::format(
             "failed:\n"
@@ -197,7 +197,7 @@ bool test_underflow_message(uhd::usrp::multi_usrp::sptr, uhd::rx_streamer::sptr,
     }
 
     switch(async_md.event_code){
-    case uhd::async_metadata_t::EVENT_CODE_UNDERFLOW:
+    case shd::async_metadata_t::EVENT_CODE_UNDERFLOW:
         std::cout << boost::format(
             "success:\n"
             "    Got event code underflow message.\n"
@@ -218,21 +218,21 @@ bool test_underflow_message(uhd::usrp::multi_usrp::sptr, uhd::rx_streamer::sptr,
  *    Send a burst packet that occurs at a time in the past.
  *    We expect to get a time error async message.
  */
-bool test_time_error_message(uhd::usrp::multi_usrp::sptr usrp, uhd::rx_streamer::sptr, uhd::tx_streamer::sptr tx_stream){
+bool test_time_error_message(shd::smini::multi_smini::sptr smini, shd::rx_streamer::sptr, shd::tx_streamer::sptr tx_stream){
     std::cout << "Test time error message... " << std::flush;
 
-    uhd::tx_metadata_t md;
+    shd::tx_metadata_t md;
     md.start_of_burst = true;
     md.end_of_burst   = true;
     md.has_time_spec  = true;
-    md.time_spec      = uhd::time_spec_t(100.0); //send at 100s
+    md.time_spec      = shd::time_spec_t(100.0); //send at 100s
 
-    usrp->set_time_now(uhd::time_spec_t(200.0)); //time at 200s
+    smini->set_time_now(shd::time_spec_t(200.0)); //time at 200s
 
     std::vector< std::complex<float> > buff(tx_stream->get_max_num_samps());
     tx_stream->send(&buff.front(), buff.size(), md);
 
-    uhd::async_metadata_t async_md;
+    shd::async_metadata_t async_md;
     if (not tx_stream->recv_async_msg(async_md)){
         std::cout << boost::format(
             "failed:\n"
@@ -242,7 +242,7 @@ bool test_time_error_message(uhd::usrp::multi_usrp::sptr usrp, uhd::rx_streamer:
     }
 
     switch(async_md.event_code){
-    case uhd::async_metadata_t::EVENT_CODE_TIME_ERROR:
+    case shd::async_metadata_t::EVENT_CODE_TIME_ERROR:
         std::cout << boost::format(
             "success:\n"
             "    Got event code time error message.\n"
@@ -258,27 +258,27 @@ bool test_time_error_message(uhd::usrp::multi_usrp::sptr usrp, uhd::rx_streamer:
     }
 }
 
-void flush_async(uhd::tx_streamer::sptr tx_stream){
-    uhd::async_metadata_t async_md;
+void flush_async(shd::tx_streamer::sptr tx_stream){
+    shd::async_metadata_t async_md;
     while (tx_stream->recv_async_msg(async_md)){}
 }
 
-void flush_recv(uhd::rx_streamer::sptr rx_stream){
-    uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
+void flush_recv(shd::rx_streamer::sptr rx_stream){
+    shd::stream_cmd_t stream_cmd(shd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
     stream_cmd.num_samps = rx_stream->get_max_num_samps()*3;
     stream_cmd.stream_now = true;
     rx_stream->issue_stream_cmd(stream_cmd);
 
     std::vector<std::complex<float> > buff(stream_cmd.num_samps);
-    uhd::rx_metadata_t md;
+    shd::rx_metadata_t md;
 
     do{
         rx_stream->recv(&buff.front(), buff.size(), md);
-    } while (md.error_code != uhd::rx_metadata_t::ERROR_CODE_TIMEOUT);
+    } while (md.error_code != shd::rx_metadata_t::ERROR_CODE_TIMEOUT);
 }
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+int SHD_SAFE_MAIN(int argc, char *argv[]){
+    shd::set_thread_priority_safe();
 
     //variables to be set by po
     std::string args;
@@ -288,7 +288,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "help message")
-        ("args",   po::value<std::string>(&args)->default_value(""), "multi uhd device address args")
+        ("args",   po::value<std::string>(&args)->default_value(""), "multi shd device address args")
         ("ntests", po::value<size_t>(&ntests)->default_value(50),    "number of tests to run")
         ("test-chain", "Run broken chain tests")
     ;
@@ -298,25 +298,25 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //print the help message
     if (vm.count("help")){
-        std::cout << boost::format("UHD Test Messages %s") % desc << std::endl;
+        std::cout << boost::format("SHD Test Messages %s") % desc << std::endl;
         return ~0;
     }
 
-    //create a usrp device
+    //create a smini device
     std::cout << std::endl;
-    std::cout << boost::format("Creating the usrp device with: %s...") % args << std::endl;
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
-    std::cout << boost::format("Using Device: %s") % usrp->get_pp_string() << std::endl;
+    std::cout << boost::format("Creating the smini device with: %s...") % args << std::endl;
+    shd::smini::multi_smini::sptr smini = shd::smini::multi_smini::make(args);
+    std::cout << boost::format("Using Device: %s") % smini->get_pp_string() << std::endl;
 
     //create RX and TX streamers
-    uhd::stream_args_t stream_args("fc32"); //complex floats
-    uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(stream_args);
-    uhd::tx_streamer::sptr tx_stream = usrp->get_tx_stream(stream_args);
+    shd::stream_args_t stream_args("fc32"); //complex floats
+    shd::rx_streamer::sptr rx_stream = smini->get_rx_stream(stream_args);
+    shd::tx_streamer::sptr tx_stream = smini->get_tx_stream(stream_args);
 
     //------------------------------------------------------------------
     // begin messages test
     //------------------------------------------------------------------
-    static uhd::dict<std::string, boost::function<bool(uhd::usrp::multi_usrp::sptr, uhd::rx_streamer::sptr, uhd::tx_streamer::sptr)> >
+    static shd::dict<std::string, boost::function<bool(shd::smini::multi_smini::sptr, shd::rx_streamer::sptr, shd::tx_streamer::sptr)> >
         tests = boost::assign::map_list_of
         ("Test Burst ACK ", &test_burst_ack_message)
         ("Test Underflow ", &test_underflow_message)
@@ -329,7 +329,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     }
 
     //init result counts
-    uhd::dict<std::string, size_t> failures, successes;
+    shd::dict<std::string, size_t> failures, successes;
     BOOST_FOREACH(const std::string &key, tests.keys()){
         failures[key] = 0;
         successes[key] = 0;
@@ -339,7 +339,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     std::srand((unsigned int) time(NULL));
     for (size_t n = 0; n < ntests; n++){
         std::string key = tests.keys()[std::rand() % tests.size()];
-        bool pass = tests[key](usrp, rx_stream, tx_stream);
+        bool pass = tests[key](smini, rx_stream, tx_stream);
 
         flush_recv(rx_stream);
         flush_async(tx_stream);

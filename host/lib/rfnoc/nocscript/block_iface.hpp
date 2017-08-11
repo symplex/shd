@@ -17,13 +17,13 @@
 
 #include "expression.hpp"
 #include "parser.hpp"
-#include <uhd/rfnoc/block_ctrl_base.hpp>
+#include <shd/rfnoc/block_ctrl_base.hpp>
 #include <boost/thread/mutex.hpp>
 
-#ifndef INCLUDED_LIBUHD_NOCSCRIPT_BLOCK_IFACE_HPP
-#define INCLUDED_LIBUHD_NOCSCRIPT_BLOCK_IFACE_HPP
+#ifndef INCLUDED_LIBSHD_NOCSCRIPT_BLOCK_IFACE_HPP
+#define INCLUDED_LIBSHD_NOCSCRIPT_BLOCK_IFACE_HPP
 
-namespace uhd { namespace rfnoc { namespace nocscript {
+namespace shd { namespace rfnoc { namespace nocscript {
 
 /*! NocScript / Block interface class.
  *
@@ -37,17 +37,17 @@ class block_iface {
   public:
       typedef boost::shared_ptr<block_iface> sptr;
 
-      static sptr make(uhd::rfnoc::block_ctrl_base* block_ptr);
+      static sptr make(shd::rfnoc::block_ctrl_base* block_ptr);
 
-      block_iface(uhd::rfnoc::block_ctrl_base* block_ptr);
+      block_iface(shd::rfnoc::block_ctrl_base* block_ptr);
 
     /*! Execute \p code and make sure it returns 'true'.
      *
      * \param code Must be a valid NocScript expression that returns a boolean value.
      *             If it returns false, this is interpreted as failure.
      * \param error_message If the expression fails, this error message is printed.
-     * \throws uhd::runtime_error if the expression returns false.
-     * \throws uhd::syntax_error if the expression is invalid.
+     * \throws shd::runtime_error if the expression returns false.
+     * \throws shd::syntax_error if the expression is invalid.
      */
     void run_and_check(const std::string &code, const std::string &error_message="");
 
@@ -79,7 +79,7 @@ class block_iface {
     //! Raw pointer to the block class. Note that since block_iface may
     // only live as a member of a block_ctrl_base, we don't really need
     // the reference counting.
-    uhd::rfnoc::block_ctrl_base* _block_ptr;
+    shd::rfnoc::block_ctrl_base* _block_ptr;
 
     //! Pointer to the parser object
     parser::sptr _parser;
@@ -88,7 +88,7 @@ class block_iface {
     std::map<std::string, expression_literal> _vars;
 };
 
-}}} /* namespace uhd::rfnoc::nocscript */
+}}} /* namespace shd::rfnoc::nocscript */
 
-#endif /* INCLUDED_LIBUHD_NOCSCRIPT_BLOCK_IFACE_HPP */
+#endif /* INCLUDED_LIBSHD_NOCSCRIPT_BLOCK_IFACE_HPP */
 // vim: sw=4 et:

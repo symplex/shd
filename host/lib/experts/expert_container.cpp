@@ -16,8 +16,8 @@
 //
 
 #include "expert_container.hpp"
-#include <uhd/exception.hpp>
-#include <uhd/utils/msg.hpp>
+#include <shd/exception.hpp>
+#include <shd/utils/msg.hpp>
 #include <boost/format.hpp>
 #include <boost/foreach.hpp>
 #include <boost/function.hpp>
@@ -31,13 +31,13 @@
 #include <boost/graph/topological_sort.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
-#ifdef UHD_EXPERT_LOGGING
+#ifdef SHD_EXPERT_LOGGING
 #define EX_LOG(depth, str) _log(depth, str)
 #else
 #define EX_LOG(depth, str)
 #endif
 
-namespace uhd { namespace experts {
+namespace shd { namespace experts {
 
 typedef boost::adjacency_list<
     boost::vecS,        //Container used to represent the edge-list for each of the vertices.
@@ -122,7 +122,7 @@ public:
             expert_graph_t::vertex_descriptor vertex = _lookup_vertex(name);
             return _get_vertex(vertex);
         } catch(std::exception&) {
-            throw uhd::lookup_error("failed to find node " + name + " in expert graph");
+            throw shd::lookup_error("failed to find node " + name + " in expert graph");
         }
     }
 
@@ -142,7 +142,7 @@ public:
         static const std::string WORKER_SHAPE("box");
 
         std::string dot_str;
-        dot_str += "digraph uhd_experts_" + _name + " {\n rankdir=LR;\n";
+        dot_str += "digraph shd_experts_" + _name + " {\n rankdir=LR;\n";
         // Iterate through the vertices and print them out
         for (std::pair<vertex_iter, vertex_iter> vi = boost::vertices(_expert_dag);
              vi.first != vi.second;
@@ -174,7 +174,7 @@ public:
 
     void debug_audit() const
     {
-#ifdef UHD_EXPERT_LOGGING
+#ifdef SHD_EXPERT_LOGGING
         EX_LOG(0, "debug_audit()");
 
         //Test 1: Check for cycles in graph
@@ -287,17 +287,17 @@ protected:
 
         //Sanity check node pointer
         if (data_node == NULL) {
-            throw uhd::runtime_error("NULL data node passed into expert container for registration.");
+            throw shd::runtime_error("NULL data node passed into expert container for registration.");
         }
 
         //Sanity check the data node and ensure that it is not already in this graph
         EX_LOG(0, str(boost::format("add_data_node(%s)") % data_node->get_name()));
         if (data_node->get_class() == CLASS_WORKER) {
-            throw uhd::runtime_error("Supplied node " + data_node->get_name() + " is not a data/property node.");
+            throw shd::runtime_error("Supplied node " + data_node->get_name() + " is not a data/property node.");
             // Throw leaves data_node undeleted
         }
         if (_datanode_map.find(data_node->get_name()) != _datanode_map.end()) {
-            throw uhd::runtime_error("Data node with name " + data_node->get_name() + " already exists");
+            throw shd::runtime_error("Data node with name " + data_node->get_name() + " already exists");
             // Throw leaves data node undeleted
         }
 
@@ -318,7 +318,7 @@ protected:
             }
         } catch (...) {
             clear();
-            throw uhd::assertion_error("Unknown unrecoverable error adding data node. Cleared expert container.");
+            throw shd::assertion_error("Unknown unrecoverable error adding data node. Cleared expert container.");
         }
     }
 
@@ -328,16 +328,16 @@ protected:
 
         //Sanity check node pointer
         if (worker == NULL) {
-            throw uhd::runtime_error("NULL worker passed into expert container for registration.");
+            throw shd::runtime_error("NULL worker passed into expert container for registration.");
         }
 
         //Sanity check the data node and ensure that it is not already in this graph
         EX_LOG(0, str(boost::format("add_worker(%s)") % worker->get_name()));
         if (worker->get_class() != CLASS_WORKER) {
-            throw uhd::runtime_error("Supplied node " + worker->get_name() + " is not a worker node.");
+            throw shd::runtime_error("Supplied node " + worker->get_name() + " is not a worker node.");
         }
         if (_worker_map.find(worker->get_name()) != _worker_map.end()) {
-            throw uhd::runtime_error("Resolver with name " + worker->get_name() + " already exists.");
+            throw shd::runtime_error("Resolver with name " + worker->get_name() + " already exists.");
         }
 
         try {
@@ -353,7 +353,7 @@ protected:
                     boost::add_edge((*node).second, gr_node, _expert_dag);
                     EX_LOG(1, str(boost::format("added edge %s->%s") % _expert_dag[(*node).second]->get_name() % _expert_dag[gr_node]->get_name()));
                 } else {
-                    throw uhd::runtime_error("Data node with name " + node_name + " was not found");
+                    throw shd::runtime_error("Data node with name " + node_name + " was not found");
                 }
             }
 
@@ -364,16 +364,16 @@ protected:
                     boost::add_edge(gr_node, (*node).second, _expert_dag);
                     EX_LOG(1, str(boost::format("added edge %s->%s") % _expert_dag[gr_node]->get_name() % _expert_dag[(*node).second]->get_name()));
                 } else {
-                    throw uhd::runtime_error("Data node with name " + node_name + " was not found");
+                    throw shd::runtime_error("Data node with name " + node_name + " was not found");
                 }
             }
-        } catch (uhd::runtime_error& ex) {
+        } catch (shd::runtime_error& ex) {
             clear();
             //Promote runtime_error to assertion_error
-            throw uhd::assertion_error(std::string(ex.what()) + " (Cleared expert container because error is unrecoverable).");
+            throw shd::assertion_error(std::string(ex.what()) + " (Cleared expert container because error is unrecoverable).");
         } catch (...) {
             clear();
-            throw uhd::assertion_error("Unknown unrecoverable error adding worker. Cleared expert container.");
+            throw shd::assertion_error("Unknown unrecoverable error adding worker. Cleared expert container.");
         }
     }
 
@@ -426,7 +426,7 @@ private:
                 BOOST_FOREACH(const std::string& e, back_edges) {
                     edges += "* " + e + "";
                 }
-                throw uhd::runtime_error("Cannot resolve expert because it has at least one cycle!\n"
+                throw shd::runtime_error("Cannot resolve expert because it has at least one cycle!\n"
                                          "The following back-edges were found:" + edges);
             }
         }
@@ -494,7 +494,7 @@ private:
             if (vertex_iter != _worker_map.end()) {
                 vertex = (*vertex_iter).second;
             } else {
-                throw uhd::lookup_error("Could not find node with name " + name);
+                throw shd::lookup_error("Could not find node with name " + name);
             }
         }
         return vertex;
@@ -506,7 +506,7 @@ private:
         if (vertex_ptr) {
             return *vertex_ptr;
         } else {
-            throw uhd::assertion_error("Expert graph malformed. Found a NULL node.");
+            throw shd::assertion_error("Expert graph malformed. Found a NULL node.");
         }
     }
 
@@ -514,7 +514,7 @@ private:
     {
         std::string indents;
         for (size_t i = 0; i < depth; i++) indents += "- ";
-        UHD_MSG(fastpath) << "[expert::" + _name + "] " << indents << str << std::endl;
+        SHD_MSG(fastpath) << "[expert::" + _name + "] " << indents << str << std::endl;
     }
 
 private:

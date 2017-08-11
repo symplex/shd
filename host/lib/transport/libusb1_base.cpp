@@ -16,12 +16,12 @@
 //
 
 #include "libusb1_base.hpp"
-#include <uhd/exception.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/utils/log.hpp>
-#include <uhd/utils/tasks.hpp>
-#include <uhd/types/dict.hpp>
-#include <uhd/types/serial.hpp>
+#include <shd/exception.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/utils/log.hpp>
+#include <shd/utils/tasks.hpp>
+#include <shd/types/dict.hpp>
+#include <shd/types/serial.hpp>
 #include <boost/weak_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/foreach.hpp>
@@ -29,8 +29,8 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace uhd;
-using namespace uhd::transport;
+using namespace shd;
+using namespace shd::transport;
 
 /***********************************************************************
  * libusb session
@@ -42,7 +42,7 @@ libusb::session::~session(void) {
 class libusb_session_impl : public libusb::session{
 public:
     libusb_session_impl(void){
-        UHD_ASSERT_THROW(libusb_init(&_context) == 0);
+        SHD_ASSERT_THROW(libusb_init(&_context) == 0);
         libusb_set_debug(_context, debug_level);
         task_handler = task::make(boost::bind(&libusb_session_impl::libusb_event_handler_task, this, _context));
     }
@@ -63,7 +63,7 @@ private:
      * The libusb documentation says it is safe, which it is, but it neglects to state the cost in CPU usage.
      * Just don't do it!
      */
-    UHD_INLINE void libusb_event_handler_task(libusb_context *context)
+    SHD_INLINE void libusb_event_handler_task(libusb_context *context)
     {
         timeval tv;
         tv.tv_sec = 0;
@@ -75,9 +75,9 @@ private:
         case LIBUSB_ERROR_TIMEOUT:
             break;
         case LIBUSB_ERROR_NO_DEVICE:
-            throw uhd::io_error(libusb_strerror(LIBUSB_ERROR_NO_DEVICE));
+            throw shd::io_error(libusb_strerror(LIBUSB_ERROR_NO_DEVICE));
         default:
-            UHD_MSG(error) << __FUNCTION__ << ": " << libusb_strerror((libusb_error)ret) << std::endl;
+            SHD_MSG(error) << __FUNCTION__ << ": " << libusb_strerror((libusb_error)ret) << std::endl;
             break;
         }
     }
@@ -153,7 +153,7 @@ public:
         //allocate a new list of devices
         libusb_device** dev_list;
         ssize_t ret = libusb_get_device_list(sess->get_context(), &dev_list);
-        if (ret < 0) throw uhd::os_error("cannot enumerate usb devices");
+        if (ret < 0) throw shd::os_error("cannot enumerate usb devices");
 
         //fill the vector of device references
         for (size_t i = 0; i < size_t(ret); i++) _devs.push_back(
@@ -197,7 +197,7 @@ class libusb_device_descriptor_impl : public libusb::device_descriptor{
 public:
     libusb_device_descriptor_impl(libusb::device::sptr dev){
         _dev = dev;
-        UHD_ASSERT_THROW(libusb_get_device_descriptor(_dev->get(), &_desc) == 0);
+        SHD_ASSERT_THROW(libusb_get_device_descriptor(_dev->get(), &_desc) == 0);
     }
 
     virtual ~libusb_device_descriptor_impl(void);
@@ -258,7 +258,7 @@ class libusb_device_handle_impl : public libusb::device_handle{
 public:
     libusb_device_handle_impl(libusb::device::sptr dev){
         _dev = dev;
-        UHD_ASSERT_THROW(libusb_open(_dev->get(), &_handle) == 0);
+        SHD_ASSERT_THROW(libusb_open(_dev->get(), &_handle) == 0);
     }
 
     virtual ~libusb_device_handle_impl(void);
@@ -268,7 +268,7 @@ public:
     }
 
     void claim_interface(int interface){
-        UHD_ASSERT_THROW(libusb_claim_interface(this->get(), interface) == 0);
+        SHD_ASSERT_THROW(libusb_claim_interface(this->get(), interface) == 0);
         _claimed.push_back(interface);
     }
 
@@ -276,15 +276,15 @@ public:
     {
         int ret;
         ret = libusb_clear_halt(this->get(), recv_endpoint  | 0x80);
-        UHD_LOG << "usb device handle: recv endpoint clear: " << libusb_error_name(ret) << std::endl;
+        SHD_LOG << "usb device handle: recv endpoint clear: " << libusb_error_name(ret) << std::endl;
         ret = libusb_clear_halt(this->get(), send_endpoint | 0x00);
-        UHD_LOG << "usb device handle: send endpoint clear: " << libusb_error_name(ret) << std::endl;
+        SHD_LOG << "usb device handle: send endpoint clear: " << libusb_error_name(ret) << std::endl;
     }
 
     void reset_device(void)
     {
         int ret = libusb_reset_device(this->get());
-        UHD_LOG << "usb device handle: dev Reset: " << libusb_error_name(ret) << std::endl;
+        SHD_LOG << "usb device handle: dev Reset: " << libusb_error_name(ret) << std::endl;
     }
 
 private:
@@ -302,7 +302,7 @@ libusb_device_handle_impl::~libusb_device_handle_impl(void){
 }
 
 libusb::device_handle::sptr libusb::device_handle::get_cached_handle(device::sptr dev){
-    static uhd::dict<libusb_device *, boost::weak_ptr<device_handle> > handles;
+    static shd::dict<libusb_device *, boost::weak_ptr<device_handle> > handles;
 
     //lock for atomic access to static table above
     static boost::mutex mutex;
@@ -319,14 +319,14 @@ libusb::device_handle::sptr libusb::device_handle::get_cached_handle(device::spt
         handles[dev->get()] = new_handle;
         return new_handle;
     }
-    catch(const uhd::exception &){
-        #ifdef UHD_PLATFORM_LINUX
-        UHD_MSG(error) <<
+    catch(const shd::exception &){
+        #ifdef SHD_PLATFORM_LINUX
+        SHD_MSG(error) <<
             "USB open failed: insufficient permissions.\n"
             "See the application notes for your device.\n"
         << std::endl;
         #else
-        UHD_LOG << "USB open failed: device already claimed." << std::endl;
+        SHD_LOG << "USB open failed: device already claimed." << std::endl;
         #endif
         throw;
     }

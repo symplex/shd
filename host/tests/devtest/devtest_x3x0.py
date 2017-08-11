@@ -18,8 +18,8 @@
 Run device tests for the X3x0 series.
 """
 
-from benchmark_rate_test import uhd_benchmark_rate_test
-uhd_benchmark_rate_test.tests = {
+from benchmark_rate_test import shd_benchmark_rate_test
+shd_benchmark_rate_test.tests = {
     'mimo_slow': {
         'duration': 1,
         'direction': 'tx,rx',
@@ -59,8 +59,8 @@ uhd_benchmark_rate_test.tests = {
 }
 
 #from rx_samples_to_file_test import rx_samples_to_file_test
-from tx_bursts_test import uhd_tx_bursts_test
-from test_pps_test import uhd_test_pps_test
+from tx_bursts_test import shd_tx_bursts_test
+from test_pps_test import shd_test_pps_test
 from gpio_test import gpio_test
 from bitbang_test import bitbang_test
 

@@ -1,11 +1,11 @@
-Firmware for USRP Devices
+Firmware for SMINI Devices
 ========================================================
 
 ## fx2/
 
 __Description:__ This is the firmware for the FX2 USB PHY.
 
-__Devices:__ USRP1 and B100 devices.
+__Devices:__ SMINI1 and B100 devices.
 
 __Tools:__ sdcc, cmake
 
@@ -20,7 +20,7 @@ __Build Instructions:__
 
 __Description:__ This is the firmware for the FX3 USB PHY.
 
-__Devices:__ USRP B200 and USRP B210
+__Devices:__ SMINI B200 and SMINI B210
 
 __Tools:__ Cypress FX3 SDK
 
@@ -45,9 +45,9 @@ __Build Instructions:__
 
 ## zpu/
 
-__Description:__ Firmware for the soft CPUs in the UHD FPGA images.
+__Description:__ Firmware for the soft CPUs in the SHD FPGA images.
 
-__Devices:__ USRP2 and N-Series devices.
+__Devices:__ SMINI2 and N-Series devices.
 
 __Tools:__ zpu-gcc, cmake
 

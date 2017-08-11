@@ -15,11 +15,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/types/tune_request.hpp>
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/usrp/multi_usrp.hpp>
-#include <uhd/exception.hpp>
+#include <shd/types/tune_request.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/smini/multi_smini.hpp>
+#include <shd/exception.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 #include <boost/thread.hpp>
@@ -34,7 +34,7 @@ static bool stop_signal_called = false;
 void sig_int_handler(int){stop_signal_called = true;}
 
 template<typename samp_type> void recv_to_file(
-    uhd::usrp::multi_usrp::sptr usrp,
+    shd::smini::multi_smini::sptr smini,
     const std::string &cpu_format,
     const std::string &wire_format,
     const std::string &file,
@@ -49,10 +49,10 @@ template<typename samp_type> void recv_to_file(
 ){
     unsigned long long num_total_samps = 0;
     //create a receive streamer
-    uhd::stream_args_t stream_args(cpu_format,wire_format);
-    uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(stream_args);
+    shd::stream_args_t stream_args(cpu_format,wire_format);
+    shd::rx_streamer::sptr rx_stream = smini->get_rx_stream(stream_args);
 
-    uhd::rx_metadata_t md;
+    shd::rx_metadata_t md;
     std::vector<samp_type> buff(samps_per_buff);
     std::ofstream outfile;
     if (not null)
@@ -60,13 +60,13 @@ template<typename samp_type> void recv_to_file(
     bool overflow_message = true;
 
     //setup streaming
-    uhd::stream_cmd_t stream_cmd((num_requested_samples == 0)?
-        uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS:
-        uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE
+    shd::stream_cmd_t stream_cmd((num_requested_samples == 0)?
+        shd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS:
+        shd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE
     );
     stream_cmd.num_samps = size_t(num_requested_samples);
     stream_cmd.stream_now = true;
-    stream_cmd.time_spec = uhd::time_spec_t();
+    stream_cmd.time_spec = shd::time_spec_t();
     rx_stream->issue_stream_cmd(stream_cmd);
 
     boost::system_time start = boost::get_system_time();
@@ -83,11 +83,11 @@ template<typename samp_type> void recv_to_file(
 
         size_t num_rx_samps = rx_stream->recv(&buff.front(), buff.size(), md, 3.0, enable_size_map);
 
-        if (md.error_code == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
+        if (md.error_code == shd::rx_metadata_t::ERROR_CODE_TIMEOUT) {
             std::cout << boost::format("Timeout while streaming") << std::endl;
             break;
         }
-        if (md.error_code == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW){
+        if (md.error_code == shd::rx_metadata_t::ERROR_CODE_OVERFLOW){
             if (overflow_message) {
                 overflow_message = false;
                 std::cerr << boost::format(
@@ -96,11 +96,11 @@ template<typename samp_type> void recv_to_file(
                     "  Dropped samples will not be written to the file.\n"
                     "  Please modify this example for your purposes.\n"
                     "  This message will not appear again.\n"
-                ) % (usrp->get_rx_rate()*sizeof(samp_type)/1e6);
+                ) % (smini->get_rx_rate()*sizeof(samp_type)/1e6);
             }
             continue;
         }
-        if (md.error_code != uhd::rx_metadata_t::ERROR_CODE_NONE){
+        if (md.error_code != shd::rx_metadata_t::ERROR_CODE_NONE){
             std::string error = str(boost::format("Receiver error: %s") % md.strerror());
             if (continue_on_bad_packet){
                 std::cerr << error << std::endl;
@@ -141,7 +141,7 @@ template<typename samp_type> void recv_to_file(
         }
     }
 
-    stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
+    stream_cmd.stream_mode = shd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
     rx_stream->issue_stream_cmd(stream_cmd);
 
     if (outfile.is_open())
@@ -164,7 +164,7 @@ template<typename samp_type> void recv_to_file(
     }
 }
 
-typedef boost::function<uhd::sensor_value_t (const std::string&)> get_sensor_fn_t;
+typedef boost::function<shd::sensor_value_t (const std::string&)> get_sensor_fn_t;
 
 bool check_locked_sensor(std::vector<std::string> sensor_names, const char* sensor_name, get_sensor_fn_t get_sensor_fn, double setup_time){
     if (std::find(sensor_names.begin(), sensor_names.end(), sensor_name) == sensor_names.end())
@@ -205,8 +205,8 @@ bool check_locked_sensor(std::vector<std::string> sensor_names, const char* sens
     return true;
 }
 
-int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+int SHD_SAFE_MAIN(int argc, char *argv[]){
+    shd::set_thread_priority_safe();
 
     //variables to be set by po
     std::string args, file, type, ant, subdev, ref, wirefmt;
@@ -217,8 +217,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "help message")
-        ("args", po::value<std::string>(&args)->default_value(""), "multi uhd device address args")
-        ("file", po::value<std::string>(&file)->default_value("usrp_samples.dat"), "name of the file to write binary samples to")
+        ("args", po::value<std::string>(&args)->default_value(""), "multi shd device address args")
+        ("file", po::value<std::string>(&file)->default_value("smini_samples.dat"), "name of the file to write binary samples to")
         ("type", po::value<std::string>(&type)->default_value("short"), "sample type: double, float, or short")
         ("nsamps", po::value<size_t>(&total_num_samps)->default_value(0), "total number of samples to receive")
         ("duration", po::value<double>(&total_time)->default_value(0), "total number of seconds to receive")
@@ -239,7 +239,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("null", "run without writing to file")
         ("continue", "don't abort on a bad packet")
         ("skip-lo", "skip checking LO lock status")
-        ("int-n", "tune USRP with integer-N tuning")
+        ("int-n", "tune SMINI with integer-N tuning")
     ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -247,10 +247,10 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //print the help message
     if (vm.count("help")) {
-        std::cout << boost::format("UHD RX samples to file %s") % desc << std::endl;
+        std::cout << boost::format("SHD RX samples to file %s") % desc << std::endl;
         std::cout
             << std::endl
-            << "This application streams data from a single channel of a USRP device to a file.\n"
+            << "This application streams data from a single channel of a SMINI device to a file.\n"
             << std::endl;
         return ~0;
     }
@@ -264,18 +264,18 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     if (enable_size_map)
         std::cout << "Packet size tracking enabled - will only recv one packet at a time!" << std::endl;
 
-    //create a usrp device
+    //create a smini device
     std::cout << std::endl;
-    std::cout << boost::format("Creating the usrp device with: %s...") % args << std::endl;
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
+    std::cout << boost::format("Creating the smini device with: %s...") % args << std::endl;
+    shd::smini::multi_smini::sptr smini = shd::smini::multi_smini::make(args);
 
     //Lock mboard clocks
-    usrp->set_clock_source(ref);
+    smini->set_clock_source(ref);
 
     //always select the subdevice first, the channel mapping affects the other settings
-    if (vm.count("subdev")) usrp->set_rx_subdev_spec(subdev);
+    if (vm.count("subdev")) smini->set_rx_subdev_spec(subdev);
 
-    std::cout << boost::format("Using Device: %s") % usrp->get_pp_string() << std::endl;
+    std::cout << boost::format("Using Device: %s") % smini->get_pp_string() << std::endl;
 
     //set the sample rate
     if (rate <= 0.0){
@@ -283,44 +283,44 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         return ~0;
     }
     std::cout << boost::format("Setting RX Rate: %f Msps...") % (rate/1e6) << std::endl;
-    usrp->set_rx_rate(rate);
-    std::cout << boost::format("Actual RX Rate: %f Msps...") % (usrp->get_rx_rate()/1e6) << std::endl << std::endl;
+    smini->set_rx_rate(rate);
+    std::cout << boost::format("Actual RX Rate: %f Msps...") % (smini->get_rx_rate()/1e6) << std::endl << std::endl;
 
     //set the center frequency
     if (vm.count("freq")) { //with default of 0.0 this will always be true
         std::cout << boost::format("Setting RX Freq: %f MHz...") % (freq/1e6) << std::endl;
-        uhd::tune_request_t tune_request(freq);
-        if(vm.count("int-n")) tune_request.args = uhd::device_addr_t("mode_n=integer");
-        usrp->set_rx_freq(tune_request);
-        std::cout << boost::format("Actual RX Freq: %f MHz...") % (usrp->get_rx_freq()/1e6) << std::endl << std::endl;
+        shd::tune_request_t tune_request(freq);
+        if(vm.count("int-n")) tune_request.args = shd::device_addr_t("mode_n=integer");
+        smini->set_rx_freq(tune_request);
+        std::cout << boost::format("Actual RX Freq: %f MHz...") % (smini->get_rx_freq()/1e6) << std::endl << std::endl;
     }
 
     //set the rf gain
     if (vm.count("gain")) {
         std::cout << boost::format("Setting RX Gain: %f dB...") % gain << std::endl;
-        usrp->set_rx_gain(gain);
-        std::cout << boost::format("Actual RX Gain: %f dB...") % usrp->get_rx_gain() << std::endl << std::endl;
+        smini->set_rx_gain(gain);
+        std::cout << boost::format("Actual RX Gain: %f dB...") % smini->get_rx_gain() << std::endl << std::endl;
     }
 
     //set the IF filter bandwidth
     if (vm.count("bw")) {
         std::cout << boost::format("Setting RX Bandwidth: %f MHz...") % (bw/1e6) << std::endl;
-        usrp->set_rx_bandwidth(bw);
-        std::cout << boost::format("Actual RX Bandwidth: %f MHz...") % (usrp->get_rx_bandwidth()/1e6) << std::endl << std::endl;
+        smini->set_rx_bandwidth(bw);
+        std::cout << boost::format("Actual RX Bandwidth: %f MHz...") % (smini->get_rx_bandwidth()/1e6) << std::endl << std::endl;
     }
 
     //set the antenna
-    if (vm.count("ant")) usrp->set_rx_antenna(ant);
+    if (vm.count("ant")) smini->set_rx_antenna(ant);
 
     boost::this_thread::sleep(boost::posix_time::seconds(setup_time)); //allow for some setup time
 
     //check Ref and LO Lock detect
     if (not vm.count("skip-lo")){
-        check_locked_sensor(usrp->get_rx_sensor_names(0), "lo_locked", boost::bind(&uhd::usrp::multi_usrp::get_rx_sensor, usrp, _1, 0), setup_time);
+        check_locked_sensor(smini->get_rx_sensor_names(0), "lo_locked", boost::bind(&shd::smini::multi_smini::get_rx_sensor, smini, _1, 0), setup_time);
         if (ref == "mimo")
-            check_locked_sensor(usrp->get_mboard_sensor_names(0), "mimo_locked", boost::bind(&uhd::usrp::multi_usrp::get_mboard_sensor, usrp, _1, 0), setup_time);
+            check_locked_sensor(smini->get_mboard_sensor_names(0), "mimo_locked", boost::bind(&shd::smini::multi_smini::get_mboard_sensor, smini, _1, 0), setup_time);
         if (ref == "external")
-            check_locked_sensor(usrp->get_mboard_sensor_names(0), "ref_locked", boost::bind(&uhd::usrp::multi_usrp::get_mboard_sensor, usrp, _1, 0), setup_time);
+            check_locked_sensor(smini->get_mboard_sensor_names(0), "ref_locked", boost::bind(&shd::smini::multi_smini::get_mboard_sensor, smini, _1, 0), setup_time);
     }
 
     if (total_num_samps == 0){
@@ -329,7 +329,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     }
 
 #define recv_to_file_args(format) \
-    (usrp, format, wirefmt, file, spb, total_num_samps, total_time, bw_summary, stats, null, enable_size_map, continue_on_bad_packet)
+    (smini, format, wirefmt, file, spb, total_num_samps, total_time, bw_summary, stats, null, enable_size_map, continue_on_bad_packet)
     //recv to file
     if (type == "double") recv_to_file<std::complex<double> >recv_to_file_args("fc64");
     else if (type == "float") recv_to_file<std::complex<float> >recv_to_file_args("fc32");

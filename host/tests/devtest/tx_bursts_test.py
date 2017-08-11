@@ -18,9 +18,9 @@
 """ Run the test for tx_burst """
 
 import re
-from uhd_test_base import uhd_example_test_case
+from shd_test_base import shd_example_test_case
 
-class uhd_tx_bursts_test(uhd_example_test_case):
+class shd_tx_bursts_test(shd_example_test_case):
     """ Run test_messages. """
     tests = {
         'default': {
@@ -34,7 +34,7 @@ class uhd_tx_bursts_test(uhd_example_test_case):
         """
         Set args.
         """
-        self.test_params = uhd_tx_bursts_test.tests
+        self.test_params = shd_tx_bursts_test.tests
 
     def run_test(self, test_name, test_args):
         """ Run the app and scrape for the failure messages. """

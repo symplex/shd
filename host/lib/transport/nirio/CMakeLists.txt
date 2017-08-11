@@ -26,12 +26,12 @@ INCLUDE_SUBDIRECTORY(lvbitx)
 INCLUDE_SUBDIRECTORY(rpc)
 
 ########################################################################
-# Append to the list of sources for lib uhd
+# Append to the list of sources for lib shd
 ########################################################################
 
-LIBUHD_APPEND_SOURCES(
+LIBSHD_APPEND_SOURCES(
     ${CMAKE_CURRENT_SOURCE_DIR}/nifpga_lvbitx.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/niusrprio_session.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/nisminirio_session.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/niriok_proxy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/niriok_proxy_impl_v1.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/niriok_proxy_impl_v2.cpp
@@ -40,9 +40,9 @@ LIBUHD_APPEND_SOURCES(
 )
 
 IF(WIN32)
-    LIBUHD_APPEND_SOURCES(${CMAKE_CURRENT_SOURCE_DIR}/nirio_driver_iface_win.cpp)
+    LIBSHD_APPEND_SOURCES(${CMAKE_CURRENT_SOURCE_DIR}/nirio_driver_iface_win.cpp)
 ELSEIF(${CMAKE_SYSTEM_NAME} STREQUAL "Linux") #Built-in variable encompasses all UNIX-like systems
-    LIBUHD_APPEND_SOURCES(${CMAKE_CURRENT_SOURCE_DIR}/nirio_driver_iface_linux.cpp)
+    LIBSHD_APPEND_SOURCES(${CMAKE_CURRENT_SOURCE_DIR}/nirio_driver_iface_linux.cpp)
 ELSE()
-    LIBUHD_APPEND_SOURCES(${CMAKE_CURRENT_SOURCE_DIR}/nirio_driver_iface_unsupported.cpp)
+    LIBSHD_APPEND_SOURCES(${CMAKE_CURRENT_SOURCE_DIR}/nirio_driver_iface_unsupported.cpp)
 ENDIF(WIN32)

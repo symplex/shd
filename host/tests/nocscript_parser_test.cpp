@@ -17,7 +17,7 @@
 
 #include "../lib/rfnoc/nocscript/function_table.hpp"
 #include "../lib/rfnoc/nocscript/parser.hpp"
-#include <uhd/exception.hpp>
+#include <shd/exception.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/assign/list_of.hpp>
@@ -43,7 +43,7 @@ expression::type_t variable_get_type(const std::string &var_name)
         return expression::TYPE_BOOL;
     }
 
-    throw uhd::syntax_error("Cannot infer type (unknown variable)");
+    throw shd::syntax_error("Cannot infer type (unknown variable)");
 }
 
 expression_literal variable_get_value(const std::string &var_name)
@@ -57,7 +57,7 @@ expression_literal variable_get_value(const std::string &var_name)
         return expression_literal(true);
     }
 
-    throw uhd::syntax_error("Cannot read value (unknown variable)");
+    throw shd::syntax_error("Cannot read value (unknown variable)");
 }
 
 #define SETUP_FT_AND_PARSER() \
@@ -73,15 +73,15 @@ BOOST_AUTO_TEST_CASE(test_fail)
     SETUP_FT_AND_PARSER();
 
     // Missing closing parens:
-    BOOST_REQUIRE_THROW(p->create_expr_tree("ADD1(1, "), uhd::syntax_error);
+    BOOST_REQUIRE_THROW(p->create_expr_tree("ADD1(1, "), shd::syntax_error);
     // Double comma:
-    BOOST_REQUIRE_THROW(p->create_expr_tree("ADD(1,, 2)"), uhd::syntax_error);
+    BOOST_REQUIRE_THROW(p->create_expr_tree("ADD(1,, 2)"), shd::syntax_error);
     // No comma:
-    BOOST_REQUIRE_THROW(p->create_expr_tree("ADD(1 2)"), uhd::syntax_error);
+    BOOST_REQUIRE_THROW(p->create_expr_tree("ADD(1 2)"), shd::syntax_error);
     // Double closing parens:
-    BOOST_REQUIRE_THROW(p->create_expr_tree("ADD(1, 2))"), uhd::syntax_error);
+    BOOST_REQUIRE_THROW(p->create_expr_tree("ADD(1, 2))"), shd::syntax_error);
     // Unknown function:
-    BOOST_REQUIRE_THROW(p->create_expr_tree("GLORPGORP(1, 2)"), uhd::syntax_error);
+    BOOST_REQUIRE_THROW(p->create_expr_tree("GLORPGORP(1, 2)"), shd::syntax_error);
 }
 
 BOOST_AUTO_TEST_CASE(test_adds_no_vars)

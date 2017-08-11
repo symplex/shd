@@ -17,9 +17,9 @@
 #
 """ Test the rx_samples_to_file example. """
 
-from uhd_test_base import uhd_example_test_case
+from shd_test_base import shd_example_test_case
 
-class rx_samples_to_file_test(uhd_example_test_case):
+class rx_samples_to_file_test(shd_example_test_case):
     """
     Run rx_samples_to_file and check output.
     """

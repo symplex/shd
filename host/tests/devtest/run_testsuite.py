@@ -25,11 +25,11 @@ import sys
 import subprocess
 import argparse
 import logging
-from usrp_probe import get_usrp_list
+from smini_probe import get_smini_list
 
 def setup_parser():
     """ Set up argparser """
-    parser = argparse.ArgumentParser(description="Test utility for UHD/USRP.")
+    parser = argparse.ArgumentParser(description="Test utility for SHD/SMINI.")
     parser.add_argument('--devtest-pattern', '-p', default='*', help='e.g. b2xx')
     parser.add_argument('--device-filter', '-f', default=None, required=True, help='b200, x300, ...')
     parser.add_argument('--log-dir', '-l', default='.')
@@ -90,31 +90,31 @@ def main():
     args = setup_parser().parse_args()
     env = setup_env(args)
     devtest_pattern = "devtest_{p}.py".format(p=args.devtest_pattern)
-    uhd_args_list = get_usrp_list("type=" + args.device_filter, env)
-    if len(uhd_args_list) == 0:
+    shd_args_list = get_smini_list("type=" + args.device_filter, env)
+    if len(shd_args_list) == 0:
         print("No devices found. Exiting.")
         exit(1)
     tests_passed = True
-    for uhd_idx, uhd_info in enumerate(uhd_args_list):
+    for shd_idx, shd_info in enumerate(shd_args_list):
         print('--- Running all tests for device {dev} ({prod}, Serial: {ser}).'.format(
-            dev=uhd_idx,
-            prod=uhd_info.get('product', 'USRP'),
-            ser=uhd_info.get('serial')
+            dev=shd_idx,
+            prod=shd_info.get('product', 'SMINI'),
+            ser=shd_info.get('serial')
         ))
         print('--- This will take some time. Better grab a cup of tea.')
         sys.stdout.flush()
-        args_str = uhd_info['args']
-        env['_UHD_TEST_ARGS_STR'] = args_str
+        args_str = shd_info['args']
+        env['_SHD_TEST_ARGS_STR'] = args_str
         logfile_name = "log{}.log".format(
             args_str.replace('type=', '_').replace('serial=', '_').replace(',', '')
         )
         resultsfile_name = "results{}.log".format(
             args_str.replace('type=', '_').replace('serial=', '_').replace(',', '')
         )
-        env['_UHD_TEST_LOGFILE'] = os.path.join(args.log_dir, logfile_name)
-        env['_UHD_TEST_RESULTSFILE'] = os.path.join(args.log_dir, resultsfile_name)
-        env['_UHD_TEST_LOG_LEVEL'] = str(logging.INFO)
-        env['_UHD_TEST_PRINT_LEVEL'] = str(logging.WARNING)
+        env['_SHD_TEST_LOGFILE'] = os.path.join(args.log_dir, logfile_name)
+        env['_SHD_TEST_RESULTSFILE'] = os.path.join(args.log_dir, resultsfile_name)
+        env['_SHD_TEST_LOG_LEVEL'] = str(logging.INFO)
+        env['_SHD_TEST_PRINT_LEVEL'] = str(logging.WARNING)
         proc = subprocess.Popen(
             [
                 "python", "-m", "unittest", "discover", "-v",

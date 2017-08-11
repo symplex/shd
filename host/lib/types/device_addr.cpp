@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/types/device_addr.hpp>
+#include <shd/types/device_addr.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
@@ -24,7 +24,7 @@
 #include <stdexcept>
 #include <sstream>
 
-using namespace uhd;
+using namespace shd;
 
 static const char* arg_delim = ",";
 static const char* pair_delim = "=";
@@ -48,7 +48,7 @@ device_addr_t::device_addr_t(const std::string &args){
         if (toks.size() == 2 and not trim(toks[0]).empty()){ //only valid combination
             this->set(trim(toks[0]), trim(toks[1]));
         }
-        else throw uhd::value_error("invalid args string: "+args); //otherwise error
+        else throw shd::value_error("invalid args string: "+args); //otherwise error
     }
 }
 
@@ -72,9 +72,9 @@ std::string device_addr_t::to_string(void) const{
     return args_str;
 }
 
-#include <uhd/utils/msg.hpp>
+#include <shd/utils/msg.hpp>
 
-device_addrs_t uhd::separate_device_addr(const device_addr_t &dev_addr){
+device_addrs_t shd::separate_device_addr(const device_addr_t &dev_addr){
     //------------ support old deprecated way and print warning --------
     if (dev_addr.has_key("addr") and not dev_addr["addr"].empty()){
         std::vector<std::string> addrs; boost::split(addrs, dev_addr["addr"], boost::is_any_of(" "));
@@ -84,10 +84,10 @@ device_addrs_t uhd::separate_device_addr(const device_addr_t &dev_addr){
             for (size_t i = 0; i < addrs.size(); i++){
                 fixed_dev_addr[str(boost::format("addr%d") % i)] = addrs[i];
             }
-            UHD_MSG(warning) <<
+            SHD_MSG(warning) <<
                 "addr = <space separated list of ip addresses> is deprecated.\n"
                 "To address a multi-device, use multiple <key><index> = <val>.\n"
-                "See the USRP-NXXX application notes. Two device example:\n"
+                "See the SMINI-NXXX application notes. Two device example:\n"
                 "    addr0 = 192.168.10.2\n"
                 "    addr1 = 192.168.10.3\n"
             ;
@@ -122,7 +122,7 @@ device_addrs_t uhd::separate_device_addr(const device_addr_t &dev_addr){
     return dev_addrs;
 }
 
-device_addr_t uhd::combine_device_addrs(const device_addrs_t &dev_addrs){
+device_addr_t shd::combine_device_addrs(const device_addrs_t &dev_addrs){
     device_addr_t dev_addr;
     for (size_t i = 0; i < dev_addrs.size(); i++){
         BOOST_FOREACH(const std::string &key, dev_addrs[i].keys()){

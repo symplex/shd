@@ -15,10 +15,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/math.hpp>
+#include <shd/utils/math.hpp>
 #include <boost/test/unit_test.hpp>
 
-using namespace uhd::math::fp_compare;
+using namespace shd::math::fp_compare;
 
 BOOST_AUTO_TEST_CASE(fp_compare_epsilon_constructors) {
     // Test default constructor
@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(fp_compare_epsilon_constructors) {
 
     // Test constructor with specified epsilon
     fp_compare_epsilon<float> foxtrot = fp_compare_epsilon<float>(alpha._value,
-            uhd::math::SINGLE_PRECISION_EPSILON);
+            shd::math::SINGLE_PRECISION_EPSILON);
     fp_compare_epsilon<float> gamma = fp_compare_epsilon<float>(alpha._value, 2.0e-1f);
     BOOST_CHECK_EQUAL(alpha._epsilon, foxtrot._epsilon);
     BOOST_CHECK(not (alpha._epsilon == gamma._epsilon));
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(double_compare_constructors) {
 
     // Test constructor with specified epsilon
     fp_compare_epsilon<double> foxtrot = fp_compare_epsilon<double>(alpha._value,
-            uhd::math::DOUBLE_PRECISION_EPSILON);
+            shd::math::DOUBLE_PRECISION_EPSILON);
     fp_compare_epsilon<double> gamma = fp_compare_epsilon<double>(alpha._value, 2.0e-6);
     BOOST_CHECK_EQUAL(alpha._epsilon, foxtrot._epsilon);
     BOOST_CHECK(not (alpha._epsilon == gamma._epsilon));
@@ -79,9 +79,9 @@ BOOST_AUTO_TEST_CASE(float_equality_operators) {
 
     // Test equality edge case at delta = epsilon
     fp_compare_epsilon<float> charlie = fp_compare_epsilon<float>(alpha._value
-            + uhd::math::SINGLE_PRECISION_EPSILON);
+            + shd::math::SINGLE_PRECISION_EPSILON);
     BOOST_CHECK(not (alpha == charlie));
-    BOOST_CHECK(not (alpha == float(alpha._value + uhd::math::SINGLE_PRECISION_EPSILON)));
+    BOOST_CHECK(not (alpha == float(alpha._value + shd::math::SINGLE_PRECISION_EPSILON)));
 }
 
 BOOST_AUTO_TEST_CASE(double_equality_operators) {
@@ -93,10 +93,10 @@ BOOST_AUTO_TEST_CASE(double_equality_operators) {
 
     // Test equality edge case at delta = epsilon
     fp_compare_epsilon<double> charlie = fp_compare_epsilon<double>(alpha._value
-            + uhd::math::DOUBLE_PRECISION_EPSILON);
+            + shd::math::DOUBLE_PRECISION_EPSILON);
     BOOST_CHECK(not (alpha == charlie));
     BOOST_CHECK(not (alpha == double(alpha._value
-                    + uhd::math::DOUBLE_PRECISION_EPSILON)));
+                    + shd::math::DOUBLE_PRECISION_EPSILON)));
 }
 
 BOOST_AUTO_TEST_CASE(float_inequality_operators) {

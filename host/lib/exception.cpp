@@ -15,11 +15,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/exception.hpp>
+#include <shd/exception.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/format.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 exception::exception(const std::string &what):
     std::runtime_error(what){/* NOP */}

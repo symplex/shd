@@ -15,7 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/if_addrs.hpp>
+#include <shd/transport/if_addrs.hpp>
 #include <boost/asio/ip/address_v4.hpp>
 #include <stdint.h>
 #include <iostream>
@@ -32,7 +32,7 @@ static boost::asio::ip::address_v4 sockaddr_to_ip_addr(sockaddr *addr){
     ));
 }
 
-std::vector<uhd::transport::if_addrs_t> uhd::transport::get_if_addrs(void){
+std::vector<shd::transport::if_addrs_t> shd::transport::get_if_addrs(void){
     std::vector<if_addrs_t> if_addrs;
     struct ifaddrs *ifap;
     if (getifaddrs(&ifap) == 0){
@@ -74,7 +74,7 @@ std::vector<uhd::transport::if_addrs_t> uhd::transport::get_if_addrs(void){
 #ifdef HAVE_SIO_GET_INTERFACE_LIST
 #include <winsock2.h>
 
-std::vector<uhd::transport::if_addrs_t> uhd::transport::get_if_addrs(void){
+std::vector<shd::transport::if_addrs_t> shd::transport::get_if_addrs(void){
     std::vector<if_addrs_t> if_addrs;
     SOCKET sd = WSASocket(AF_INET, SOCK_DGRAM, 0, 0, 0, 0);
     if (sd == SOCKET_ERROR) {
@@ -114,7 +114,7 @@ std::vector<uhd::transport::if_addrs_t> uhd::transport::get_if_addrs(void){
  **********************************************************************/
 #ifdef HAVE_IF_ADDRS_DUMMY
 
-std::vector<uhd::transport::if_addrs_t> uhd::transport::get_if_addrs(void){
+std::vector<shd::transport::if_addrs_t> shd::transport::get_if_addrs(void){
     return std::vector<if_addrs_t>();
 }
 

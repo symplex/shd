@@ -16,10 +16,10 @@
 //
 
 #include <boost/test/unit_test.hpp>
-#include <uhd/types/ranges.hpp>
+#include <shd/types/ranges.hpp>
 #include <iostream>
 
-using namespace uhd;
+using namespace shd;
 
 static const double tolerance = 0.001;
 

@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/types/time_spec.hpp>
+#include <shd/types/time_spec.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 /***********************************************************************
  * Time spec system time
@@ -82,7 +82,7 @@ time_spec_t time_spec_t::get_system_time(void){
     } \
 }
 
-UHD_INLINE long long fast_llround(const double x){
+SHD_INLINE long long fast_llround(const double x){
     return (long long)(x + 0.5); // assumption of non-negativity
 }
 
@@ -147,14 +147,14 @@ time_spec_t &time_spec_t::operator-=(const time_spec_t &rhs){
     return *this;
 }
 
-bool uhd::operator==(const time_spec_t &lhs, const time_spec_t &rhs){
+bool shd::operator==(const time_spec_t &lhs, const time_spec_t &rhs){
     return
         lhs.get_full_secs() == rhs.get_full_secs() and
         lhs.get_frac_secs() == rhs.get_frac_secs()
     ;
 }
 
-bool uhd::operator<(const time_spec_t &lhs, const time_spec_t &rhs){
+bool shd::operator<(const time_spec_t &lhs, const time_spec_t &rhs){
     return (
         (lhs.get_full_secs() < rhs.get_full_secs()) or (
         (lhs.get_full_secs() == rhs.get_full_secs()) and

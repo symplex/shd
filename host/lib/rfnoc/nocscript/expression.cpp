@@ -17,13 +17,13 @@
 
 #include "expression.hpp"
 #include "function_table.hpp"
-#include <uhd/utils/cast.hpp>
+#include <shd/utils/cast.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <boost/assign.hpp>
 #include <boost/algorithm/string.hpp>
 
-using namespace uhd::rfnoc::nocscript;
+using namespace shd::rfnoc::nocscript;
 
 std::map<expression::type_t, std::string> expression::type_repr = boost::assign::map_list_of
     (TYPE_INT, "INT")
@@ -53,7 +53,7 @@ expression_literal::expression_literal(
 
     case expression::TYPE_INT:
         if (_val.substr(0, 2) == "0x") {
-            _int_val = uhd::cast::hexstr_cast<int>(_val);
+            _int_val = shd::cast::hexstr_cast<int>(_val);
         } else {
             _int_val = boost::lexical_cast<int>(_val);
         }
@@ -84,7 +84,7 @@ expression_literal::expression_literal(
         }
 
     default:
-        UHD_THROW_INVALID_CODE_PATH();
+        SHD_THROW_INVALID_CODE_PATH();
     }
 }
 
@@ -153,14 +153,14 @@ bool expression_literal::to_bool() const
         case TYPE_INT_VECTOR:
             return not _int_vector_val.empty();
         default:
-            UHD_THROW_INVALID_CODE_PATH();
+            SHD_THROW_INVALID_CODE_PATH();
     }
 }
 
 int expression_literal::get_int() const
 {
     if (_type != TYPE_INT) {
-        throw uhd::type_error("Cannot call get_int() on non-int value.");
+        throw shd::type_error("Cannot call get_int() on non-int value.");
     }
 
     return _int_val;
@@ -169,7 +169,7 @@ int expression_literal::get_int() const
 double expression_literal::get_double() const
 {
     if (_type != TYPE_DOUBLE) {
-        throw uhd::type_error("Cannot call get_double() on non-double value.");
+        throw shd::type_error("Cannot call get_double() on non-double value.");
     }
 
     return _double_val;
@@ -178,7 +178,7 @@ double expression_literal::get_double() const
 std::string expression_literal::get_string() const
 {
     if (_type != TYPE_STRING) {
-        throw uhd::type_error("Cannot call get_string() on non-string value.");
+        throw shd::type_error("Cannot call get_string() on non-string value.");
     }
 
     return _val;
@@ -187,7 +187,7 @@ std::string expression_literal::get_string() const
 bool expression_literal::get_bool() const
 {
     if (_type != TYPE_BOOL) {
-        throw uhd::type_error("Cannot call get_bool() on non-boolean value.");
+        throw shd::type_error("Cannot call get_bool() on non-boolean value.");
     }
 
     return _bool_val;
@@ -196,7 +196,7 @@ bool expression_literal::get_bool() const
 std::vector<int> expression_literal::get_int_vector() const
 {
     if (_type != TYPE_INT_VECTOR) {
-        throw uhd::type_error("Cannot call get_bool() on non-boolean value.");
+        throw shd::type_error("Cannot call get_bool() on non-boolean value.");
     }
 
     return _int_vector_val;
@@ -227,7 +227,7 @@ std::string expression_literal::repr() const
             return sstr.str();
             }
         default:
-            UHD_THROW_INVALID_CODE_PATH();
+            SHD_THROW_INVALID_CODE_PATH();
     }
 }
 
@@ -247,7 +247,7 @@ bool expression_literal::operator==(const expression_literal &rhs) const
         case TYPE_BOOL:
             return get_bool() == rhs.get_bool();
         default:
-            UHD_THROW_INVALID_CODE_PATH();
+            SHD_THROW_INVALID_CODE_PATH();
     }
 }
 
@@ -289,7 +289,7 @@ void expression_container::set_combiner_safe(const combiner_type c)
         return;
     }
 
-    throw uhd::syntax_error("Attempting to override combiner type");
+    throw shd::syntax_error("Attempting to override combiner type");
 }
 
 expression_literal expression_container::eval()
@@ -341,7 +341,7 @@ expression_function::expression_function(
 {
     _combiner = COMBINE_ALL;
     if (not _func_table->function_exists(_name)) {
-        throw uhd::syntax_error(str(
+        throw shd::syntax_error(str(
                 boost::format("Unknown function: %s")
                 % _name
         ));
@@ -388,7 +388,7 @@ expression_variable::expression_variable(
   , _value_getter(value_getter)
 {
     // We can assume this is true because otherwise, it's not a valid token:
-    UHD_ASSERT_THROW(not token_val.empty() and token_val[0] == '$');
+    SHD_ASSERT_THROW(not token_val.empty() and token_val[0] == '$');
 
     _varname = token_val.substr(1);
 }

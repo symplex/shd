@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/config.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/utils/paths.hpp>
+#include <shd/config.hpp>
+#include <shd/exception.hpp>
+#include <shd/utils/paths.hpp>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/bind.hpp>
@@ -58,7 +58,7 @@ static std::string get_env_var(const std::string &var_name,
     char *env_var_str = NULL;
 
     /* Some versions of MinGW don't expose `_dupenv_s` */
-#if defined(UHD_PLATFORM_WIN32) && !defined(__MINGW32__)
+#if defined(SHD_PLATFORM_WIN32) && !defined(__MINGW32__)
     size_t len;
     errno_t err = _dupenv_s(&env_var_str, &len, var_name.c_str());
     if((not err) and (env_var_str != NULL))
@@ -82,11 +82,11 @@ static std::string get_env_var(const std::string &var_name,
  * \returns The vector of paths from the environment variable.
  */
 static std::vector<std::string> get_env_paths(const std::string &var_name){
-#ifdef UHD_PLATFORM_WIN32
+#ifdef SHD_PLATFORM_WIN32
     static const std::string env_path_sep = ";";
 #else
     static const std::string env_path_sep = ":";
-#endif /*UHD_PLATFORM_WIN32*/
+#endif /*SHD_PLATFORM_WIN32*/
 
 #define path_tokenizer(inp) \
     boost::tokenizer<boost::char_separator<char> > \
@@ -106,7 +106,7 @@ static std::vector<std::string> get_env_paths(const std::string &var_name){
     return paths;
 }
 
-#ifndef UHD_PLATFORM_WIN32
+#ifndef SHD_PLATFORM_WIN32
 /*! Expand a tilde character to the $HOME path.
  *
  * The path passed to this function must start with the tilde character in order
@@ -135,11 +135,11 @@ static std::string expand_home_directory(std::string path) {
  **********************************************************************/
 
 
-std::string uhd::get_tmp_path(void){
+std::string shd::get_tmp_path(void){
     const char *tmp_path = NULL;
 
-    //try the official uhd temp path environment variable
-    tmp_path = std::getenv("UHD_TEMP_PATH");
+    //try the official shd temp path environment variable
+    tmp_path = std::getenv("SHD_TEMP_PATH");
     if (tmp_path != NULL) return tmp_path;
 
     //try the windows function if available
@@ -169,9 +169,9 @@ std::string uhd::get_tmp_path(void){
     #endif
 }
 
-std::string uhd::get_app_path(void){
-    const std::string uhdcalib_path = get_env_var("UHD_CONFIG_DIR");
-    if (not uhdcalib_path.empty()) return uhdcalib_path;
+std::string shd::get_app_path(void){
+    const std::string shdcalib_path = get_env_var("SHD_CONFIG_DIR");
+    if (not shdcalib_path.empty()) return shdcalib_path;
 
     const std::string appdata_path = get_env_var("APPDATA");
     if (not appdata_path.empty()) return appdata_path;
@@ -179,31 +179,31 @@ std::string uhd::get_app_path(void){
     const std::string home_path = get_env_var("HOME");
     if (not home_path.empty()) return home_path;
 
-    return uhd::get_tmp_path();
+    return shd::get_tmp_path();
 }
 
-std::string uhd::get_pkg_path(void) {
-    return get_env_var("UHD_PKG_PATH", UHD_PKG_PATH);
+std::string shd::get_pkg_path(void) {
+    return get_env_var("SHD_PKG_PATH", SHD_PKG_PATH);
 }
 
-std::vector<fs::path> uhd::get_module_paths(void){
+std::vector<fs::path> shd::get_module_paths(void){
     std::vector<fs::path> paths;
 
-    std::vector<std::string> env_paths = get_env_paths("UHD_MODULE_PATH");
+    std::vector<std::string> env_paths = get_env_paths("SHD_MODULE_PATH");
     BOOST_FOREACH(std::string &str_path, env_paths) {
         paths.push_back(str_path);
     }
 
-    paths.push_back(fs::path(uhd::get_pkg_path()) / UHD_LIB_DIR / "uhd" / "modules");
-    paths.push_back(fs::path(uhd::get_pkg_path()) / "share" / "uhd" / "modules");
+    paths.push_back(fs::path(shd::get_pkg_path()) / SHD_LIB_DIR / "shd" / "modules");
+    paths.push_back(fs::path(shd::get_pkg_path()) / "share" / "shd" / "modules");
 
     return paths;
 }
 
-#ifdef UHD_PLATFORM_WIN32
+#ifdef SHD_PLATFORM_WIN32
 #include <windows.h>
 /*!
- * On Windows, query the system registry for the UHD images install path.
+ * On Windows, query the system registry for the SHD images install path.
  * If the key isn't found in the registry, an empty string is returned.
  * \param registry_key_path The registry key to look for.
  * \return The images path, formatted for windows.
@@ -254,24 +254,24 @@ std::string _get_images_path_from_registry(const std::string& registry_key_path)
         return std::string();
     }
 }
-#endif  /*UHD_PLATFORM_WIN32*/
+#endif  /*SHD_PLATFORM_WIN32*/
 
-std::string uhd::get_images_dir(const std::string &search_paths) {
+std::string shd::get_images_dir(const std::string &search_paths) {
 
     /*   This function will check for the existence of directories in this
      *   order:
      *
-     *   1) `UHD_IMAGES_DIR` environment variable
+     *   1) `SHD_IMAGES_DIR` environment variable
      *   2) Any paths passed to this function via `search_paths' (may contain
      *      Windows registry keys)
-     *   3) `UHD package path` / share / uhd / images
+     *   3) `SHD package path` / share / shd / images
      */
 
     std::string possible_dir;
 
-    /* We will start by looking for a path indicated by the `UHD_IMAGES_DIR`
+    /* We will start by looking for a path indicated by the `SHD_IMAGES_DIR`
      * environment variable. */
-    std::vector<std::string> env_paths = get_env_paths("UHD_IMAGES_DIR");
+    std::vector<std::string> env_paths = get_env_paths("SHD_IMAGES_DIR");
     BOOST_FOREACH(possible_dir, env_paths) {
         if (fs::is_directory(fs::path(possible_dir))) {
                 return possible_dir;
@@ -282,8 +282,8 @@ std::string uhd::get_images_dir(const std::string &search_paths) {
      * (see below). Making a local copy for const correctness. */
     std::string _search_paths = search_paths;
 
-#ifdef UHD_IMAGES_DIR_WINREG_KEY
-    _search_paths = std::string(STR(UHD_IMAGES_DIR_WINREG_KEY)) + "," + search_paths;
+#ifdef SHD_IMAGES_DIR_WINREG_KEY
+    _search_paths = std::string(STR(SHD_IMAGES_DIR_WINREG_KEY)) + "," + search_paths;
 #endif
 
     /* Now we will parse and attempt to qualify the paths in the `search_paths`
@@ -298,7 +298,7 @@ std::string uhd::get_images_dir(const std::string &search_paths) {
             boost::algorithm::trim(search_path);
             if (search_path.empty()) continue;
 
-#ifdef UHD_PLATFORM_WIN32
+#ifdef SHD_PLATFORM_WIN32
             possible_dir = _get_images_path_from_registry(search_path);
             if (possible_dir.empty()) {
                 //Could not read from the registry due to missing key, invalid
@@ -317,8 +317,8 @@ std::string uhd::get_images_dir(const std::string &search_paths) {
         }
     }
 
-    /* Finally, check for the default UHD images installation path. */
-    fs::path pkg_path = fs::path(uhd::get_pkg_path()) / "share" / "uhd" / "images";
+    /* Finally, check for the default SHD images installation path. */
+    fs::path pkg_path = fs::path(shd::get_pkg_path()) / "share" / "shd" / "images";
     if (fs::is_directory(pkg_path)) {
         return pkg_path.string();
     } else {
@@ -327,7 +327,7 @@ std::string uhd::get_images_dir(const std::string &search_paths) {
     }
 }
 
-std::string uhd::find_image_path(const std::string &image_name, const std::string &search_paths){
+std::string shd::find_image_path(const std::string &image_name, const std::string &search_paths){
     /* If a path was provided on the command-line or as a hint from the caller,
      * we default to that. */
     if (fs::exists(image_name)){
@@ -341,31 +341,31 @@ std::string uhd::find_image_path(const std::string &image_name, const std::strin
         if (fs::exists(image_path)) {
             return image_path.string();
         } else {
-            throw uhd::io_error(
+            throw shd::io_error(
                 "Could not find the image '" + image_name + "' in the image directory " + images_dir
-                + "\nFor more information regarding image paths, please refer to the UHD manual.");
+                + "\nFor more information regarding image paths, please refer to the SHD manual.");
         }
     }
 
     /* If we made it this far, then we didn't find anything. */
     images_dir = "<no images directory located>";
-    throw uhd::io_error("Could not find path for image: " + image_name
+    throw shd::io_error("Could not find path for image: " + image_name
             + "\n\n"
             + "Using images directory: " + images_dir
             + "\n\n"
-            + "Set the environment variable 'UHD_IMAGES_DIR' appropriately or"
+            + "Set the environment variable 'SHD_IMAGES_DIR' appropriately or"
             + " follow the below instructions to download the images package."
             + "\n\n"
-            + uhd::print_utility_error("uhd_images_downloader.py"));
+            + shd::print_utility_error("shd_images_downloader.py"));
 }
 
-std::string uhd::find_utility(const std::string &name) {
-    return fs::path(fs::path(uhd::get_pkg_path()) / UHD_LIB_DIR / "uhd" / "utils" / name)
+std::string shd::find_utility(const std::string &name) {
+    return fs::path(fs::path(shd::get_pkg_path()) / SHD_LIB_DIR / "shd" / "utils" / name)
         .string();
 }
 
-std::string uhd::print_utility_error(const std::string &name, const std::string &args){
-    #ifdef UHD_PLATFORM_WIN32
+std::string shd::print_utility_error(const std::string &name, const std::string &args){
+    #ifdef SHD_PLATFORM_WIN32
     return "As an Administrator, please run:\n\n\"" + find_utility(name) + args +  "\"";
     #else
     return "Please run:\n\n \"" + find_utility(name) + (args.empty() ? "" : (" " + args)) + "\"";

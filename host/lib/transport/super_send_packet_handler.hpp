@@ -15,20 +15,20 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_LIBUHD_TRANSPORT_SUPER_SEND_PACKET_HANDLER_HPP
-#define INCLUDED_LIBUHD_TRANSPORT_SUPER_SEND_PACKET_HANDLER_HPP
+#ifndef INCLUDED_LIBSHD_TRANSPORT_SUPER_SEND_PACKET_HANDLER_HPP
+#define INCLUDED_LIBSHD_TRANSPORT_SUPER_SEND_PACKET_HANDLER_HPP
 
 #include "../rfnoc/tx_stream_terminator.hpp"
-#include <uhd/config.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/convert.hpp>
-#include <uhd/stream.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/utils/tasks.hpp>
-#include <uhd/utils/byteswap.hpp>
-#include <uhd/types/metadata.hpp>
-#include <uhd/transport/vrt_if_packet.hpp>
-#include <uhd/transport/zero_copy.hpp>
+#include <shd/config.hpp>
+#include <shd/exception.hpp>
+#include <shd/convert.hpp>
+#include <shd/stream.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/utils/tasks.hpp>
+#include <shd/utils/byteswap.hpp>
+#include <shd/types/metadata.hpp>
+#include <shd/transport/vrt_if_packet.hpp>
+#include <shd/transport/zero_copy.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/thread_time.hpp>
 #include <boost/foreach.hpp>
@@ -36,7 +36,7 @@
 #include <iostream>
 #include <vector>
 
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
 // Included for debugging
 #include <boost/format.hpp>
 #include <boost/thread/thread.hpp>
@@ -45,7 +45,7 @@
 #include <fstream>
 #endif
 
-namespace uhd {
+namespace shd {
 namespace transport {
 namespace sph {
 
@@ -59,7 +59,7 @@ namespace sph {
 class send_packet_handler{
 public:
     typedef boost::function<managed_send_buffer::sptr(double)> get_buff_type;
-    typedef boost::function<bool(uhd::async_metadata_t &, const double)> async_receiver_type;
+    typedef boost::function<bool(shd::async_metadata_t &, const double)> async_receiver_type;
     typedef void(*vrt_packer_type)(uint32_t *, vrt::if_packet_info_t &);
     //typedef boost::function<void(uint32_t *, vrt::if_packet_info_t &)> vrt_packer_type;
 
@@ -113,12 +113,12 @@ public:
         }
     }
 
-    void set_terminator(uhd::rfnoc::tx_stream_terminator::sptr terminator)
+    void set_terminator(shd::rfnoc::tx_stream_terminator::sptr terminator)
     {
         _terminator = terminator;
     }
 
-    uhd::rfnoc::tx_stream_terminator::sptr get_terminator()
+    shd::rfnoc::tx_stream_terminator::sptr get_terminator()
     {
         return _terminator;
     }
@@ -149,17 +149,17 @@ public:
     }
 
     //! Set the conversion routine for all channels
-    void set_converter(const uhd::convert::id_type &id){
+    void set_converter(const shd::convert::id_type &id){
         _num_inputs = id.num_inputs;
-        _converter = uhd::convert::get_converter(id)();
+        _converter = shd::convert::get_converter(id)();
         this->set_scale_factor(32767.); //update after setting converter
-        _bytes_per_otw_item = uhd::convert::get_bytes_per_item(id.output_format);
-        _bytes_per_cpu_item = uhd::convert::get_bytes_per_item(id.input_format);
+        _bytes_per_otw_item = shd::convert::get_bytes_per_item(id.output_format);
+        _bytes_per_cpu_item = shd::convert::get_bytes_per_item(id.input_format);
     }
 
     /*!
      * Set the maximum number of samples per host packet.
-     * Ex: A USRP1 in dual channel mode would be half.
+     * Ex: A SMINI1 in dual channel mode would be half.
      * \param num_samps the maximum samples in a packet
      */
     void set_max_samples_per_packet(const size_t num_samps){
@@ -179,7 +179,7 @@ public:
 
     //! Overload call to get async metadata
     bool recv_async_msg(
-        uhd::async_metadata_t &async_metadata, double timeout = 0.1
+        shd::async_metadata_t &async_metadata, double timeout = 0.1
     ){
         if (_async_receiver) return _async_receiver(async_metadata, timeout);
         boost::this_thread::sleep(boost::posix_time::microseconds(long(timeout*1e6)));
@@ -191,10 +191,10 @@ public:
      * The entry point for the fast-path send calls.
      * Dispatch into combinations of single packet send calls.
      ******************************************************************/
-    UHD_INLINE size_t send(
-        const uhd::tx_streamer::buffs_type &buffs,
+    SHD_INLINE size_t send(
+        const shd::tx_streamer::buffs_type &buffs,
         const size_t nsamps_per_buff,
-        const uhd::tx_metadata_t &metadata,
+        const shd::tx_metadata_t &metadata,
         const double timeout
     ){
         //translate the metadata to vrt if packet info
@@ -250,7 +250,7 @@ public:
             #endif
 
 			size_t nsamps_sent = send_one_packet(buffs, nsamps_per_buff, if_packet_info, timeout);
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
 			dbg_print_send(nsamps_per_buff, nsamps_sent, metadata, timeout);
 #endif
 			return nsamps_sent;        }
@@ -286,7 +286,7 @@ public:
 		size_t nsamps_sent = total_num_samps_sent
 				+ send_one_packet(buffs, final_length, if_packet_info, timeout,
 					total_num_samps_sent * _bytes_per_cpu_item);
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
 		dbg_print_send(nsamps_per_buff, nsamps_sent, metadata, timeout);
 
 #endif
@@ -309,26 +309,26 @@ private:
     size_t _num_inputs;
     size_t _bytes_per_otw_item; //used in conversion
     size_t _bytes_per_cpu_item; //used in conversion
-    uhd::convert::converter::sptr _converter; //used in conversion
+    shd::convert::converter::sptr _converter; //used in conversion
     size_t _max_samples_per_packet;
     std::vector<const void *> _zero_buffs;
     size_t _next_packet_seq;
     bool _has_tlr;
     async_receiver_type _async_receiver;
     bool _cached_metadata;
-    uhd::tx_metadata_t _metadata_cache;
+    shd::tx_metadata_t _metadata_cache;
 
-    uhd::rfnoc::tx_stream_terminator::sptr _terminator;
+    shd::rfnoc::tx_stream_terminator::sptr _terminator;
 
-#ifdef UHD_TXRX_DEBUG_PRINTS
+#ifdef SHD_TXRX_DEBUG_PRINTS
     struct dbg_send_stat_t {
-        dbg_send_stat_t(long wc, size_t nspb, size_t nss, uhd::tx_metadata_t md, double to, double rate):
+        dbg_send_stat_t(long wc, size_t nspb, size_t nss, shd::tx_metadata_t md, double to, double rate):
             wallclock(wc), nsamps_per_buff(nspb), nsamps_sent(nss), metadata(md), timeout(to), samp_rate(rate)
         {}
         long wallclock;
         size_t nsamps_per_buff;
         size_t nsamps_sent;
-        uhd::tx_metadata_t metadata;
+        shd::tx_metadata_t metadata;
         double timeout;
         double samp_rate;
         // Create a formatted print line for all the info gathered in this struct.
@@ -343,7 +343,7 @@ private:
     };
 
     void dbg_print_send(size_t nsamps_per_buff, size_t nsamps_sent,
-            const uhd::tx_metadata_t &metadata, const double timeout,
+            const shd::tx_metadata_t &metadata, const double timeout,
             bool dbg_print_directly = true)
     {
         dbg_send_stat_t data(boost::get_system_time().time_of_day().total_microseconds(),
@@ -368,8 +368,8 @@ private:
     /*******************************************************************
      * Send a single packet:
      ******************************************************************/
-    UHD_INLINE size_t send_one_packet(
-        const uhd::tx_streamer::buffs_type &buffs,
+    SHD_INLINE size_t send_one_packet(
+        const shd::tx_streamer::buffs_type &buffs,
         const size_t nsamps_per_buff,
         vrt::if_packet_info_t &if_packet_info,
         const double timeout,
@@ -409,7 +409,7 @@ private:
      * - Releases internal data buffers
      * - Updates read/write pointers
      */
-    UHD_INLINE void convert_to_in_buff(const size_t index)
+    SHD_INLINE void convert_to_in_buff(const size_t index)
     {
         //shortcut references to local data structures
         managed_send_buffer::sptr &buff = _props[index].buff;
@@ -466,14 +466,14 @@ public:
     size_t send(
         const tx_streamer::buffs_type &buffs,
         const size_t nsamps_per_buff,
-        const uhd::tx_metadata_t &metadata,
+        const shd::tx_metadata_t &metadata,
         const double timeout
     ){
         return send_packet_handler::send(buffs, nsamps_per_buff, metadata, timeout);
     }
 
     bool recv_async_msg(
-        uhd::async_metadata_t &async_metadata, double timeout = 0.1
+        shd::async_metadata_t &async_metadata, double timeout = 0.1
     ){
         return send_packet_handler::recv_async_msg(async_metadata, timeout);
     }
@@ -484,6 +484,6 @@ private:
 
 } // namespace sph
 } // namespace transport
-} // namespace uhd
+} // namespace shd
 
-#endif /* INCLUDED_LIBUHD_TRANSPORT_SUPER_SEND_PACKET_HANDLER_HPP */
+#endif /* INCLUDED_LIBSHD_TRANSPORT_SUPER_SEND_PACKET_HANDLER_HPP */

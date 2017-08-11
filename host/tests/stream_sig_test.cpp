@@ -17,10 +17,10 @@
 
 #include <iostream>
 #include <boost/test/unit_test.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/rfnoc/stream_sig.hpp>
+#include <shd/exception.hpp>
+#include <shd/rfnoc/stream_sig.hpp>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 BOOST_AUTO_TEST_CASE(test_stream_sig) {
     stream_sig_t stream_sig;
@@ -78,5 +78,5 @@ BOOST_AUTO_TEST_CASE(test_stream_sig_types) {
     stream_sig.item_type = "fc32";
     BOOST_CHECK_EQUAL(stream_sig.get_bytes_per_item(), 8);
     stream_sig.item_type = "not_a_type";
-    BOOST_REQUIRE_THROW(stream_sig.get_bytes_per_item(), uhd::key_error);
+    BOOST_REQUIRE_THROW(stream_sig.get_bytes_per_item(), shd::key_error);
 }

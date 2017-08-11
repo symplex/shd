@@ -15,17 +15,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_UHD_EXPERTS_EXPERT_FACTORY_HPP
-#define INCLUDED_UHD_EXPERTS_EXPERT_FACTORY_HPP
+#ifndef INCLUDED_SHD_EXPERTS_EXPERT_FACTORY_HPP
+#define INCLUDED_SHD_EXPERTS_EXPERT_FACTORY_HPP
 
 #include "expert_container.hpp"
-#include <uhd/property_tree.hpp>
-#include <uhd/config.hpp>
+#include <shd/property_tree.hpp>
+#include <shd/config.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/bind.hpp>
 #include <memory>
 
-namespace uhd { namespace experts {
+namespace shd { namespace experts {
 
     /*!
      * expert_factory is a friend of expert_container and
@@ -38,7 +38,7 @@ namespace uhd { namespace experts {
      * storage on destruction.
      *
      */
-    class UHD_API expert_factory : public boost::noncopyable {
+    class SHD_API expert_factory : public boost::noncopyable {
     public:
 
         /*!
@@ -334,4 +334,4 @@ namespace uhd { namespace experts {
     };
 }}
 
-#endif /* INCLUDED_UHD_EXPERTS_EXPERT_FACTORY_HPP */
+#endif /* INCLUDED_SHD_EXPERTS_EXPERT_FACTORY_HPP */

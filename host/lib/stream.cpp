@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/stream.hpp>
+#include <shd/stream.hpp>
 
-using namespace uhd;
+using namespace shd;
 
 rx_streamer::~rx_streamer(void)
 {

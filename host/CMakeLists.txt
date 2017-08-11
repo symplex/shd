@@ -24,7 +24,7 @@
 # Project setup
 ########################################################################
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-PROJECT(UHD CXX C)
+PROJECT(SHD CXX C)
 ENABLE_TESTING()
 
 #make sure our local CMake Modules path comes first
@@ -45,10 +45,10 @@ SET(APPLECLANG_MIN_VERSION "500")
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     IF(DEFINED CMAKE_CXX_COMPILER_VERSION)
         IF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS ${GCC_MIN_VERSION})
-            MESSAGE(WARNING "\nThe compiler selected to build UHD (GCC version ${CMAKE_CXX_COMPILER_VERSION} : ${CMAKE_CXX_COMPILER}) is older than that officially supported (${GCC_MIN_VERSION} minimum). This build may or not work. We highly recommend using a more recent GCC version.")
+            MESSAGE(WARNING "\nThe compiler selected to build SHD (GCC version ${CMAKE_CXX_COMPILER_VERSION} : ${CMAKE_CXX_COMPILER}) is older than that officially supported (${GCC_MIN_VERSION} minimum). This build may or not work. We highly recommend using a more recent GCC version.")
          ENDIF()
     ELSE()
-        MESSAGE(WARNING "\nCannot determine the version of the compiler selected to build UHD (GCC : ${CMAKE_CXX_COMPILER}). This build may or not work. We highly recommend using GCC version ${GCC_MIN_VERSION} or more recent.")
+        MESSAGE(WARNING "\nCannot determine the version of the compiler selected to build SHD (GCC : ${CMAKE_CXX_COMPILER}). This build may or not work. We highly recommend using GCC version ${GCC_MIN_VERSION} or more recent.")
     ENDIF()
     SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
 ELSEIF(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
@@ -73,10 +73,10 @@ ELSEIF(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
             STRING(REGEX MATCH "[0-9.]+" CLANG_VERSION ${CLANG_APPLE_VERSION})
         ENDIF()
         IF(${CLANG_VERSION} VERSION_LESS "${MIN_VERSION}")
-            MESSAGE(WARNING "\nThe compiler selected to build UHD (${APPLE_STR}Clang version ${CLANG_VERSION} : ${CMAKE_CXX_COMPILER}) is older than that officially supported (${MIN_VERSION} minimum). This build may or not work. We highly recommend using Apple Clang version ${APPLECLANG_MIN_VERSION} or more recent, or Clang version ${CLANG_MIN_VERSION} or more recent.")
+            MESSAGE(WARNING "\nThe compiler selected to build SHD (${APPLE_STR}Clang version ${CLANG_VERSION} : ${CMAKE_CXX_COMPILER}) is older than that officially supported (${MIN_VERSION} minimum). This build may or not work. We highly recommend using Apple Clang version ${APPLECLANG_MIN_VERSION} or more recent, or Clang version ${CLANG_MIN_VERSION} or more recent.")
         ENDIF()
     ELSE()
-        MESSAGE(WARNING "\nCannot determine the version of the compiler selected to build UHD (${APPLE_STR}Clang : ${CMAKE_CXX_COMPILER}). This build may or not work. We highly recommend using Apple Clang version ${APPLECLANG_MIN_VERSION} or more recent, or Clang version ${CLANG_MIN_VERSION} or more recent.")
+        MESSAGE(WARNING "\nCannot determine the version of the compiler selected to build SHD (${APPLE_STR}Clang : ${CMAKE_CXX_COMPILER}). This build may or not work. We highly recommend using Apple Clang version ${APPLECLANG_MIN_VERSION} or more recent, or Clang version ${CLANG_MIN_VERSION} or more recent.")
     ENDIF()
 ENDIF()
 
@@ -87,12 +87,12 @@ ENDIF()
 # Packaging Variables
 ########################################################################
 
-SET(LIBUHD_PKG ${LIBUHD_PKG} CACHE BOOL "Build Debian libuhd003 package")
-SET(LIBUHDDEV_PKG ${LIBUHDDEV_PKG} CACHE BOOL "Build Debian libuhd-dev package")
-SET(UHDHOST_PKG ${UHDPOST_PKG} CACHE BOOL "Build Debian uhd-host package")
+SET(LIBSHD_PKG ${LIBSHD_PKG} CACHE BOOL "Build Debian libshd003 package")
+SET(LIBSHDDEV_PKG ${LIBSHDDEV_PKG} CACHE BOOL "Build Debian libshd-dev package")
+SET(SHDHOST_PKG ${SHDPOST_PKG} CACHE BOOL "Build Debian shd-host package")
 
-INCLUDE(UHDComponent) #enable components
-INCLUDE(UHDPackage)   #setup cpack
+INCLUDE(SHDComponent) #enable components
+INCLUDE(SHDPackage)   #setup cpack
 
 ########################################################################
 # Install Dirs
@@ -109,32 +109,32 @@ SET(LIB_SUFFIX ${LIB_SUFFIX} CACHE STRING "lib directory suffix")
 SET(RUNTIME_DIR bin)
 SET(LIBRARY_DIR lib${LIB_SUFFIX})
 SET(INCLUDE_DIR include)
-SET(PKG_DATA_DIR share/uhd)
+SET(PKG_DATA_DIR share/shd)
 IF(NOT DEFINED PKG_LIB_DIR)
-    SET(PKG_LIB_DIR ${LIBRARY_DIR}/uhd)
+    SET(PKG_LIB_DIR ${LIBRARY_DIR}/shd)
 ENDIF()
-SET(PKG_DOC_DIR share/doc/uhd)
+SET(PKG_DOC_DIR share/doc/shd)
 SET(PKG_MAN_DIR share/man/man1)
 
 ########################################################################
-# UHD Image Directories
+# SHD Image Directories
 ########################################################################
-IF(NOT DEFINED UHD_IMAGES_DIR)
+IF(NOT DEFINED SHD_IMAGES_DIR)
     IF(DEFINED FPGA_IMAGES_DIR)
-        SET(UHD_IMAGES_DIR ${FPGA_IMAGES_DIR})
+        SET(SHD_IMAGES_DIR ${FPGA_IMAGES_DIR})
     ELSE(DEFINED FPGA_IMAGES_DIR)
-        FILE(TO_NATIVE_PATH ${CMAKE_INSTALL_PREFIX}/share/uhd/images using_images_dir)
-        SET(UHD_IMAGES_DIR ${using_images_dir})
+        FILE(TO_NATIVE_PATH ${CMAKE_INSTALL_PREFIX}/share/shd/images using_images_dir)
+        SET(SHD_IMAGES_DIR ${using_images_dir})
     ENDIF(DEFINED FPGA_IMAGES_DIR)
-ENDIF(NOT DEFINED UHD_IMAGES_DIR)
+ENDIF(NOT DEFINED SHD_IMAGES_DIR)
 
-OPTION(UHD_IMAGES_DIR "Path to installed UHD image binaries.")
-MESSAGE( STATUS "Using UHD Images Directory: ${UHD_IMAGES_DIR}" )
-ADD_DEFINITIONS(-DUHD_IMAGES_DIR=${UHD_IMAGES_DIR})
+OPTION(SHD_IMAGES_DIR "Path to installed SHD image binaries.")
+MESSAGE( STATUS "Using SHD Images Directory: ${SHD_IMAGES_DIR}" )
+ADD_DEFINITIONS(-DSHD_IMAGES_DIR=${SHD_IMAGES_DIR})
 
-IF(DEFINED UHD_IMAGES_DIR_WINREG_KEY)
-    ADD_DEFINITIONS(-DUHD_IMAGES_DIR_WINREG_KEY=${UHD_IMAGES_DIR_WINREG_KEY})
-ENDIF(DEFINED UHD_IMAGES_DIR_WINREG_KEY)
+IF(DEFINED SHD_IMAGES_DIR_WINREG_KEY)
+    ADD_DEFINITIONS(-DSHD_IMAGES_DIR_WINREG_KEY=${SHD_IMAGES_DIR_WINREG_KEY})
+ENDIF(DEFINED SHD_IMAGES_DIR_WINREG_KEY)
 
 ########################################################################
 # Local Include Dir
@@ -174,12 +174,12 @@ ENDIF(APPLE)
 # Optional Compiler Flags
 ########################################################################
 INCLUDE(CheckCXXCompilerFlag)
-MACRO(UHD_ADD_OPTIONAL_CXX_COMPILER_FLAG flag have)
+MACRO(SHD_ADD_OPTIONAL_CXX_COMPILER_FLAG flag have)
     CHECK_CXX_COMPILER_FLAG(${flag} ${have})
     IF(${have})
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
     ENDIF(${have})
-ENDMACRO(UHD_ADD_OPTIONAL_CXX_COMPILER_FLAG)
+ENDMACRO(SHD_ADD_OPTIONAL_CXX_COMPILER_FLAG)
 
 #select the release build type by default to get optimization flags
 IF(NOT CMAKE_BUILD_TYPE)
@@ -188,8 +188,8 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 SET(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING "")
 
-#force UHD_RELEASE_MODE to be a string for cmake-gui
-SET(UHD_RELEASE_MODE "${UHD_RELEASE_MODE}" CACHE STRING "UHD Release Mode")
+#force SHD_RELEASE_MODE to be a string for cmake-gui
+SET(SHD_RELEASE_MODE "${SHD_RELEASE_MODE}" CACHE STRING "SHD Release Mode")
 
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR
     ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
@@ -205,9 +205,9 @@ IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR
     #ADD_DEFINITIONS(-pedantic)
     #ADD_DEFINITIONS(-ansi)
     IF(NOT WIN32)
-        #only export symbols that are declared to be part of the uhd api (non dll platforms)
-        UHD_ADD_OPTIONAL_CXX_COMPILER_FLAG(-fvisibility=hidden HAVE_VISIBILITY_HIDDEN)
-        UHD_ADD_OPTIONAL_CXX_COMPILER_FLAG(-fvisibility-inlines-hidden HAVE_VISIBILITY_INLINES_HIDDEN)
+        #only export symbols that are declared to be part of the shd api (non dll platforms)
+        SHD_ADD_OPTIONAL_CXX_COMPILER_FLAG(-fvisibility=hidden HAVE_VISIBILITY_HIDDEN)
+        SHD_ADD_OPTIONAL_CXX_COMPILER_FLAG(-fvisibility-inlines-hidden HAVE_VISIBILITY_INLINES_HIDDEN)
     ENDIF(NOT WIN32)
 ENDIF()
 
@@ -288,12 +288,12 @@ MESSAGE(STATUS "Boost libraries: ${Boost_LIBRARIES}")
 ########################################################################
 # Note: RFNoC never gets fully disabled, but the public APIs do
 SET(ENABLE_RFNOC OFF CACHE BOOL "Export RFNoC includes and symbols")
-INCLUDE(UHDGlobalDefs)
+INCLUDE(SHDGlobalDefs)
 
 ########################################################################
 # Check Python Modules
 ########################################################################
-INCLUDE(UHDPython)
+INCLUDE(SHDPython)
 
 PYTHON_CHECK_MODULE(
     "Python version 2.7 or greater"
@@ -328,7 +328,7 @@ ADD_CUSTOM_TARGET(uninstall
 ########################################################################
 # Install Package Docs
 ########################################################################
-UHD_INSTALL(FILES
+SHD_INSTALL(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/README.md
     ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
     DESTINATION ${PKG_DOC_DIR}
@@ -336,23 +336,23 @@ UHD_INSTALL(FILES
 )
 
 ########################################################################
-# Images download directory for utils/uhd_images_downloader.py
+# Images download directory for utils/shd_images_downloader.py
 ########################################################################
 #{{{IMG_SECTION
 # This section is written automatically by /images/create_imgs_package.py
 # Any manual changes in here will be overwritten.
-SET(UHD_IMAGES_MD5SUM "8e6e5edab697fa7e3c63c612ba6f79f5")
-SET(UHD_IMAGES_DOWNLOAD_SRC "uhd-images_003.010.002.000-release.zip")
+SET(SHD_IMAGES_MD5SUM "8e6e5edab697fa7e3c63c612ba6f79f5")
+SET(SHD_IMAGES_DOWNLOAD_SRC "shd-images_003.010.002.000-release.zip")
 #}}}
 
 ########################################################################
 # Register top level components
 ########################################################################
-LIBUHD_REGISTER_COMPONENT("LibUHD" ENABLE_LIBUHD ON "Boost_FOUND;HAVE_PYTHON_PLAT_MIN_VERSION;HAVE_PYTHON_MODULE_MAKO" OFF ON)
-LIBUHD_REGISTER_COMPONENT("LibUHD - C API" ENABLE_C_API ON "ENABLE_LIBUHD" OFF OFF)
-LIBUHD_REGISTER_COMPONENT("Examples" ENABLE_EXAMPLES ON "ENABLE_LIBUHD" OFF OFF)
-LIBUHD_REGISTER_COMPONENT("Utils" ENABLE_UTILS ON "ENABLE_LIBUHD" OFF OFF)
-LIBUHD_REGISTER_COMPONENT("Tests" ENABLE_TESTS ON "ENABLE_LIBUHD" OFF OFF)
+LIBSHD_REGISTER_COMPONENT("LibSHD" ENABLE_LIBSHD ON "Boost_FOUND;HAVE_PYTHON_PLAT_MIN_VERSION;HAVE_PYTHON_MODULE_MAKO" OFF ON)
+LIBSHD_REGISTER_COMPONENT("LibSHD - C API" ENABLE_C_API ON "ENABLE_LIBSHD" OFF OFF)
+LIBSHD_REGISTER_COMPONENT("Examples" ENABLE_EXAMPLES ON "ENABLE_LIBSHD" OFF OFF)
+LIBSHD_REGISTER_COMPONENT("Utils" ENABLE_UTILS ON "ENABLE_LIBSHD" OFF OFF)
+LIBSHD_REGISTER_COMPONENT("Tests" ENABLE_TESTS ON "ENABLE_LIBSHD" OFF OFF)
 
 ########################################################################
 # Check for fpga-src submodule
@@ -372,9 +372,9 @@ ENDIF(EXISTS "${FPGA_SUBMODULE_DIR}/docs/fpga.md")
 ########################################################################
 # Add the subdirectories
 ########################################################################
-IF(ENABLE_LIBUHD)
+IF(ENABLE_LIBSHD)
     ADD_SUBDIRECTORY(lib)
-ENDIF(ENABLE_LIBUHD)
+ENDIF(ENABLE_LIBSHD)
 
 ADD_SUBDIRECTORY(include)
 
@@ -396,122 +396,122 @@ ADD_SUBDIRECTORY(docs)
 # Create Pkg Config File
 ########################################################################
 FOREACH(inc ${Boost_INCLUDE_DIRS})
-    LIST(APPEND UHD_PC_CFLAGS "-I${inc}")
+    LIST(APPEND SHD_PC_CFLAGS "-I${inc}")
 ENDFOREACH(inc)
 
 FOREACH(lib ${Boost_LIBRARY_DIRS})
-    LIST(APPEND UHD_PC_LIBS "-L${lib}")
+    LIST(APPEND SHD_PC_LIBS "-L${lib}")
 ENDFOREACH(lib)
 
 #use space-separation format for the pc file
-STRING(REPLACE ";" " " UHD_PC_REQUIRES "${UHD_PC_REQUIRES}")
-STRING(REPLACE ";" " " UHD_PC_CFLAGS "${UHD_PC_CFLAGS}")
-STRING(REPLACE ";" " " UHD_PC_LIBS "${UHD_PC_LIBS}")
+STRING(REPLACE ";" " " SHD_PC_REQUIRES "${SHD_PC_REQUIRES}")
+STRING(REPLACE ";" " " SHD_PC_CFLAGS "${SHD_PC_CFLAGS}")
+STRING(REPLACE ";" " " SHD_PC_LIBS "${SHD_PC_LIBS}")
 
 #unset these vars to avoid hard-coded paths to cross environment
 IF(CMAKE_CROSSCOMPILING)
-    SET(UHD_PC_CFLAGS)
-    SET(UHD_PC_LIBS)
+    SET(SHD_PC_CFLAGS)
+    SET(SHD_PC_LIBS)
 ENDIF(CMAKE_CROSSCOMPILING)
 
 CONFIGURE_FILE(
-    ${CMAKE_CURRENT_SOURCE_DIR}/uhd.pc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/uhd.pc
+    ${CMAKE_CURRENT_SOURCE_DIR}/shd.pc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/shd.pc
 @ONLY)
 
-UHD_INSTALL(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/uhd.pc
+SHD_INSTALL(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/shd.pc
     DESTINATION ${LIBRARY_DIR}/pkgconfig
     COMPONENT "devel"
 )
 
 ########################################################################
-# Create and Install UHD cmake files
+# Create and Install SHD cmake files
 ########################################################################
 IF(NOT CMAKE_MODULES_DIR)
    SET(CMAKE_MODULES_DIR lib${LIB_SUFFIX}/cmake)
 ENDIF(NOT CMAKE_MODULES_DIR)
 
-# UHDConfig.cmake needs UHD_LINK_LIST_STATIC set:
-LIST(APPEND UHD_LINK_LIST_STATIC "dl")
-LIST(APPEND UHD_LINK_LIST_STATIC "pthread")
+# SHDConfig.cmake needs SHD_LINK_LIST_STATIC set:
+LIST(APPEND SHD_LINK_LIST_STATIC "dl")
+LIST(APPEND SHD_LINK_LIST_STATIC "pthread")
 FOREACH(Boost_Comp ${BOOST_REQUIRED_COMPONENTS})
     IF(NOT ${Boost_Comp} STREQUAL "unit_test_framework")
-        LIST(APPEND UHD_LINK_LIST_STATIC "boost_${Boost_Comp}")
+        LIST(APPEND SHD_LINK_LIST_STATIC "boost_${Boost_Comp}")
     ENDIF(NOT ${Boost_Comp} STREQUAL "unit_test_framework")
 ENDFOREACH(Boost_Comp)
 IF(ENABLE_USB)
-    LIST(APPEND UHD_LINK_LIST_STATIC "usb-1.0")
+    LIST(APPEND SHD_LINK_LIST_STATIC "usb-1.0")
 ENDIF(ENABLE_USB)
-# UHDConfig.cmake also needs UHD_RFNOC_FOUND
+# SHDConfig.cmake also needs SHD_RFNOC_FOUND
 IF(ENABLE_RFNOC)
-    SET(UHD_RFNOC_FOUND "TRUE")
+    SET(SHD_RFNOC_FOUND "TRUE")
 ELSE()
-    SET(UHD_RFNOC_FOUND "FALSE")
+    SET(SHD_RFNOC_FOUND "FALSE")
 ENDIF(ENABLE_RFNOC)
 
 CONFIGURE_FILE(
-    ${CMAKE_SOURCE_DIR}/cmake/Modules/UHDConfigVersion.cmake.in
-    ${CMAKE_BINARY_DIR}/cmake/Modules/UHDConfigVersion.cmake
+    ${CMAKE_SOURCE_DIR}/cmake/Modules/SHDConfigVersion.cmake.in
+    ${CMAKE_BINARY_DIR}/cmake/Modules/SHDConfigVersion.cmake
     @ONLY
 )
 CONFIGURE_FILE(
-    ${CMAKE_SOURCE_DIR}/cmake/Modules/UHDConfig.cmake.in
-    ${CMAKE_BINARY_DIR}/cmake/Modules/UHDConfig.cmake
+    ${CMAKE_SOURCE_DIR}/cmake/Modules/SHDConfig.cmake.in
+    ${CMAKE_BINARY_DIR}/cmake/Modules/SHDConfig.cmake
     @ONLY
 )
 
 SET(cmake_configs
-    ${CMAKE_BINARY_DIR}/cmake/Modules/UHDConfig.cmake
-    ${CMAKE_BINARY_DIR}/cmake/Modules/UHDConfigVersion.cmake
+    ${CMAKE_BINARY_DIR}/cmake/Modules/SHDConfig.cmake
+    ${CMAKE_BINARY_DIR}/cmake/Modules/SHDConfigVersion.cmake
 )
 
-UHD_INSTALL(
+SHD_INSTALL(
     FILES ${cmake_configs}
-    DESTINATION ${CMAKE_MODULES_DIR}/uhd
+    DESTINATION ${CMAKE_MODULES_DIR}/shd
     COMPONENT "devel"
 )
 
 ########################################################################
-# Handle pre-built UHD Images for packaging
+# Handle pre-built SHD Images for packaging
 ########################################################################
-IF(DEFINED UHD_IMAGES_SRC_DIR AND EXISTS "${UHD_IMAGES_SRC_DIR}")
-    MESSAGE(STATUS "Reading images from directory `${UHD_IMAGES_SRC_DIR}'")
-    FILE(GLOB_RECURSE _image_files "${UHD_IMAGES_SRC_DIR}/*")
+IF(DEFINED SHD_IMAGES_SRC_DIR AND EXISTS "${SHD_IMAGES_SRC_DIR}")
+    MESSAGE(STATUS "Reading images from directory `${SHD_IMAGES_SRC_DIR}'")
+    FILE(GLOB_RECURSE _image_files "${SHD_IMAGES_SRC_DIR}/*")
     MESSAGE(STATUS "These images files will be installed/packaged:")
     FOREACH(_img ${_image_files})
         MESSAGE(STATUS "  ${_img}")
     ENDFOREACH(_img)
-    UHD_INSTALL(FILES ${_image_files} DESTINATION ${PKG_DATA_DIR}/images COMPONENT images)
-ENDIF(DEFINED UHD_IMAGES_SRC_DIR AND EXISTS "${UHD_IMAGES_SRC_DIR}")
+    SHD_INSTALL(FILES ${_image_files} DESTINATION ${PKG_DATA_DIR}/images COMPONENT images)
+ENDIF(DEFINED SHD_IMAGES_SRC_DIR AND EXISTS "${SHD_IMAGES_SRC_DIR}")
 
 ########################################################################
 # Print Summary
 ########################################################################
-IF(LIBUHD_PKG)
+IF(LIBSHD_PKG)
     MESSAGE(STATUS "")
-    SET(PRINT_APPEND " (Debian libuhd003 package configuration)")
-ELSEIF(LIBUHDDEV_PKG)
+    SET(PRINT_APPEND " (Debian libshd003 package configuration)")
+ELSEIF(LIBSHDDEV_PKG)
     MESSAGE(STATUS "")
-    SET(PRINT_APPEND " (Debian libuhd-dev package configuration)")
-ELSEIF(UHDHOST_PKG)
+    SET(PRINT_APPEND " (Debian libshd-dev package configuration)")
+ELSEIF(SHDHOST_PKG)
     MESSAGE(STATUS "")
-    SET(PRINT_APPEND " (Debian uhd-host package configuration)")
-ENDIF(LIBUHD_PKG)
-UHD_PRINT_COMPONENT_SUMMARY()
-IF(UHD_VERSION_DEVEL AND NOT UHD_GIT_BRANCH STREQUAL "maint")
+    SET(PRINT_APPEND " (Debian shd-host package configuration)")
+ENDIF(LIBSHD_PKG)
+SHD_PRINT_COMPONENT_SUMMARY()
+IF(SHD_VERSION_DEVEL AND NOT SHD_GIT_BRANCH STREQUAL "maint")
     MESSAGE(STATUS "******************************************************")
-    IF(UHD_GIT_BRANCH STREQUAL "master")
-        MESSAGE(STATUS "* You are building the UHD development master branch.")
+    IF(SHD_GIT_BRANCH STREQUAL "master")
+        MESSAGE(STATUS "* You are building the SHD development master branch.")
         MESSAGE(STATUS "* For production code, we recommend our stable,")
         MESSAGE(STATUS "* releases or using the release branch (maint).")
     ELSE()
-        MESSAGE(STATUS "* You are building a development branch of UHD.")
+        MESSAGE(STATUS "* You are building a development branch of SHD.")
         MESSAGE(STATUS "* These branches are designed to provide early access")
-        MESSAGE(STATUS "* to UHD and USRP features, but should be considered")
+        MESSAGE(STATUS "* to SHD and SMINI features, but should be considered")
         MESSAGE(STATUS "* unstable and/or experimental!")
-    ENDIF(UHD_GIT_BRANCH STREQUAL "master")
+    ENDIF(SHD_GIT_BRANCH STREQUAL "master")
     MESSAGE(STATUS "******************************************************")
-ENDIF(UHD_VERSION_DEVEL AND NOT UHD_GIT_BRANCH STREQUAL "maint")
-MESSAGE(STATUS "Building version: ${UHD_VERSION}${PRINT_APPEND}")
+ENDIF(SHD_VERSION_DEVEL AND NOT SHD_GIT_BRANCH STREQUAL "maint")
+MESSAGE(STATUS "Building version: ${SHD_VERSION}${PRINT_APPEND}")
 MESSAGE(STATUS "Using install prefix: ${CMAKE_INSTALL_PREFIX}")

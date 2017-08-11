@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/msg.hpp>
-#include <uhd/utils/log.hpp>
-#include <uhd/utils/static.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/utils/log.hpp>
+#include <shd/utils/static.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
@@ -65,66 +65,66 @@ static void msg_to_cerr(const std::string &title, const std::string &msg){
  **********************************************************************/
 struct msg_resource_type{
     boost::mutex mutex;
-    uhd::msg::handler_t handler;
+    shd::msg::handler_t handler;
 };
 
-UHD_SINGLETON_FCN(msg_resource_type, msg_rs);
+SHD_SINGLETON_FCN(msg_resource_type, msg_rs);
 
 /***********************************************************************
  * Setup the message handlers
  **********************************************************************/
-void uhd::msg::register_handler(const handler_t &handler){
+void shd::msg::register_handler(const handler_t &handler){
     boost::mutex::scoped_lock lock(msg_rs().mutex);
     msg_rs().handler = handler;
 }
 
-static void default_msg_handler(uhd::msg::type_t type, const std::string &msg){
+static void default_msg_handler(shd::msg::type_t type, const std::string &msg){
     static boost::mutex msg_mutex;
     boost::mutex::scoped_lock lock(msg_mutex);
     switch(type){
-    case uhd::msg::fastpath:
+    case shd::msg::fastpath:
         std::cerr << msg << std::flush;
         break;
 
-    case uhd::msg::status:
+    case shd::msg::status:
         msg_to_cout(msg);
-        UHD_LOG << "Status message" << std::endl << msg;
+        SHD_LOG << "Status message" << std::endl << msg;
         break;
 
-    case uhd::msg::warning:
-        msg_to_cerr("UHD Warning", msg);
-        UHD_LOG << "Warning message" << std::endl << msg;
+    case shd::msg::warning:
+        msg_to_cerr("SHD Warning", msg);
+        SHD_LOG << "Warning message" << std::endl << msg;
         break;
 
-    case uhd::msg::error:
-        msg_to_cerr("UHD Error", msg);
-        UHD_LOG << "Error message" << std::endl << msg;
+    case shd::msg::error:
+        msg_to_cerr("SHD Error", msg);
+        SHD_LOG << "Error message" << std::endl << msg;
         break;
     }
 }
 
-UHD_STATIC_BLOCK(msg_register_default_handler){
-    uhd::msg::register_handler(&default_msg_handler);
+SHD_STATIC_BLOCK(msg_register_default_handler){
+    shd::msg::register_handler(&default_msg_handler);
 }
 
 /***********************************************************************
  * The message object implementation
  **********************************************************************/
-struct uhd::msg::_msg::impl{
+struct shd::msg::_msg::impl{
     std::ostringstream ss;
     type_t type;
 };
 
-uhd::msg::_msg::_msg(const type_t type){
-    _impl = UHD_PIMPL_MAKE(impl, ());
+shd::msg::_msg::_msg(const type_t type){
+    _impl = SHD_PIMPL_MAKE(impl, ());
     _impl->type = type;
 }
 
-uhd::msg::_msg::~_msg(void){
+shd::msg::_msg::~_msg(void){
     boost::mutex::scoped_lock lock(msg_rs().mutex);
     msg_rs().handler(_impl->type, _impl->ss.str());
 }
 
-std::ostream & uhd::msg::_msg::operator()(void){
+std::ostream & shd::msg::_msg::operator()(void){
     return _impl->ss;
 }

@@ -21,7 +21,7 @@
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
-LIBUHD_APPEND_SOURCES(
+LIBSHD_APPEND_SOURCES(
     # Infrastructure:
     ${CMAKE_CURRENT_SOURCE_DIR}/block_ctrl_base.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/block_ctrl_base_factory.cpp

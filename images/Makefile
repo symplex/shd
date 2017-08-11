@@ -59,226 +59,226 @@ ifeq ($(shell avr-gcc --version > /dev/null 2>&1 && echo $$?),0)
 endif
 
 ########################################################################
-# USRP1 and B100 firmware
+# SMINI1 and B100 firmware
 ########################################################################
 ifdef HAS_SDCC
 
-_usrp1_fw_dir = $(TOP_FW_DIR)/fx2
-_usrp1_fw_ihx = $(BUILT_IMAGES_DIR)/usrp1_fw.ihx
-_usrp_b100_fw_ihx = $(BUILT_IMAGES_DIR)/usrp_b100_fw.ihx
-IMAGES_LIST += $(_usrp1_fw_ihx) $(_usrp_b100_fw_ihx)
+_smini1_fw_dir = $(TOP_FW_DIR)/fx2
+_smini1_fw_ihx = $(BUILT_IMAGES_DIR)/smini1_fw.ihx
+_smini_b100_fw_ihx = $(BUILT_IMAGES_DIR)/smini_b100_fw.ihx
+IMAGES_LIST += $(_smini1_fw_ihx) $(_smini_b100_fw_ihx)
 
-$(_usrp1_fw_ihx): $(GLOBAL_DEPS)
-	cd $(_usrp1_fw_dir) && rm -rf build
-	cd $(_usrp1_fw_dir) && mkdir build
-	cd $(_usrp1_fw_dir)/build && cmake ../
-	cd $(_usrp1_fw_dir)/build && make
-	cp $(_usrp1_fw_dir)/build/usrp1/usrp1_fw.ihx $@
+$(_smini1_fw_ihx): $(GLOBAL_DEPS)
+	cd $(_smini1_fw_dir) && rm -rf build
+	cd $(_smini1_fw_dir) && mkdir build
+	cd $(_smini1_fw_dir)/build && cmake ../
+	cd $(_smini1_fw_dir)/build && make
+	cp $(_smini1_fw_dir)/build/smini1/smini1_fw.ihx $@
 
-$(_usrp_b100_fw_ihx): $(_usrp1_fw_ihx)
-	cp $(_usrp1_fw_dir)/build/b100/b100_fw.ihx $(_usrp_b100_fw_ihx)
+$(_smini_b100_fw_ihx): $(_smini1_fw_ihx)
+	cp $(_smini1_fw_dir)/build/b100/b100_fw.ihx $(_smini_b100_fw_ihx)
 
 endif
 
 ########################################################################
-# USRP1 fpga
+# SMINI1 fpga
 ########################################################################
-_usrp1_fpga_dir = $(TOP_FPGA_DIR)/usrp1/rbf/rev4
-_usrp1_fpga_rbf = $(BUILT_IMAGES_DIR)/usrp1_fpga.rbf
-_usrp1_fpga_4rx_rbf = $(BUILT_IMAGES_DIR)/usrp1_fpga_4rx.rbf
-IMAGES_LIST += $(_usrp1_fpga_rbf) $(_usrp1_fpga_4rx_rbf)
+_smini1_fpga_dir = $(TOP_FPGA_DIR)/smini1/rbf/rev4
+_smini1_fpga_rbf = $(BUILT_IMAGES_DIR)/smini1_fpga.rbf
+_smini1_fpga_4rx_rbf = $(BUILT_IMAGES_DIR)/smini1_fpga_4rx.rbf
+IMAGES_LIST += $(_smini1_fpga_rbf) $(_smini1_fpga_4rx_rbf)
 
-$(_usrp1_fpga_rbf): $(GLOBAL_DEPS)
-	cp $(_usrp1_fpga_dir)/std_2rxhb_2tx.rbf $@
+$(_smini1_fpga_rbf): $(GLOBAL_DEPS)
+	cp $(_smini1_fpga_dir)/std_2rxhb_2tx.rbf $@
 
-$(_usrp1_fpga_4rx_rbf): $(GLOBAL_DEPS)
-	cp $(_usrp1_fpga_dir)/std_4rx_0tx.rbf $@
+$(_smini1_fpga_4rx_rbf): $(GLOBAL_DEPS)
+	cp $(_smini1_fpga_dir)/std_4rx_0tx.rbf $@
 
 ########################################################################
-# USRP-B100 fpga
+# SMINI-B100 fpga
 ########################################################################
 ifdef HAS_XTCLSH
 
-_usrp_b100_fpga_dir = $(TOP_FPGA_DIR)/usrp2/top/B100
-_usrp_b100_fpga_bin = $(BUILT_IMAGES_DIR)/usrp_b100_fpga.bin
-_usrp_b100_fpga_2rx_bin = $(BUILT_IMAGES_DIR)/usrp_b100_fpga_2rx.bin
-IMAGES_LIST += $(_usrp_b100_fpga_bin) $(_usrp_b100_fpga_2rx_bin)
+_smini_b100_fpga_dir = $(TOP_FPGA_DIR)/smini2/top/B100
+_smini_b100_fpga_bin = $(BUILT_IMAGES_DIR)/smini_b100_fpga.bin
+_smini_b100_fpga_2rx_bin = $(BUILT_IMAGES_DIR)/smini_b100_fpga_2rx.bin
+IMAGES_LIST += $(_smini_b100_fpga_bin) $(_smini_b100_fpga_2rx_bin)
 
-$(_usrp_b100_fpga_bin): $(GLOBAL_DEPS)
-	cd $(_usrp_b100_fpga_dir) && make -f Makefile.B100 clean
-	cd $(_usrp_b100_fpga_dir) && make -f Makefile.B100 bin
-	cp $(_usrp_b100_fpga_dir)/build-B100/B100.bin $@
+$(_smini_b100_fpga_bin): $(GLOBAL_DEPS)
+	cd $(_smini_b100_fpga_dir) && make -f Makefile.B100 clean
+	cd $(_smini_b100_fpga_dir) && make -f Makefile.B100 bin
+	cp $(_smini_b100_fpga_dir)/build-B100/B100.bin $@
 
-$(_usrp_b100_fpga_2rx_bin): $(GLOBAL_DEPS)
-	cd $(_usrp_b100_fpga_dir) && make -f Makefile.B100_2RX clean
-	cd $(_usrp_b100_fpga_dir) && make -f Makefile.B100_2RX bin
-	cp $(_usrp_b100_fpga_dir)/build-B100_2RX/B100.bin $@
+$(_smini_b100_fpga_2rx_bin): $(GLOBAL_DEPS)
+	cd $(_smini_b100_fpga_dir) && make -f Makefile.B100_2RX clean
+	cd $(_smini_b100_fpga_dir) && make -f Makefile.B100_2RX bin
+	cp $(_smini_b100_fpga_dir)/build-B100_2RX/B100.bin $@
 
 endif
 
 ########################################################################
-# USRP2 and N-Series firmware
+# SMINI2 and N-Series firmware
 ########################################################################
 ifdef HAS_ZPU_GCC
 
-_usrp2_fw_dir = $(TOP_FW_DIR)/zpu
-_usrp2_fw_bin = $(BUILT_IMAGES_DIR)/usrp2_fw.bin
-_usrp_n200_fw_bin = $(BUILT_IMAGES_DIR)/usrp_n200_fw.bin
-_usrp_n210_fw_bin = $(BUILT_IMAGES_DIR)/usrp_n210_fw.bin
-IMAGES_LIST += $(_usrp2_fw_bin) $(_usrp_n200_fw_bin) $(_usrp_n210_fw_bin)
+_smini2_fw_dir = $(TOP_FW_DIR)/zpu
+_smini2_fw_bin = $(BUILT_IMAGES_DIR)/smini2_fw.bin
+_smini_n200_fw_bin = $(BUILT_IMAGES_DIR)/smini_n200_fw.bin
+_smini_n210_fw_bin = $(BUILT_IMAGES_DIR)/smini_n210_fw.bin
+IMAGES_LIST += $(_smini2_fw_bin) $(_smini_n200_fw_bin) $(_smini_n210_fw_bin)
 
-$(_usrp2_fw_bin): $(GLOBAL_DEPS)
-	cd $(_usrp2_fw_dir) && rm -rf build
-	cd $(_usrp2_fw_dir) && mkdir build
-	cd $(_usrp2_fw_dir)/build && cmake ../
-	cd $(_usrp2_fw_dir)/build && make
-	cp $(_usrp2_fw_dir)/build/usrp2/usrp2_txrx_uhd.bin $@
+$(_smini2_fw_bin): $(GLOBAL_DEPS)
+	cd $(_smini2_fw_dir) && rm -rf build
+	cd $(_smini2_fw_dir) && mkdir build
+	cd $(_smini2_fw_dir)/build && cmake ../
+	cd $(_smini2_fw_dir)/build && make
+	cp $(_smini2_fw_dir)/build/smini2/smini2_txrx_shd.bin $@
 
-$(_usrp_n200_fw_bin): $(_usrp2_fw_bin)
-	cp $(_usrp2_fw_dir)/build/usrp2p/usrp2p_txrx_uhd.bin $@
+$(_smini_n200_fw_bin): $(_smini2_fw_bin)
+	cp $(_smini2_fw_dir)/build/smini2p/smini2p_txrx_shd.bin $@
 
-$(_usrp_n210_fw_bin): $(_usrp2_fw_bin)
-	cp $(_usrp2_fw_dir)/build/usrp2p/usrp2p_txrx_uhd.bin $@
-
-endif
-
-########################################################################
-# USRP2 FPGA
-########################################################################
-ifdef HAS_XTCLSH
-
-_usrp2_fpga_dir = $(TOP_FPGA_DIR)/usrp2/top/USRP2
-_usrp2_fpga_bin = $(BUILT_IMAGES_DIR)/usrp2_fpga.bin
-IMAGES_LIST += $(_usrp2_fpga_bin)
-
-$(_usrp2_fpga_bin): $(GLOBAL_DEPS)
-	cd $(_usrp2_fpga_dir) && make clean
-	cd $(_usrp2_fpga_dir) && make bin
-	cp $(_usrp2_fpga_dir)/build/u2_rev3.bin $@
+$(_smini_n210_fw_bin): $(_smini2_fw_bin)
+	cp $(_smini2_fw_dir)/build/smini2p/smini2p_txrx_shd.bin $@
 
 endif
 
 ########################################################################
-# USRP N200 R2/R3 FPGA
+# SMINI2 FPGA
 ########################################################################
 ifdef HAS_XTCLSH
 
-_usrp_n200_r3_fpga_dir = $(TOP_FPGA_DIR)/usrp2/top/N2x0
-_usrp_n200_r3_fpga_bin = $(BUILT_IMAGES_DIR)/usrp_n200_r3_fpga.bin
-_usrp_n200_r3_fpga_bit = $(BUILT_IMAGES_DIR)/bit/usrp_n200_r3_fpga.bit
-IMAGES_LIST += $(_usrp_n200_r3_fpga_bin) $(_usrp_n200_r3_fpga_bit)
+_smini2_fpga_dir = $(TOP_FPGA_DIR)/smini2/top/SMINI2
+_smini2_fpga_bin = $(BUILT_IMAGES_DIR)/smini2_fpga.bin
+IMAGES_LIST += $(_smini2_fpga_bin)
 
-$(_usrp_n200_r3_fpga_bin): $(GLOBAL_DEPS)
-	cd $(_usrp_n200_r3_fpga_dir) && make -f Makefile.N200R3 clean
-	cd $(_usrp_n200_r3_fpga_dir) && make -f Makefile.N200R3 bin
-	cp $(_usrp_n200_r3_fpga_dir)/build-N200R3/u2plus.bin $@
+$(_smini2_fpga_bin): $(GLOBAL_DEPS)
+	cd $(_smini2_fpga_dir) && make clean
+	cd $(_smini2_fpga_dir) && make bin
+	cp $(_smini2_fpga_dir)/build/u2_rev3.bin $@
 
-$(_usrp_n200_r3_fpga_bit): $(_usrp_n200_r3_fpga_bin)
-	cp $(_usrp_n200_r3_fpga_dir)/build-N200R3/u2plus.bit $@
+endif
+
+########################################################################
+# SMINI N200 R2/R3 FPGA
+########################################################################
+ifdef HAS_XTCLSH
+
+_smini_n200_r3_fpga_dir = $(TOP_FPGA_DIR)/smini2/top/N2x0
+_smini_n200_r3_fpga_bin = $(BUILT_IMAGES_DIR)/smini_n200_r3_fpga.bin
+_smini_n200_r3_fpga_bit = $(BUILT_IMAGES_DIR)/bit/smini_n200_r3_fpga.bit
+IMAGES_LIST += $(_smini_n200_r3_fpga_bin) $(_smini_n200_r3_fpga_bit)
+
+$(_smini_n200_r3_fpga_bin): $(GLOBAL_DEPS)
+	cd $(_smini_n200_r3_fpga_dir) && make -f Makefile.N200R3 clean
+	cd $(_smini_n200_r3_fpga_dir) && make -f Makefile.N200R3 bin
+	cp $(_smini_n200_r3_fpga_dir)/build-N200R3/u2plus.bin $@
+
+$(_smini_n200_r3_fpga_bit): $(_smini_n200_r3_fpga_bin)
+	cp $(_smini_n200_r3_fpga_dir)/build-N200R3/u2plus.bit $@
 
 #its called r2 on the silkscreen, so make an r2
-_usrp_n200_r2_fpga_bin = $(BUILT_IMAGES_DIR)/usrp_n200_r2_fpga.bin
-IMAGES_LIST += $(_usrp_n200_r2_fpga_bin)
-$(_usrp_n200_r2_fpga_bin): $(_usrp_n200_r3_fpga_bin)
+_smini_n200_r2_fpga_bin = $(BUILT_IMAGES_DIR)/smini_n200_r2_fpga.bin
+IMAGES_LIST += $(_smini_n200_r2_fpga_bin)
+$(_smini_n200_r2_fpga_bin): $(_smini_n200_r3_fpga_bin)
 	cp $< $@
 
 endif
 
 ########################################################################
-# USRP N210 R2/R3 FPGA
+# SMINI N210 R2/R3 FPGA
 ########################################################################
 ifdef HAS_XTCLSH
 
-_usrp_n210_r3_fpga_dir = $(TOP_FPGA_DIR)/usrp2/top/N2x0
-_usrp_n210_r3_fpga_bin = $(BUILT_IMAGES_DIR)/usrp_n210_r3_fpga.bin
-_usrp_n210_r3_fpga_bit = $(BUILT_IMAGES_DIR)/bit/usrp_n210_r3_fpga.bit
-IMAGES_LIST += $(_usrp_n210_r3_fpga_bin) $(_usrp_n210_r3_fpga_bit)
+_smini_n210_r3_fpga_dir = $(TOP_FPGA_DIR)/smini2/top/N2x0
+_smini_n210_r3_fpga_bin = $(BUILT_IMAGES_DIR)/smini_n210_r3_fpga.bin
+_smini_n210_r3_fpga_bit = $(BUILT_IMAGES_DIR)/bit/smini_n210_r3_fpga.bit
+IMAGES_LIST += $(_smini_n210_r3_fpga_bin) $(_smini_n210_r3_fpga_bit)
 
-$(_usrp_n210_r3_fpga_bin): $(GLOBAL_DEPS)
-	cd $(_usrp_n210_r3_fpga_dir) && make -f Makefile.N210R3 clean
-	cd $(_usrp_n210_r3_fpga_dir) && make -f Makefile.N210R3 bin
-	cp $(_usrp_n210_r3_fpga_dir)/build-N210R3/u2plus.bin $@
+$(_smini_n210_r3_fpga_bin): $(GLOBAL_DEPS)
+	cd $(_smini_n210_r3_fpga_dir) && make -f Makefile.N210R3 clean
+	cd $(_smini_n210_r3_fpga_dir) && make -f Makefile.N210R3 bin
+	cp $(_smini_n210_r3_fpga_dir)/build-N210R3/u2plus.bin $@
 
-$(_usrp_n210_r3_fpga_bit): $(_usrp_n210_r3_fpga_bin)
-	cp $(_usrp_n210_r3_fpga_dir)/build-N210R3/u2plus.bit $@
+$(_smini_n210_r3_fpga_bit): $(_smini_n210_r3_fpga_bin)
+	cp $(_smini_n210_r3_fpga_dir)/build-N210R3/u2plus.bit $@
 
 #its called r2 on the silkscreen, so make an r2
-_usrp_n210_r2_fpga_bin = $(BUILT_IMAGES_DIR)/usrp_n210_r2_fpga.bin
-IMAGES_LIST += $(_usrp_n210_r2_fpga_bin)
-$(_usrp_n210_r2_fpga_bin): $(_usrp_n210_r3_fpga_bin)
+_smini_n210_r2_fpga_bin = $(BUILT_IMAGES_DIR)/smini_n210_r2_fpga.bin
+IMAGES_LIST += $(_smini_n210_r2_fpga_bin)
+$(_smini_n210_r2_fpga_bin): $(_smini_n210_r3_fpga_bin)
 	cp $< $@
 
 endif
 
 ########################################################################
-# USRP N200 R4 FPGA
+# SMINI N200 R4 FPGA
 ########################################################################
 ifdef HAS_XTCLSH
 
-_usrp_n200_r4_fpga_dir = $(TOP_FPGA_DIR)/usrp2/top/N2x0
-_usrp_n200_r4_fpga_bin = $(BUILT_IMAGES_DIR)/usrp_n200_r4_fpga.bin
-_usrp_n200_r4_fpga_bit = $(BUILT_IMAGES_DIR)/bit/usrp_n200_r4_fpga.bit
-IMAGES_LIST += $(_usrp_n200_r4_fpga_bin) $(_usrp_n200_r4_fpga_bit)
+_smini_n200_r4_fpga_dir = $(TOP_FPGA_DIR)/smini2/top/N2x0
+_smini_n200_r4_fpga_bin = $(BUILT_IMAGES_DIR)/smini_n200_r4_fpga.bin
+_smini_n200_r4_fpga_bit = $(BUILT_IMAGES_DIR)/bit/smini_n200_r4_fpga.bit
+IMAGES_LIST += $(_smini_n200_r4_fpga_bin) $(_smini_n200_r4_fpga_bit)
 
-$(_usrp_n200_r4_fpga_bin): $(GLOBAL_DEPS)
-	cd $(_usrp_n200_r4_fpga_dir) && make -f Makefile.N200R4 clean
-	cd $(_usrp_n200_r4_fpga_dir) && make -f Makefile.N200R4 bin
-	cp $(_usrp_n200_r4_fpga_dir)/build-N200R4/u2plus.bin $@
+$(_smini_n200_r4_fpga_bin): $(GLOBAL_DEPS)
+	cd $(_smini_n200_r4_fpga_dir) && make -f Makefile.N200R4 clean
+	cd $(_smini_n200_r4_fpga_dir) && make -f Makefile.N200R4 bin
+	cp $(_smini_n200_r4_fpga_dir)/build-N200R4/u2plus.bin $@
 
-$(_usrp_n200_r4_fpga_bit): $(_usrp_n200_r4_fpga_bin)
-	cp $(_usrp_n200_r4_fpga_dir)/build-N200R4/u2plus.bit $@
+$(_smini_n200_r4_fpga_bit): $(_smini_n200_r4_fpga_bin)
+	cp $(_smini_n200_r4_fpga_dir)/build-N200R4/u2plus.bit $@
 
 endif
 
 ########################################################################
-# USRP N210 R4 FPGA
+# SMINI N210 R4 FPGA
 ########################################################################
 ifdef HAS_XTCLSH
 
-_usrp_n210_r4_fpga_dir = $(TOP_FPGA_DIR)/usrp2/top/N2x0
-_usrp_n210_r4_fpga_bin = $(BUILT_IMAGES_DIR)/usrp_n210_r4_fpga.bin
-_usrp_n210_r4_fpga_bit = $(BUILT_IMAGES_DIR)/bit/usrp_n210_r4_fpga.bit
-IMAGES_LIST += $(_usrp_n210_r4_fpga_bin) $(_usrp_n210_r4_fpga_bit)
+_smini_n210_r4_fpga_dir = $(TOP_FPGA_DIR)/smini2/top/N2x0
+_smini_n210_r4_fpga_bin = $(BUILT_IMAGES_DIR)/smini_n210_r4_fpga.bin
+_smini_n210_r4_fpga_bit = $(BUILT_IMAGES_DIR)/bit/smini_n210_r4_fpga.bit
+IMAGES_LIST += $(_smini_n210_r4_fpga_bin) $(_smini_n210_r4_fpga_bit)
 
-$(_usrp_n210_r4_fpga_bin): $(GLOBAL_DEPS)
-	cd $(_usrp_n210_r4_fpga_dir) && make -f Makefile.N210R4 clean
-	cd $(_usrp_n210_r4_fpga_dir) && make -f Makefile.N210R4 bin
-	cp $(_usrp_n210_r4_fpga_dir)/build-N210R4/u2plus.bin $@
+$(_smini_n210_r4_fpga_bin): $(GLOBAL_DEPS)
+	cd $(_smini_n210_r4_fpga_dir) && make -f Makefile.N210R4 clean
+	cd $(_smini_n210_r4_fpga_dir) && make -f Makefile.N210R4 bin
+	cp $(_smini_n210_r4_fpga_dir)/build-N210R4/u2plus.bin $@
 
-$(_usrp_n210_r4_fpga_bit): $(_usrp_n210_r4_fpga_bin)
-	cp $(_usrp_n210_r4_fpga_dir)/build-N210R4/u2plus.bit $@
+$(_smini_n210_r4_fpga_bit): $(_smini_n210_r4_fpga_bin)
+	cp $(_smini_n210_r4_fpga_dir)/build-N210R4/u2plus.bit $@
 
 endif
 
 ########################################################################
-# USRP E100 FPGA
+# SMINI E100 FPGA
 ########################################################################
 ifdef HAS_XTCLSH
 
-_usrp_e100_fpga_dir = $(TOP_FPGA_DIR)/usrp2/top/E1x0
-_usrp_e100_fpga_bin = $(BUILT_IMAGES_DIR)/usrp_e100_fpga_v2.bin
-IMAGES_LIST += $(_usrp_e100_fpga_bin)
+_smini_e100_fpga_dir = $(TOP_FPGA_DIR)/smini2/top/E1x0
+_smini_e100_fpga_bin = $(BUILT_IMAGES_DIR)/smini_e100_fpga_v2.bin
+IMAGES_LIST += $(_smini_e100_fpga_bin)
 
-$(_usrp_e100_fpga_bin): $(GLOBAL_DEPS)
-	cd $(_usrp_e100_fpga_dir) && make -f Makefile.E100 clean
-	cd $(_usrp_e100_fpga_dir) && make -f Makefile.E100 bin
-	cp $(_usrp_e100_fpga_dir)/build-E100/E1x0.bin $@
+$(_smini_e100_fpga_bin): $(GLOBAL_DEPS)
+	cd $(_smini_e100_fpga_dir) && make -f Makefile.E100 clean
+	cd $(_smini_e100_fpga_dir) && make -f Makefile.E100 bin
+	cp $(_smini_e100_fpga_dir)/build-E100/E1x0.bin $@
 
 endif
 
 ########################################################################
-# USRP E110 FPGA
+# SMINI E110 FPGA
 ########################################################################
 ifdef HAS_XTCLSH
 
-_usrp_e110_fpga_dir = $(TOP_FPGA_DIR)/usrp2/top/E1x0
-_usrp_e110_fpga_bin = $(BUILT_IMAGES_DIR)/usrp_e110_fpga.bin
-IMAGES_LIST += $(_usrp_e110_fpga_bin)
+_smini_e110_fpga_dir = $(TOP_FPGA_DIR)/smini2/top/E1x0
+_smini_e110_fpga_bin = $(BUILT_IMAGES_DIR)/smini_e110_fpga.bin
+IMAGES_LIST += $(_smini_e110_fpga_bin)
 
-$(_usrp_e110_fpga_bin): $(GLOBAL_DEPS)
-	cd $(_usrp_e110_fpga_dir) && make -f Makefile.E110 clean
-	cd $(_usrp_e110_fpga_dir) && make -f Makefile.E110 bin
-	cp $(_usrp_e110_fpga_dir)/build-E110/E1x0.bin $@
+$(_smini_e110_fpga_bin): $(GLOBAL_DEPS)
+	cd $(_smini_e110_fpga_dir) && make -f Makefile.E110 clean
+	cd $(_smini_e110_fpga_dir) && make -f Makefile.E110 bin
+	cp $(_smini_e110_fpga_dir)/build-E110/E1x0.bin $@
 
 endif
 
@@ -308,7 +308,7 @@ images: $(IMAGES_LIST)
 
 package:
 	mkdir -p $(CMAKE_BUILD_DIR)
-	cd $(CMAKE_BUILD_DIR) && cmake -DUHD_RELEASE_MODE=OFF ..
+	cd $(CMAKE_BUILD_DIR) && cmake -DSHD_RELEASE_MODE=OFF ..
 	cd $(CMAKE_BUILD_DIR) && cmake -DCPACK_GENERATOR=TGZ .. && make package
 	cd $(CMAKE_BUILD_DIR) && cmake -DCPACK_GENERATOR=ZIP .. && make package
 

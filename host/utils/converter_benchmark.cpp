@@ -15,10 +15,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/safe_main.hpp>
-#include <uhd/types/dict.hpp>
-#include <uhd/convert.hpp>
-#include <uhd/exception.hpp>
+#include <shd/utils/safe_main.hpp>
+#include <shd/types/dict.hpp>
+#include <shd/convert.hpp>
+#include <shd/exception.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 #include <boost/timer.hpp>
@@ -30,7 +30,7 @@
 #include <stdint.h>
 
 namespace po = boost::program_options;
-using namespace uhd::convert;
+using namespace shd::convert;
 
 enum buf_init_t {
     RANDOM, INC
@@ -148,7 +148,7 @@ void init_buffers(
                 init_inc_vector< uint32_t >(buf[i], n_items);
                 init_random_vector_real_int<uint32_t>(buf[i], n_items);
             } else {
-                throw uhd::runtime_error(str(
+                throw shd::runtime_error(str(
                             boost::format("Cannot handle data type: %s") % type
                 ));
             }
@@ -178,7 +178,7 @@ void init_buffers(
         } else if (type == "item32") {
             init_random_vector_real_int<uint32_t>(buf[i], n_items);
         } else {
-            throw uhd::runtime_error(str(
+            throw shd::runtime_error(str(
                 boost::format("Cannot handle data type: %s") % type
             ));
         }
@@ -264,7 +264,7 @@ std::string item_to_string(
     }
 }
 
-int UHD_SAFE_MAIN(int argc, char *argv[])
+int SHD_SAFE_MAIN(int argc, char *argv[])
 {
     std::string in_format, out_format;
     std::string priorities;
@@ -296,7 +296,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[])
 
     //print the help message
     if (vm.count("help")){
-        std::cout << boost::format("UHD Converter Benchmark Tool %s") % desc << std::endl << std::endl;
+        std::cout << boost::format("SHD Converter Benchmark Tool %s") % desc << std::endl << std::endl;
         std::cout << "  Use this to benchmark or debug converters." << std::endl
                   << "  When using as a benchmark tool, it will output the execution time\n"
                      "  for every conversion run in CSV format to stdout. Every line between\n"
@@ -328,11 +328,11 @@ int UHD_SAFE_MAIN(int argc, char *argv[])
     converter_id.num_outputs   = n_outputs;
     std::cout << "Requested converter format: " << converter_id.to_string()
               << std::endl;
-    uhd::dict<priority_type, converter::sptr> conv_list;
+    shd::dict<priority_type, converter::sptr> conv_list;
     if (priorities == "default" or priorities.empty()) {
         try {
-            conv_list[prio] = get_converter(converter_id, prio)(); // Can throw a uhd::key_error
-        } catch(const uhd::key_error &e) {
+            conv_list[prio] = get_converter(converter_id, prio)(); // Can throw a shd::key_error
+        } catch(const shd::key_error &e) {
             std::cout << "No converters found." << std::endl;
             return EXIT_FAILURE;
         }
@@ -340,7 +340,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[])
         for (priority_type i = 0; i < max_prio; i++) {
             try {
                 // get_converter() returns a factory function, execute that immediately:
-                converter::sptr conv_for_prio = get_converter(converter_id, i)(); // Can throw a uhd::key_error
+                converter::sptr conv_for_prio = get_converter(converter_id, i)(); // Can throw a shd::key_error
                 conv_list[i] = conv_for_prio;
             } catch (...) {
                 continue;
@@ -356,7 +356,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[])
         );
         BOOST_FOREACH(const std::string &this_prio, prios_in_list) {
             size_t prio_index = boost::lexical_cast<size_t>(this_prio);
-            converter::sptr conv_for_prio = get_converter(converter_id, prio_index)(); // Can throw a uhd::key_error
+            converter::sptr conv_for_prio = get_converter(converter_id, prio_index)(); // Can throw a shd::key_error
             conv_list[prio_index] = conv_for_prio;
         }
     }

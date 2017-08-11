@@ -17,7 +17,7 @@
 
 #include "wb_iface_adapter.hpp"
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 wb_iface_adapter::wb_iface_adapter(
         const poke32_type &poke32_functor_,
@@ -60,12 +60,12 @@ uint64_t wb_iface_adapter::peek64(const wb_addr_type addr)
     return peek64_functor(addr);
 }
 
-uhd::time_spec_t wb_iface_adapter::get_time(void)
+shd::time_spec_t wb_iface_adapter::get_time(void)
 {
     return gettime_functor();
 }
 
-void wb_iface_adapter::set_time(const uhd::time_spec_t& t)
+void wb_iface_adapter::set_time(const shd::time_spec_t& t)
 {
     settime_functor(t);
 }

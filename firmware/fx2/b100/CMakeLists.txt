@@ -17,7 +17,7 @@
 
 include_directories(${CMAKE_SOURCE_DIR}/common)
 
-#for usrp_common.h and the regs files...
+#for smini_common.h and the regs files...
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 #now make a lib to link against
@@ -40,8 +40,8 @@ add_library(libb100 STATIC ${libb100_sources})
 
 # edit-gpif hacks up gpif.c for our purposes. no major surgery, just moving stuff around.
 set(GPIF_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/gpif.c)
-set(GPIF_SOURCE_OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/usrp_gpif.c)
-set(GPIF_HEADER_OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/usrp_gpif_inline.h)
+set(GPIF_SOURCE_OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/smini_gpif.c)
+set(GPIF_HEADER_OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/smini_gpif_inline.h)
 
 add_custom_command(
         OUTPUT ${GPIF_SOURCE_OUTPUT}
@@ -53,19 +53,19 @@ add_custom_command(
 #file(GLOB b100_sources *.c)
 set(b100_sources 
     ${CMAKE_SOURCE_DIR}/common/vectors.a51
-    usrp_main.c
-    usrp_common.c 
+    smini_main.c
+    smini_common.c 
     board_specific.c 
     fpga_load.c 
     fpga_rev2.c 
-    usrp_gpif.c 
+    smini_gpif.c 
     usb_descriptors.a51
     eeprom_io.c
     ${CMAKE_SOURCE_DIR}/common/_startup.a51
 )
 
 set_source_files_properties(
-    ${CMAKE_CURRENT_SOURCE_DIR}/usrp_main.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/smini_main.c
     PROPERTIES COMPILE_FLAGS "--std-sdcc99 --opt-code-speed --fommit-frame-pointer"
 )
 

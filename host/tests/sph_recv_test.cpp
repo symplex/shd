@@ -42,7 +42,7 @@ struct overflow_handler_type{
 /***********************************************************************
  * A dummy managed receive buffer for testing
  **********************************************************************/
-class dummy_mrb : public uhd::transport::managed_recv_buffer{
+class dummy_mrb : public shd::transport::managed_recv_buffer{
 public:
     void release(void){
         //NOP
@@ -71,26 +71,26 @@ public:
     }
 
     void push_back_packet(
-        uhd::transport::vrt::if_packet_info_t &ifpi,
+        shd::transport::vrt::if_packet_info_t &ifpi,
         const uint32_t optional_msg_word = 0
     ){
-        const size_t max_pkt_len = (ifpi.num_payload_words32 + uhd::transport::vrt::max_if_hdr_words32 + 1/*tlr*/)*sizeof(uint32_t);
+        const size_t max_pkt_len = (ifpi.num_payload_words32 + shd::transport::vrt::max_if_hdr_words32 + 1/*tlr*/)*sizeof(uint32_t);
         _mems.push_back(boost::shared_array<char>(new char[max_pkt_len]));
         if (_end == "big"){
-            uhd::transport::vrt::if_hdr_pack_be(reinterpret_cast<uint32_t *>(_mems.back().get()), ifpi);
+            shd::transport::vrt::if_hdr_pack_be(reinterpret_cast<uint32_t *>(_mems.back().get()), ifpi);
         }
         if (_end == "little"){
-            uhd::transport::vrt::if_hdr_pack_le(reinterpret_cast<uint32_t *>(_mems.back().get()), ifpi);
+            shd::transport::vrt::if_hdr_pack_le(reinterpret_cast<uint32_t *>(_mems.back().get()), ifpi);
         }
-        (reinterpret_cast<uint32_t *>(_mems.back().get()) + ifpi.num_header_words32)[0] = optional_msg_word | uhd::byteswap(optional_msg_word);
+        (reinterpret_cast<uint32_t *>(_mems.back().get()) + ifpi.num_header_words32)[0] = optional_msg_word | shd::byteswap(optional_msg_word);
         _lens.push_back(ifpi.num_packet_words32*sizeof(uint32_t));
     }
 
-    uhd::transport::managed_recv_buffer::sptr get_recv_buff(double){
-        if (!io_status) throw uhd::io_error("IO error exception"); //simulate an IO error
-        if (_mems.empty()) return uhd::transport::managed_recv_buffer::sptr(); //timeout
+    shd::transport::managed_recv_buffer::sptr get_recv_buff(double){
+        if (!io_status) throw shd::io_error("IO error exception"); //simulate an IO error
+        if (_mems.empty()) return shd::transport::managed_recv_buffer::sptr(); //timeout
         _mrbs.push_back(boost::shared_ptr<dummy_mrb>(new dummy_mrb()));
-        uhd::transport::managed_recv_buffer::sptr mrb = _mrbs.back()->get_new(_mems.front(), _lens.front());
+        shd::transport::managed_recv_buffer::sptr mrb = _mrbs.back()->get_new(_mems.front(), _lens.front());
         _mems.pop_front();
         _lens.pop_front();
         return mrb;
@@ -107,15 +107,15 @@ private:
 ////////////////////////////////////////////////////////////////////////
 BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_normal){
 ////////////////////////////////////////////////////////////////////////
-    uhd::convert::id_type id;
+    shd::convert::id_type id;
     id.input_format = "sc16_item32_be";
     id.num_inputs = 1;
     id.output_format = "fc32";
     id.num_outputs = 1;
 
     dummy_recv_xport_class dummy_recv_xport("big");
-    uhd::transport::vrt::if_packet_info_t ifpi;
-    ifpi.packet_type = uhd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
+    shd::transport::vrt::if_packet_info_t ifpi;
+    ifpi.packet_type = shd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
     ifpi.num_payload_words32 = 0;
     ifpi.packet_count = 0;
     ifpi.sob = true;
@@ -141,8 +141,8 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_normal){
     }
 
     //create the super receive packet handler
-    uhd::transport::sph::recv_packet_handler handler(1);
-    handler.set_vrt_unpacker(&uhd::transport::vrt::if_hdr_unpack_be);
+    shd::transport::sph::recv_packet_handler handler(1);
+    handler.set_vrt_unpacker(&shd::transport::vrt::if_hdr_unpack_be);
     handler.set_tick_rate(TICK_RATE);
     handler.set_samp_rate(SAMP_RATE);
     handler.set_xport_chan_get_buff(0, boost::bind(&dummy_recv_xport_class::get_recv_buff, &dummy_recv_xport, _1));
@@ -151,16 +151,16 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_normal){
     //check the received packets
     size_t num_accum_samps = 0;
     std::vector<std::complex<float> > buff(20);
-    uhd::rx_metadata_t metadata;
+    shd::rx_metadata_t metadata;
     for (size_t i = 0; i < NUM_PKTS_TO_TEST; i++){
         std::cout << "data check " << i << std::endl;
         size_t num_samps_ret = handler.recv(
             &buff.front(), buff.size(), metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_NONE);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_NONE);
         BOOST_CHECK(not metadata.more_fragments);
         BOOST_CHECK(metadata.has_time_spec);
-        BOOST_CHECK_TS_CLOSE(metadata.time_spec, uhd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
+        BOOST_CHECK_TS_CLOSE(metadata.time_spec, shd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
         BOOST_CHECK_EQUAL(num_samps_ret, 10 + i%10);
         num_accum_samps += num_samps_ret;
     }
@@ -171,26 +171,26 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_normal){
         handler.recv(
             &buff.front(), buff.size(), metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_TIMEOUT);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_TIMEOUT);
     }
 
     //simulate the transport failing
     dummy_recv_xport.set_io_status(false);
-    BOOST_REQUIRE_THROW(handler.recv(&buff.front(), buff.size(), metadata, 1.0, true), uhd::io_error);
+    BOOST_REQUIRE_THROW(handler.recv(&buff.front(), buff.size(), metadata, 1.0, true), shd::io_error);
 }
 
 ////////////////////////////////////////////////////////////////////////
 BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_sequence_error){
 ////////////////////////////////////////////////////////////////////////
-    uhd::convert::id_type id;
+    shd::convert::id_type id;
     id.input_format = "sc16_item32_be";
     id.num_inputs = 1;
     id.output_format = "fc32";
     id.num_outputs = 1;
 
     dummy_recv_xport_class dummy_recv_xport("big");
-    uhd::transport::vrt::if_packet_info_t ifpi;
-    ifpi.packet_type = uhd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
+    shd::transport::vrt::if_packet_info_t ifpi;
+    ifpi.packet_type = shd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
     ifpi.num_payload_words32 = 0;
     ifpi.packet_count = 0;
     ifpi.sob = true;
@@ -218,8 +218,8 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_sequence_error){
     }
 
     //create the super receive packet handler
-    uhd::transport::sph::recv_packet_handler handler(1);
-    handler.set_vrt_unpacker(&uhd::transport::vrt::if_hdr_unpack_be);
+    shd::transport::sph::recv_packet_handler handler(1);
+    handler.set_vrt_unpacker(&shd::transport::vrt::if_hdr_unpack_be);
     handler.set_tick_rate(TICK_RATE);
     handler.set_samp_rate(SAMP_RATE);
     handler.set_xport_chan_get_buff(0, boost::bind(&dummy_recv_xport_class::get_recv_buff, &dummy_recv_xport, _1));
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_sequence_error){
     //check the received packets
     size_t num_accum_samps = 0;
     std::vector<std::complex<float> > buff(20);
-    uhd::rx_metadata_t metadata;
+    shd::rx_metadata_t metadata;
     for (size_t i = 0; i < NUM_PKTS_TO_TEST; i++){
         std::cout << "data check " << i << std::endl;
         size_t num_samps_ret = handler.recv(
@@ -236,16 +236,16 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_sequence_error){
         );
         if (i == NUM_PKTS_TO_TEST/2){
             //must get the soft overflow here
-            BOOST_REQUIRE(metadata.error_code == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW);
+            BOOST_REQUIRE(metadata.error_code == shd::rx_metadata_t::ERROR_CODE_OVERFLOW);
             BOOST_REQUIRE(metadata.out_of_sequence == true);
-            BOOST_CHECK_TS_CLOSE(metadata.time_spec, uhd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
+            BOOST_CHECK_TS_CLOSE(metadata.time_spec, shd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
             num_accum_samps += 10 + i%10;
         }
         else{
-            BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_NONE);
+            BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_NONE);
             BOOST_CHECK(not metadata.more_fragments);
             BOOST_CHECK(metadata.has_time_spec);
-            BOOST_CHECK_TS_CLOSE(metadata.time_spec, uhd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
+            BOOST_CHECK_TS_CLOSE(metadata.time_spec, shd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
             BOOST_CHECK_EQUAL(num_samps_ret, 10 + i%10);
             num_accum_samps += num_samps_ret;
         }
@@ -257,26 +257,26 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_sequence_error){
         handler.recv(
             &buff.front(), buff.size(), metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_TIMEOUT);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_TIMEOUT);
     }
 
     //simulate the transport failing
     dummy_recv_xport.set_io_status(false);
-    BOOST_REQUIRE_THROW(handler.recv(&buff.front(), buff.size(), metadata, 1.0, true), uhd::io_error);
+    BOOST_REQUIRE_THROW(handler.recv(&buff.front(), buff.size(), metadata, 1.0, true), shd::io_error);
 }
 
 ////////////////////////////////////////////////////////////////////////
 BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_inline_message){
 ////////////////////////////////////////////////////////////////////////
-    uhd::convert::id_type id;
+    shd::convert::id_type id;
     id.input_format = "sc16_item32_be";
     id.num_inputs = 1;
     id.output_format = "fc32";
     id.num_outputs = 1;
 
     dummy_recv_xport_class dummy_recv_xport("big");
-    uhd::transport::vrt::if_packet_info_t ifpi;
-    ifpi.packet_type = uhd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
+    shd::transport::vrt::if_packet_info_t ifpi;
+    ifpi.packet_type = shd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
     ifpi.num_payload_words32 = 0;
     ifpi.packet_count = 0;
     ifpi.sob = true;
@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_inline_message){
 
     //generate a bunch of packets
     for (size_t i = 0; i < NUM_PKTS_TO_TEST; i++){
-        ifpi.packet_type = uhd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
+        ifpi.packet_type = shd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
         ifpi.num_payload_words32 = 10 + i%10;
         dummy_recv_xport.push_back_packet(ifpi);
         ifpi.packet_count++;
@@ -303,15 +303,15 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_inline_message){
 
         //simulate overflow
         if (i == NUM_PKTS_TO_TEST/2){
-            ifpi.packet_type = uhd::transport::vrt::if_packet_info_t::PACKET_TYPE_CONTEXT;
+            ifpi.packet_type = shd::transport::vrt::if_packet_info_t::PACKET_TYPE_CONTEXT;
             ifpi.num_payload_words32 = 1;
-            dummy_recv_xport.push_back_packet(ifpi, uhd::rx_metadata_t::ERROR_CODE_OVERFLOW);
+            dummy_recv_xport.push_back_packet(ifpi, shd::rx_metadata_t::ERROR_CODE_OVERFLOW);
         }
     }
 
     //create the super receive packet handler
-    uhd::transport::sph::recv_packet_handler handler(1);
-    handler.set_vrt_unpacker(&uhd::transport::vrt::if_hdr_unpack_be);
+    shd::transport::sph::recv_packet_handler handler(1);
+    handler.set_vrt_unpacker(&shd::transport::vrt::if_hdr_unpack_be);
     handler.set_tick_rate(TICK_RATE);
     handler.set_samp_rate(SAMP_RATE);
     handler.set_xport_chan_get_buff(0, boost::bind(&dummy_recv_xport_class::get_recv_buff, &dummy_recv_xport, _1));
@@ -324,16 +324,16 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_inline_message){
     //check the received packets
     size_t num_accum_samps = 0;
     std::vector<std::complex<float> > buff(20);
-    uhd::rx_metadata_t metadata;
+    shd::rx_metadata_t metadata;
     for (size_t i = 0; i < NUM_PKTS_TO_TEST; i++){
         std::cout << "data check " << i << std::endl;
         size_t num_samps_ret = handler.recv(
             &buff.front(), buff.size(), metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_NONE);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_NONE);
         BOOST_CHECK(not metadata.more_fragments);
         BOOST_CHECK(metadata.has_time_spec);
-        BOOST_CHECK_TS_CLOSE(metadata.time_spec, uhd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
+        BOOST_CHECK_TS_CLOSE(metadata.time_spec, shd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
         BOOST_CHECK_EQUAL(num_samps_ret, 10 + i%10);
         num_accum_samps += num_samps_ret;
         if (i == NUM_PKTS_TO_TEST/2){
@@ -341,8 +341,8 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_inline_message){
                 &buff.front(), buff.size(), metadata, 1.0, true
             );
             std::cout << "metadata.error_code " << metadata.error_code << std::endl;
-            BOOST_REQUIRE(metadata.error_code == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW);
-            BOOST_CHECK_TS_CLOSE(metadata.time_spec, uhd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
+            BOOST_REQUIRE(metadata.error_code == shd::rx_metadata_t::ERROR_CODE_OVERFLOW);
+            BOOST_CHECK_TS_CLOSE(metadata.time_spec, shd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
             BOOST_CHECK_EQUAL(overflow_handler.num_overflow, size_t(1));
         }
     }
@@ -353,25 +353,25 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_one_channel_inline_message){
         handler.recv(
             &buff.front(), buff.size(), metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_TIMEOUT);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_TIMEOUT);
     }
 
     //simulate the transport failing
     dummy_recv_xport.set_io_status(false);
-    BOOST_REQUIRE_THROW(handler.recv(&buff.front(), buff.size(), metadata, 1.0, true), uhd::io_error);
+    BOOST_REQUIRE_THROW(handler.recv(&buff.front(), buff.size(), metadata, 1.0, true), shd::io_error);
 }
 
 ////////////////////////////////////////////////////////////////////////
 BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_normal){
 ////////////////////////////////////////////////////////////////////////
-    uhd::convert::id_type id;
+    shd::convert::id_type id;
     id.input_format = "sc16_item32_be";
     id.num_inputs = 1;
     id.output_format = "fc32";
     id.num_outputs = 1;
 
-    uhd::transport::vrt::if_packet_info_t ifpi;
-    ifpi.packet_type = uhd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
+    shd::transport::vrt::if_packet_info_t ifpi;
+    ifpi.packet_type = shd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
     ifpi.num_payload_words32 = 0;
     ifpi.packet_count = 0;
     ifpi.sob = true;
@@ -403,8 +403,8 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_normal){
     }
 
     //create the super receive packet handler
-    uhd::transport::sph::recv_packet_handler handler(NCHANNELS);
-    handler.set_vrt_unpacker(&uhd::transport::vrt::if_hdr_unpack_be);
+    shd::transport::sph::recv_packet_handler handler(NCHANNELS);
+    handler.set_vrt_unpacker(&shd::transport::vrt::if_hdr_unpack_be);
     handler.set_tick_rate(TICK_RATE);
     handler.set_samp_rate(SAMP_RATE);
     for (size_t ch = 0; ch < NCHANNELS; ch++){
@@ -419,16 +419,16 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_normal){
     for (size_t ch = 0; ch < NCHANNELS; ch++){
         buffs[ch] = &mem[ch*NUM_SAMPS_PER_BUFF];
     }
-    uhd::rx_metadata_t metadata;
+    shd::rx_metadata_t metadata;
     for (size_t i = 0; i < NUM_PKTS_TO_TEST; i++){
         std::cout << "data check " << i << std::endl;
         size_t num_samps_ret = handler.recv(
             buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_NONE);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_NONE);
         BOOST_CHECK(not metadata.more_fragments);
         BOOST_CHECK(metadata.has_time_spec);
-        BOOST_CHECK_TS_CLOSE(metadata.time_spec, uhd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
+        BOOST_CHECK_TS_CLOSE(metadata.time_spec, shd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
         BOOST_CHECK_EQUAL(num_samps_ret, 10 + i%10);
         num_accum_samps += num_samps_ret;
     }
@@ -439,7 +439,7 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_normal){
         handler.recv(
             buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_TIMEOUT);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_TIMEOUT);
     }
 
     //simulate the transport failing
@@ -447,20 +447,20 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_normal){
         dummy_recv_xports[ch].set_io_status(false);
     }
 
-    BOOST_REQUIRE_THROW(handler.recv(buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true), uhd::io_error);
+    BOOST_REQUIRE_THROW(handler.recv(buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true), shd::io_error);
 }
 
 ////////////////////////////////////////////////////////////////////////
 BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_sequence_error){
 ////////////////////////////////////////////////////////////////////////
-    uhd::convert::id_type id;
+    shd::convert::id_type id;
     id.input_format = "sc16_item32_be";
     id.num_inputs = 1;
     id.output_format = "fc32";
     id.num_outputs = 1;
 
-    uhd::transport::vrt::if_packet_info_t ifpi;
-    ifpi.packet_type = uhd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
+    shd::transport::vrt::if_packet_info_t ifpi;
+    ifpi.packet_type = shd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
     ifpi.num_payload_words32 = 0;
     ifpi.packet_count = 0;
     ifpi.sob = true;
@@ -495,8 +495,8 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_sequence_error){
     }
 
     //create the super receive packet handler
-    uhd::transport::sph::recv_packet_handler handler(NCHANNELS);
-    handler.set_vrt_unpacker(&uhd::transport::vrt::if_hdr_unpack_be);
+    shd::transport::sph::recv_packet_handler handler(NCHANNELS);
+    handler.set_vrt_unpacker(&shd::transport::vrt::if_hdr_unpack_be);
     handler.set_tick_rate(TICK_RATE);
     handler.set_samp_rate(SAMP_RATE);
     for (size_t ch = 0; ch < NCHANNELS; ch++){
@@ -511,7 +511,7 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_sequence_error){
     for (size_t ch = 0; ch < NCHANNELS; ch++){
         buffs[ch] = &mem[ch*NUM_SAMPS_PER_BUFF];
     }
-    uhd::rx_metadata_t metadata;
+    shd::rx_metadata_t metadata;
     for (size_t i = 0; i < NUM_PKTS_TO_TEST; i++){
         std::cout << "data check " << i << std::endl;
         size_t num_samps_ret = handler.recv(
@@ -519,16 +519,16 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_sequence_error){
         );
         if (i == NUM_PKTS_TO_TEST/2){
             //must get the soft overflow here
-            BOOST_REQUIRE(metadata.error_code == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW);
+            BOOST_REQUIRE(metadata.error_code == shd::rx_metadata_t::ERROR_CODE_OVERFLOW);
             BOOST_REQUIRE(metadata.out_of_sequence == true);
-            BOOST_CHECK_TS_CLOSE(metadata.time_spec, uhd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
+            BOOST_CHECK_TS_CLOSE(metadata.time_spec, shd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
             num_accum_samps += 10 + i%10;
         }
         else{
-            BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_NONE);
+            BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_NONE);
             BOOST_CHECK(not metadata.more_fragments);
             BOOST_CHECK(metadata.has_time_spec);
-            BOOST_CHECK_TS_CLOSE(metadata.time_spec, uhd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
+            BOOST_CHECK_TS_CLOSE(metadata.time_spec, shd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
             BOOST_CHECK_EQUAL(num_samps_ret, 10 + i%10);
             num_accum_samps += num_samps_ret;
         }
@@ -540,7 +540,7 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_sequence_error){
         handler.recv(
             buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_TIMEOUT);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_TIMEOUT);
     }
 
     //simulate the transport failing
@@ -548,20 +548,20 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_sequence_error){
         dummy_recv_xports[ch].set_io_status(false);
     }
 
-    BOOST_REQUIRE_THROW(handler.recv(buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true), uhd::io_error);
+    BOOST_REQUIRE_THROW(handler.recv(buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true), shd::io_error);
 }
 
 ////////////////////////////////////////////////////////////////////////
 BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_time_error){
 ////////////////////////////////////////////////////////////////////////
-    uhd::convert::id_type id;
+    shd::convert::id_type id;
     id.input_format = "sc16_item32_be";
     id.num_inputs = 1;
     id.output_format = "fc32";
     id.num_outputs = 1;
 
-    uhd::transport::vrt::if_packet_info_t ifpi;
-    ifpi.packet_type = uhd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
+    shd::transport::vrt::if_packet_info_t ifpi;
+    ifpi.packet_type = shd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
     ifpi.num_payload_words32 = 0;
     ifpi.packet_count = 0;
     ifpi.sob = true;
@@ -596,8 +596,8 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_time_error){
     }
 
     //create the super receive packet handler
-    uhd::transport::sph::recv_packet_handler handler(NCHANNELS);
-    handler.set_vrt_unpacker(&uhd::transport::vrt::if_hdr_unpack_be);
+    shd::transport::sph::recv_packet_handler handler(NCHANNELS);
+    handler.set_vrt_unpacker(&shd::transport::vrt::if_hdr_unpack_be);
     handler.set_tick_rate(TICK_RATE);
     handler.set_samp_rate(SAMP_RATE);
     for (size_t ch = 0; ch < NCHANNELS; ch++){
@@ -612,16 +612,16 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_time_error){
     for (size_t ch = 0; ch < NCHANNELS; ch++){
         buffs[ch] = &mem[ch*NUM_SAMPS_PER_BUFF];
     }
-    uhd::rx_metadata_t metadata;
+    shd::rx_metadata_t metadata;
     for (size_t i = 0; i < NUM_PKTS_TO_TEST; i++){
         std::cout << "data check " << i << std::endl;
         size_t num_samps_ret = handler.recv(
             buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_NONE);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_NONE);
         BOOST_CHECK(not metadata.more_fragments);
         BOOST_CHECK(metadata.has_time_spec);
-        BOOST_CHECK_TS_CLOSE(metadata.time_spec, uhd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
+        BOOST_CHECK_TS_CLOSE(metadata.time_spec, shd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
         BOOST_CHECK_EQUAL(num_samps_ret, 10 + i%10);
         num_accum_samps += num_samps_ret;
         if (i == NUM_PKTS_TO_TEST/2){
@@ -635,7 +635,7 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_time_error){
         handler.recv(
             buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_TIMEOUT);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_TIMEOUT);
     }
 
     //simulate the transport failing
@@ -643,20 +643,20 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_time_error){
         dummy_recv_xports[ch].set_io_status(false);
     }
 
-    BOOST_REQUIRE_THROW(handler.recv(buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true), uhd::io_error);
+    BOOST_REQUIRE_THROW(handler.recv(buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true), shd::io_error);
 }
 
 ////////////////////////////////////////////////////////////////////////
 BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_exception){
 ////////////////////////////////////////////////////////////////////////
-    uhd::convert::id_type id;
+    shd::convert::id_type id;
     id.input_format = "sc16_item32_be";
     id.num_inputs = 1;
     id.output_format = "fc32";
     id.num_outputs = 1;
 
-    uhd::transport::vrt::if_packet_info_t ifpi;
-    ifpi.packet_type = uhd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
+    shd::transport::vrt::if_packet_info_t ifpi;
+    ifpi.packet_type = shd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
     ifpi.num_payload_words32 = 0;
     ifpi.packet_count = 0;
     ifpi.sob = true;
@@ -691,8 +691,8 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_exception){
     }
 
     //create the super receive packet handler
-    uhd::transport::sph::recv_packet_handler handler(NCHANNELS);
-    handler.set_vrt_unpacker(&uhd::transport::vrt::if_hdr_unpack_be);
+    shd::transport::sph::recv_packet_handler handler(NCHANNELS);
+    handler.set_vrt_unpacker(&shd::transport::vrt::if_hdr_unpack_be);
     handler.set_tick_rate(TICK_RATE);
     handler.set_samp_rate(SAMP_RATE);
     for (size_t ch = 0; ch < NCHANNELS; ch++){
@@ -707,25 +707,25 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_exception){
     }
 
     // simulate a failure on a channel (the last one)
-    uhd::rx_metadata_t metadata;
+    shd::rx_metadata_t metadata;
     dummy_recv_xports[NCHANNELS-1].set_io_status(false);
 
     std::cout << "exception check" << std::endl;
 
-    BOOST_REQUIRE_THROW(handler.recv(buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true), uhd::io_error);
+    BOOST_REQUIRE_THROW(handler.recv(buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true), shd::io_error);
 }
 
 ////////////////////////////////////////////////////////////////////////
 BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_fragment){
 ////////////////////////////////////////////////////////////////////////
-    uhd::convert::id_type id;
+    shd::convert::id_type id;
     id.input_format = "sc16_item32_be";
     id.num_inputs = 1;
     id.output_format = "fc32";
     id.num_outputs = 1;
 
-    uhd::transport::vrt::if_packet_info_t ifpi;
-    ifpi.packet_type = uhd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
+    shd::transport::vrt::if_packet_info_t ifpi;
+    ifpi.packet_type = shd::transport::vrt::if_packet_info_t::PACKET_TYPE_DATA;
     ifpi.num_payload_words32 = 0;
     ifpi.packet_count = 0;
     ifpi.sob = true;
@@ -757,8 +757,8 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_fragment){
     }
 
     //create the super receive packet handler
-    uhd::transport::sph::recv_packet_handler handler(NCHANNELS);
-    handler.set_vrt_unpacker(&uhd::transport::vrt::if_hdr_unpack_be);
+    shd::transport::sph::recv_packet_handler handler(NCHANNELS);
+    handler.set_vrt_unpacker(&shd::transport::vrt::if_hdr_unpack_be);
     handler.set_tick_rate(TICK_RATE);
     handler.set_samp_rate(SAMP_RATE);
     for (size_t ch = 0; ch < NCHANNELS; ch++){
@@ -773,15 +773,15 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_fragment){
     for (size_t ch = 0; ch < NCHANNELS; ch++){
         buffs[ch] = &mem[ch*NUM_SAMPS_PER_BUFF];
     }
-    uhd::rx_metadata_t metadata;
+    shd::rx_metadata_t metadata;
     for (size_t i = 0; i < NUM_PKTS_TO_TEST; i++){
         std::cout << "data check " << i << std::endl;
         size_t num_samps_ret = handler.recv(
             buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_NONE);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_NONE);
         BOOST_CHECK(metadata.has_time_spec);
-        BOOST_CHECK_TS_CLOSE(metadata.time_spec, uhd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
+        BOOST_CHECK_TS_CLOSE(metadata.time_spec, shd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
         BOOST_CHECK_EQUAL(num_samps_ret, 10UL);
         num_accum_samps += num_samps_ret;
 
@@ -790,11 +790,11 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_fragment){
         num_samps_ret = handler.recv(
             buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_NONE);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_NONE);
         BOOST_CHECK(not metadata.more_fragments);
         BOOST_CHECK_EQUAL(metadata.fragment_offset, 10UL);
         BOOST_CHECK(metadata.has_time_spec);
-        BOOST_CHECK_TS_CLOSE(metadata.time_spec, uhd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
+        BOOST_CHECK_TS_CLOSE(metadata.time_spec, shd::time_spec_t::from_ticks(num_accum_samps, SAMP_RATE));
         BOOST_CHECK_EQUAL(num_samps_ret, i%10);
         num_accum_samps += num_samps_ret;
     }
@@ -805,7 +805,7 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_fragment){
         handler.recv(
             buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true
         );
-        BOOST_CHECK_EQUAL(metadata.error_code, uhd::rx_metadata_t::ERROR_CODE_TIMEOUT);
+        BOOST_CHECK_EQUAL(metadata.error_code, shd::rx_metadata_t::ERROR_CODE_TIMEOUT);
     }
 
     //simulate the transport failing
@@ -813,5 +813,5 @@ BOOST_AUTO_TEST_CASE(test_sph_recv_multi_channel_fragment){
         dummy_recv_xports[ch].set_io_status(false);
     }
 
-    BOOST_REQUIRE_THROW(handler.recv(buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true), uhd::io_error);
+    BOOST_REQUIRE_THROW(handler.recv(buffs, NUM_SAMPS_PER_BUFF, metadata, 1.0, true), shd::io_error);
 }

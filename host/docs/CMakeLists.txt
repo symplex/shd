@@ -28,7 +28,7 @@ SET(ENABLE_MANUAL_OR_DOXYGEN false)
 ########################################################################
 # Setup Manual (using Doxygen)
 ########################################################################
-LIBUHD_REGISTER_COMPONENT("Manual" ENABLE_MANUAL ON "DOXYGEN_FOUND" OFF OFF)
+LIBSHD_REGISTER_COMPONENT("Manual" ENABLE_MANUAL ON "DOXYGEN_FOUND" OFF OFF)
 
 # Check if fpga submodule is there. If yes:
 # - Add fpga-src/docs and fpga-src/README.md to inputs
@@ -38,7 +38,7 @@ LIBUHD_REGISTER_COMPONENT("Manual" ENABLE_MANUAL ON "DOXYGEN_FOUND" OFF OFF)
 
 IF(ENABLE_MANUAL)
     SET(ENABLE_MANUAL_OR_DOXYGEN true)
-    # First: Set up UHD manual only
+    # First: Set up SHD manual only
     FILE(GLOB manual_sources "*.dox")
     SET(DOXYGEN_DEPENDENCIES ${manual_sources})
     SET(DOXYGEN_INPUT_DIRS "${CMAKE_SOURCE_DIR}/docs")
@@ -47,7 +47,7 @@ IF(ENABLE_MANUAL)
     SET(DOXYGEN_STRIP_EXTRA "")
     SET(DOXYGEN_EXCLUDE_DIRS "")
     IF(NOT ENABLE_RFNOC)
-        SET(DOXYGEN_EXCLUDE_DIRS "${DOXYGEN_EXCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include/uhd/rfnoc")
+        SET(DOXYGEN_EXCLUDE_DIRS "${DOXYGEN_EXCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include/shd/rfnoc")
     ENDIF(NOT ENABLE_RFNOC)
     # Now, check if we have the FPGA sources as well.
     # If so, pull them in:
@@ -67,14 +67,14 @@ ENDIF(ENABLE_MANUAL)
 ########################################################################
 # Setup API documentation (using Doxygen)
 ########################################################################
-LIBUHD_REGISTER_COMPONENT("API/Doxygen" ENABLE_DOXYGEN ON "DOXYGEN_FOUND" OFF OFF)
+LIBSHD_REGISTER_COMPONENT("API/Doxygen" ENABLE_DOXYGEN ON "DOXYGEN_FOUND" OFF OFF)
 OPTION(ENABLE_DOXYGEN_FULL "Use Doxygen to document the entire source tree (not just API)" OFF)
 OPTION(ENABLE_DOXYGEN_DOT "Let Doxygen use dot (requires graphviz)" OFF)
 OPTION(ENABLE_DOXYGEN_SHORTNAMES "Let Doxygen use shorter filenames (helps on Windows)" OFF)
 
-IF(LIBUHDDEV_PKG)
-    SET(PKG_DOC_DIR share/doc/libuhd-dev)
-ENDIF(LIBUHDDEV_PKG)
+IF(LIBSHDDEV_PKG)
+    SET(PKG_DOC_DIR share/doc/libshd-dev)
+ENDIF(LIBSHDDEV_PKG)
 
 IF(ENABLE_DOXYGEN)
     SET(ENABLE_MANUAL_OR_DOXYGEN true)
@@ -124,7 +124,7 @@ IF(ENABLE_MANUAL_OR_DOXYGEN)
 
     #make the doxygen generation a built-time dependency
     ADD_CUSTOM_TARGET(doxygen_docs ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR_DOXYGEN})
-    UHD_INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR_DOXYGEN} DESTINATION ${PKG_DOC_DIR} COMPONENT ${DOXYGEN_DEP_COMPONENT})
+    SHD_INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR_DOXYGEN} DESTINATION ${PKG_DOC_DIR} COMPONENT ${DOXYGEN_DEP_COMPONENT})
 ENDIF(ENABLE_MANUAL_OR_DOXYGEN)
 
 ########################################################################
@@ -133,17 +133,17 @@ ENDIF(ENABLE_MANUAL_OR_DOXYGEN)
 
 SET(man_page_sources
     octoclock_firmware_burner.1
-    uhd_cal_rx_iq_balance.1
-    uhd_cal_tx_dc_offset.1
-    uhd_cal_tx_iq_balance.1
-    uhd_config_info.1
-    uhd_find_devices.1
-    uhd_image_loader.1
-    uhd_images_downloader.1
-    uhd_usrp_probe.1
-    usrp_n2xx_simple_net_burner.1
-    usrp_x3xx_fpga_burner.1
-    usrp2_card_burner.1
+    shd_cal_rx_iq_balance.1
+    shd_cal_tx_dc_offset.1
+    shd_cal_tx_iq_balance.1
+    shd_config_info.1
+    shd_find_devices.1
+    shd_image_loader.1
+    shd_images_downloader.1
+    shd_smini_probe.1
+    smini_n2xx_simple_net_burner.1
+    smini_x3xx_fpga_burner.1
+    smini2_card_burner.1
 )
 
 ########################################################################
@@ -156,7 +156,7 @@ IF(NOT WIN32)
     SET(NOT_WIN32 TRUE)
 ENDIF(NOT WIN32)
 
-LIBUHD_REGISTER_COMPONENT("Man Pages" ENABLE_MAN_PAGES ON "GZIP_FOUND;NOT_WIN32" OFF OFF)
+LIBSHD_REGISTER_COMPONENT("Man Pages" ENABLE_MAN_PAGES ON "GZIP_FOUND;NOT_WIN32" OFF OFF)
 
 IF(ENABLE_MAN_PAGES)
     #Generate man pages
@@ -174,7 +174,7 @@ IF(ENABLE_MAN_PAGES)
 
         #make the man page target depend on the gz file
         LIST(APPEND man_page_gz_files ${gzfile})
-        UHD_INSTALL(FILES ${gzfile} DESTINATION ${PKG_MAN_DIR} COMPONENT manpages)
+        SHD_INSTALL(FILES ${gzfile} DESTINATION ${PKG_MAN_DIR} COMPONENT manpages)
     ENDFOREACH(manfile ${man_page_sources})
 
     #make the man pages a build-time dependency

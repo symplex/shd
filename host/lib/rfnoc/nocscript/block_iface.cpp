@@ -17,16 +17,16 @@
 
 #include "block_iface.hpp"
 #include "function_table.hpp"
-#include <uhd/exception.hpp>
-#include <uhd/utils/msg.hpp>
+#include <shd/exception.hpp>
+#include <shd/utils/msg.hpp>
 #include <boost/assign.hpp>
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 
-#define UHD_NOCSCRIPT_LOG() UHD_LOGV(never)
+#define SHD_NOCSCRIPT_LOG() SHD_LOGV(never)
 
-using namespace uhd::rfnoc;
-using namespace uhd::rfnoc::nocscript;
+using namespace shd::rfnoc;
+using namespace shd::rfnoc::nocscript;
 
 block_iface::block_iface(block_ctrl_base *block_ptr)
     : _block_ptr(block_ptr)
@@ -116,17 +116,17 @@ void block_iface::run_and_check(const std::string &code, const std::string &erro
 {
     boost::mutex::scoped_lock local_interpreter_lock(_lil_mutex);
 
-    UHD_NOCSCRIPT_LOG() << "[NocScript] Executing and asserting code: " << code << std::endl;
+    SHD_NOCSCRIPT_LOG() << "[NocScript] Executing and asserting code: " << code << std::endl;
     expression::sptr e = _parser->create_expr_tree(code);
     expression_literal result = e->eval();
     if (not result.to_bool()) {
         if (error_message.empty()) {
-            throw uhd::runtime_error(str(
+            throw shd::runtime_error(str(
                 boost::format("[NocScript] Code returned false: %s")
                 % code
             ));
         } else {
-            throw uhd::runtime_error(str(
+            throw shd::runtime_error(str(
                 boost::format("[NocScript] Error: %s")
                 % error_message
             ));
@@ -143,10 +143,10 @@ expression_literal block_iface::_nocscript__sr_write(expression_container::expr_
     const uint32_t reg_val = uint32_t(args[1]->eval().get_int());
     bool result = true;
     try {
-        UHD_NOCSCRIPT_LOG() << "[NocScript] Executing SR_WRITE() " << std::endl;
+        SHD_NOCSCRIPT_LOG() << "[NocScript] Executing SR_WRITE() " << std::endl;
         _block_ptr->sr_write(reg_name, reg_val);
-    } catch (const uhd::exception &e) {
-        UHD_MSG(error) << boost::format("[NocScript] Error while executing SR_WRITE(%s, 0x%X):\n%s")
+    } catch (const shd::exception &e) {
+        SHD_MSG(error) << boost::format("[NocScript] Error while executing SR_WRITE(%s, 0x%X):\n%s")
                           % reg_name % reg_val % e.what()
                        << std::endl;
         result = false;
@@ -165,9 +165,9 @@ expression::type_t block_iface::_nocscript__arg_get_type(const std::string &varn
     } else if (var_type == "double") {
         return expression::TYPE_DOUBLE;
     } else if (var_type == "int_vector") {
-        UHD_THROW_INVALID_CODE_PATH(); // TODO
+        SHD_THROW_INVALID_CODE_PATH(); // TODO
     } else {
-        UHD_THROW_INVALID_CODE_PATH();
+        SHD_THROW_INVALID_CODE_PATH();
     }
 }
 
@@ -181,9 +181,9 @@ expression_literal block_iface::_nocscript__arg_get_val(const std::string &varna
     } else if (var_type == "double") {
         return expression_literal(_block_ptr->get_arg<double>(varname));
     } else if (var_type == "int_vector") {
-        UHD_THROW_INVALID_CODE_PATH(); // TODO
+        SHD_THROW_INVALID_CODE_PATH(); // TODO
     } else {
-        UHD_THROW_INVALID_CODE_PATH();
+        SHD_THROW_INVALID_CODE_PATH();
     }
 }
 
@@ -195,7 +195,7 @@ expression_literal block_iface::_nocscript__arg_set_int(const expression_contain
     if (args.size() == 3) {
         port = size_t(args[2]->eval().get_int());
     }
-    UHD_NOCSCRIPT_LOG() << "[NocScript] Setting $" << var_name << std::endl;
+    SHD_NOCSCRIPT_LOG() << "[NocScript] Setting $" << var_name << std::endl;
     _block_ptr->set_arg<int>(var_name, val, port);
     return expression_literal(true);
 }
@@ -208,7 +208,7 @@ expression_literal block_iface::_nocscript__arg_set_string(const expression_cont
     if (args.size() == 3) {
         port = size_t(args[2]->eval().get_int());
     }
-    UHD_NOCSCRIPT_LOG() << "[NocScript] Setting $" << var_name << std::endl;
+    SHD_NOCSCRIPT_LOG() << "[NocScript] Setting $" << var_name << std::endl;
     _block_ptr->set_arg<std::string>(var_name, val, port);
     return expression_literal(true);
 }
@@ -221,17 +221,17 @@ expression_literal block_iface::_nocscript__arg_set_double(const expression_cont
     if (args.size() == 3) {
         port = size_t(args[2]->eval().get_int());
     }
-    UHD_NOCSCRIPT_LOG() << "[NocScript] Setting $" << var_name << std::endl;
+    SHD_NOCSCRIPT_LOG() << "[NocScript] Setting $" << var_name << std::endl;
     _block_ptr->set_arg<double>(var_name, val, port);
     return expression_literal(true);
 }
 
 expression_literal block_iface::_nocscript__arg_set_intvec(const expression_container::expr_list_type &)
 {
-    UHD_THROW_INVALID_CODE_PATH();
+    SHD_THROW_INVALID_CODE_PATH();
 }
 
-block_iface::sptr block_iface::make(uhd::rfnoc::block_ctrl_base* block_ptr)
+block_iface::sptr block_iface::make(shd::rfnoc::block_ctrl_base* block_ptr)
 {
     return sptr(new block_iface(block_ptr));
 }

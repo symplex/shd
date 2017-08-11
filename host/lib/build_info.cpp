@@ -17,7 +17,7 @@
 
 #include <config.h>
 
-#include <uhd/build_info.hpp>
+#include <shd/build_info.hpp>
 
 #include <boost/format.hpp>
 #include <boost/version.hpp>
@@ -27,7 +27,7 @@
 #include <libusb.h>
 #endif
 
-namespace uhd { namespace build_info {
+namespace shd { namespace build_info {
 
     const std::string boost_version() {
         return boost::algorithm::replace_all_copy(
@@ -36,15 +36,15 @@ namespace uhd { namespace build_info {
     }
 
     const std::string build_date() {
-        return "@UHD_BUILD_DATE@";
+        return "@SHD_BUILD_DATE@";
     }
 
     const std::string c_compiler() {
-        return "@UHD_C_COMPILER@";
+        return "@SHD_C_COMPILER@";
     }
 
     const std::string cxx_compiler() {
-        return "@UHD_CXX_COMPILER@";
+        return "@SHD_CXX_COMPILER@";
     }
 
 #ifdef _MSC_VER
@@ -55,21 +55,21 @@ namespace uhd { namespace build_info {
 
     const std::string c_flags() {
         return boost::algorithm::replace_all_copy(
-            (define_flag + std::string("@UHD_C_FLAGS@")),
+            (define_flag + std::string("@SHD_C_FLAGS@")),
             std::string(";"), (" " + define_flag)
         );
     }
 
     const std::string cxx_flags() {
         return boost::algorithm::replace_all_copy(
-            (define_flag + std::string("@UHD_CXX_FLAGS@")),
+            (define_flag + std::string("@SHD_CXX_FLAGS@")),
             std::string(";"), (" " + define_flag)
         );
     }
 
     const std::string enabled_components() {
         return boost::algorithm::replace_all_copy(
-            std::string("@_uhd_enabled_components@"),
+            std::string("@_shd_enabled_components@"),
             std::string(";"), std::string(", ")
         );
     }

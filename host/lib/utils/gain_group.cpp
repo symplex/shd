@@ -15,17 +15,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/gain_group.hpp>
-#include <uhd/utils/log.hpp>
-#include <uhd/types/dict.hpp>
-#include <uhd/utils/algorithm.hpp>
-#include <uhd/exception.hpp>
+#include <shd/utils/gain_group.hpp>
+#include <shd/utils/log.hpp>
+#include <shd/types/dict.hpp>
+#include <shd/utils/algorithm.hpp>
+#include <shd/exception.hpp>
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
 #include <algorithm>
 #include <vector>
 
-using namespace uhd;
+using namespace shd;
 
 static bool compare_by_step_size(
     const size_t &rhs, const size_t &lhs, std::vector<gain_fcns_t> &fcns
@@ -113,7 +113,7 @@ public:
         double gain_left_to_distribute = gain;
         BOOST_FOREACH(const gain_fcns_t &fcns, all_fcns){
             const gain_range_t range = fcns.get_range();
-            gain_bucket.push_back(floor_step(uhd::clip(
+            gain_bucket.push_back(floor_step(shd::clip(
                 gain_left_to_distribute, range.start(), range.stop()
             ), max_step));
             gain_left_to_distribute -= gain_bucket.back();
@@ -128,7 +128,7 @@ public:
             indexes_step_size_dec.begin(), indexes_step_size_dec.end(),
             boost::bind(&compare_by_step_size, _1, _2, all_fcns)
         );
-        UHD_ASSERT_THROW(
+        SHD_ASSERT_THROW(
             all_fcns.at(indexes_step_size_dec.front()).get_range().step() >=
             all_fcns.at(indexes_step_size_dec.back()).get_range().step()
         );
@@ -137,17 +137,17 @@ public:
         //fill in the largest step sizes first that are less than the remainder
         BOOST_FOREACH(size_t i, indexes_step_size_dec){
             const gain_range_t range = all_fcns.at(i).get_range();
-            double additional_gain = floor_step(uhd::clip(
+            double additional_gain = floor_step(shd::clip(
                 gain_bucket.at(i) + gain_left_to_distribute, range.start(), range.stop()
             ), range.step()) - gain_bucket.at(i);
             gain_bucket.at(i) += additional_gain;
             gain_left_to_distribute -= additional_gain;
         }
-        UHD_LOGV(often) << "gain_left_to_distribute " << gain_left_to_distribute << std::endl;
+        SHD_LOGV(often) << "gain_left_to_distribute " << gain_left_to_distribute << std::endl;
 
         //now write the bucket out to the individual gain values
         for (size_t i = 0; i < gain_bucket.size(); i++){
-            UHD_LOGV(often) << i << ": " << gain_bucket.at(i) << std::endl;
+            SHD_LOGV(often) << i << ": " << gain_bucket.at(i) << std::endl;
             all_fcns.at(i).set_value(gain_bucket.at(i));
         }
     }
@@ -173,15 +173,15 @@ private:
     //! get the gain function sets in order (highest priority first)
     std::vector<gain_fcns_t> get_all_fcns(void){
         std::vector<gain_fcns_t> all_fcns;
-        BOOST_FOREACH(size_t key, uhd::sorted(_registry.keys())){
+        BOOST_FOREACH(size_t key, shd::sorted(_registry.keys())){
             const std::vector<gain_fcns_t> &fcns = _registry[key];
             all_fcns.insert(all_fcns.begin(), fcns.begin(), fcns.end());
         }
         return all_fcns;
     }
 
-    uhd::dict<size_t, std::vector<gain_fcns_t> > _registry;
-    uhd::dict<std::string, gain_fcns_t> _name_to_fcns;
+    shd::dict<size_t, std::vector<gain_fcns_t> > _registry;
+    shd::dict<std::string, gain_fcns_t> _name_to_fcns;
 };
 
 /***********************************************************************

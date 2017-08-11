@@ -16,18 +16,18 @@
 //
 
 #include "udp_common.hpp"
-#include <uhd/transport/tcp_zero_copy.hpp>
-#include <uhd/transport/buffer_pool.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/utils/log.hpp>
-#include <uhd/utils/atomic.hpp>
+#include <shd/transport/tcp_zero_copy.hpp>
+#include <shd/transport/buffer_pool.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/utils/log.hpp>
+#include <shd/utils/atomic.hpp>
 #include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/thread/thread.hpp> //sleep
 #include <vector>
 
-using namespace uhd;
-using namespace uhd::transport;
+using namespace shd;
+using namespace shd::transport;
 namespace asio = boost::asio;
 
 static const size_t DEFAULT_NUM_FRAMES = 32;
@@ -46,7 +46,7 @@ public:
         _claimer.release();
     }
 
-    UHD_INLINE sptr get_new(const double timeout, size_t &index){
+    SHD_INLINE sptr get_new(const double timeout, size_t &index){
         if (not _claimer.claim_with_wait(timeout)) return sptr();
 
         #ifdef MSG_DONTWAIT //try a non-blocking recv() if supported
@@ -98,12 +98,12 @@ public:
                 boost::this_thread::sleep(boost::posix_time::microseconds(1));
                 continue; //try to send again
             }
-            UHD_ASSERT_THROW(ret == ssize_t(size()));
+            SHD_ASSERT_THROW(ret == ssize_t(size()));
         }
         _claimer.release();
     }
 
-    UHD_INLINE sptr get_new(const double timeout, size_t &index){
+    SHD_INLINE sptr get_new(const double timeout, size_t &index){
         if (not _claimer.claim_with_wait(timeout)) return sptr();
         index++; //advances the caller's buffer
         return make(this, _mem, _frame_size);
@@ -144,7 +144,7 @@ public:
         _send_buffer_pool(buffer_pool::make(_num_send_frames, _send_frame_size)),
         _next_recv_buff_index(0), _next_send_buff_index(0)
     {
-        UHD_LOG << boost::format("Creating tcp transport for %s %s") % addr % port << std::endl;
+        SHD_LOG << boost::format("Creating tcp transport for %s %s") % addr % port << std::endl;
 
         //resolve the address
         asio::ip::tcp::resolver resolver(_io_service);

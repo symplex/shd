@@ -18,7 +18,7 @@
 
 if ! ls | grep host > /dev/null
 then
-    echo "This script must be run from UHD's top-level directory."
+    echo "This script must be run from SHD's top-level directory."
     exit 1
 fi
 if [ -f fpga-src/README.md ]; then
@@ -35,7 +35,7 @@ then
     fi
 fi
 
-UHD_TOP_LEVEL=$PWD
+SHD_TOP_LEVEL=$PWD
 
 # Get version info
 VERSION=`head -1 host/cmake/debian/changelog | grep -o '[0-9.]*' | head -1`
@@ -46,7 +46,7 @@ ORIG_RELEASE=`head -1 host/cmake/debian/changelog | sed 's/.*) \(.*\);.*/\1/'`
 # https://launchpad.net/ubuntu/+ppas
 #
 RELEASES="trusty vivid wily xenial yakkety"
-PPA=ppa:ettusresearch/uhd
+PPA=ppa:ettusresearch/shd
 
 #
 # Make sure this is the intended version.
@@ -54,7 +54,7 @@ PPA=ppa:ettusresearch/uhd
 # This is based on the contents of debian/changelog. If convert_changelog.py was not
 # run on this version, it will show the previous release.
 #
-echo "Will generate installer configuration files for UHD "$VERSION
+echo "Will generate installer configuration files for SHD "$VERSION
 if [ $FORCE_YES -ne 1 ]
 then
     echo "Is this correct? (yes/no)"
@@ -66,29 +66,29 @@ then
 fi
 
 # Generate the TAR file to be uploaded.
-echo "Creating UHD source archive."
-tar --exclude='.git*' --exclude='./debian' --exclude='*.swp' --exclude='fpga-src' --exclude='build' --exclude='./images/*.pyc' --exclude='./images/uhd-*' --exclude='tags' -cJf ../uhd_${VERSION}.orig.tar.xz .
+echo "Creating SHD source archive."
+tar --exclude='.git*' --exclude='./debian' --exclude='*.swp' --exclude='fpga-src' --exclude='build' --exclude='./images/*.pyc' --exclude='./images/shd-*' --exclude='tags' -cJf ../shd_${VERSION}.orig.tar.xz .
 if [ $? != 0 ]
 then
-    echo "Failed to create UHD source archive."
+    echo "Failed to create SHD source archive."
     exit 1
 fi
 
 # debuild expects our directory name to be ${source package}-${version}
-rm -f ${UHD_TOP_LEVEL}/../uhd-${VERSION}
-ln -s ${UHD_TOP_LEVEL} ${UHD_TOP_LEVEL}/../uhd-${VERSION}
-cd ${UHD_TOP_LEVEL}/../uhd-${VERSION}
+rm -f ${SHD_TOP_LEVEL}/../shd-${VERSION}
+ln -s ${SHD_TOP_LEVEL} ${SHD_TOP_LEVEL}/../shd-${VERSION}
+cd ${SHD_TOP_LEVEL}/../shd-${VERSION}
 
 #
 # Generate package info for each version.
 #
 # This script substitutes each version string into the debian/changelog file to
 # create package info for each version. We need to store the original outside the
-# UHD repo, or dpkg-source will detect the change and error out.
+# SHD repo, or dpkg-source will detect the change and error out.
 #
 cp -r host/cmake/debian .
-cp host/utils/uhd-usrp.rules debian/uhd-host.udev
-find host/docs -name '*.1' > debian/uhd-host.manpages
+cp host/utils/shd-smini.rules debian/shd-host.udev
+find host/docs -name '*.1' > debian/shd-host.manpages
 rm -f debian/postinst.in debian/postrm.in debian/preinst.in debian/prerm.in
 
 if [ $FORCE_YES -ne 1 ]
@@ -128,7 +128,7 @@ fi
 # Upload package into to Launchpad, which will automatically build packages
 for RELEASE in ${RELEASES}
 do
-    dput ${PPA} ../uhd_${VERSION}-0ubuntu1~${RELEASE}1_source.changes
+    dput ${PPA} ../shd_${VERSION}-0ubuntu1~${RELEASE}1_source.changes
     if [ $? != 0 ]
     then
         echo "Failed to upload" ${VERSION} "package info to Launchpad."
@@ -144,6 +144,6 @@ then
     if [ "$response" = "yes" ]
     then
         cd ..
-        rm -r ${UHD_TOP_LEVEL}/debian uhd-${VERSION} uhd_${VERSION}.orig.tar.xz uhd*dsc uhd*changes uhd*debian.tar.* uhd*_source.build uhd*.upload
+        rm -r ${SHD_TOP_LEVEL}/debian shd-${VERSION} shd_${VERSION}.orig.tar.xz shd*dsc shd*changes shd*debian.tar.* shd*_source.build shd*.upload
     fi
 fi

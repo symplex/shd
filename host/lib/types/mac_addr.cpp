@@ -15,18 +15,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/types/mac_addr.hpp>
-#include <uhd/exception.hpp>
+#include <shd/types/mac_addr.hpp>
+#include <shd/exception.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <stdint.h>
 #include <sstream>
 
-using namespace uhd;
+using namespace shd;
 
 mac_addr_t::mac_addr_t(const byte_vector_t &bytes) : _bytes(bytes){
-    UHD_ASSERT_THROW(_bytes.size() == 6);
+    SHD_ASSERT_THROW(_bytes.size() == 6);
 }
 
 mac_addr_t mac_addr_t::from_bytes(const byte_vector_t &bytes){
@@ -39,7 +39,7 @@ mac_addr_t mac_addr_t::from_string(const std::string &mac_addr_str){
 
     try{
         if (mac_addr_str.size() != 17){
-            throw uhd::value_error("expected exactly 17 characters");
+            throw shd::value_error("expected exactly 17 characters");
         }
 
         //split the mac addr hex string at the colons
@@ -54,7 +54,7 @@ mac_addr_t mac_addr_t::from_string(const std::string &mac_addr_str){
 
     }
     catch(std::exception const& e){
-        throw uhd::value_error(str(
+        throw shd::value_error(str(
             boost::format("Invalid mac address: %s\n\t%s") % mac_addr_str % e.what()
         ));
     }

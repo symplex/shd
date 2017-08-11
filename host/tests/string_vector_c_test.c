@@ -15,13 +15,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd.h>
+#include <shd.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define UHD_TEST_EXECUTE_OR_GOTO(label, ...) \
+#define SHD_TEST_EXECUTE_OR_GOTO(label, ...) \
     if(__VA_ARGS__){ \
         fprintf(stderr, "Error occurred at %s:%d\n", __FILE__, (__LINE__-1)); \
         return_code = EXIT_FAILURE; \
@@ -34,28 +34,28 @@ int main(){
 
     // Variables
     int return_code;
-    uhd_string_vector_handle string_vector;
+    shd_string_vector_handle string_vector;
     size_t size;
     char str_buffer[BUFFER_SIZE];
 
     return_code = EXIT_SUCCESS;
 
     // Create string_vector
-    UHD_TEST_EXECUTE_OR_GOTO(end_of_test,
-        uhd_string_vector_make(&string_vector)
+    SHD_TEST_EXECUTE_OR_GOTO(end_of_test,
+        shd_string_vector_make(&string_vector)
     )
 
     // Add values
-    UHD_TEST_EXECUTE_OR_GOTO(free_string_vector,
-        uhd_string_vector_push_back(&string_vector, "foo")
+    SHD_TEST_EXECUTE_OR_GOTO(free_string_vector,
+        shd_string_vector_push_back(&string_vector, "foo")
     )
-    UHD_TEST_EXECUTE_OR_GOTO(free_string_vector,
-        uhd_string_vector_push_back(&string_vector, "bar")
+    SHD_TEST_EXECUTE_OR_GOTO(free_string_vector,
+        shd_string_vector_push_back(&string_vector, "bar")
     )
 
     // Check size
-    UHD_TEST_EXECUTE_OR_GOTO(free_string_vector,
-        uhd_string_vector_size(string_vector, &size)
+    SHD_TEST_EXECUTE_OR_GOTO(free_string_vector,
+        shd_string_vector_size(string_vector, &size)
     )
     if(size != 2){
         return_code = EXIT_FAILURE;
@@ -65,8 +65,8 @@ int main(){
     }
 
     // Make sure we get right value
-    UHD_TEST_EXECUTE_OR_GOTO(free_string_vector,
-        uhd_string_vector_at(string_vector, 1, str_buffer, BUFFER_SIZE)
+    SHD_TEST_EXECUTE_OR_GOTO(free_string_vector,
+        shd_string_vector_at(string_vector, 1, str_buffer, BUFFER_SIZE)
     )
     if(strcmp(str_buffer, "bar")){
         return_code = EXIT_FAILURE;
@@ -77,10 +77,10 @@ int main(){
 
     free_string_vector:
         if(return_code){
-            uhd_string_vector_last_error(string_vector, str_buffer, BUFFER_SIZE);
+            shd_string_vector_last_error(string_vector, str_buffer, BUFFER_SIZE);
             fprintf(stderr, "string_vector error: %s\n", str_buffer);
         }
-        uhd_string_vector_free(&string_vector);
+        shd_string_vector_free(&string_vector);
 
     end_of_test:
         if(!return_code){

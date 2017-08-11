@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <stddef.h>
 
-#include "../../host/lib/usrp_clock/octoclock/common.h"
+#include "../../host/lib/smini_clock/octoclock/common.h"
 
 #define LOG_HEADER  "[Octoclock] "
 #define size_mem(t,m) sizeof(((t*)0)->m)

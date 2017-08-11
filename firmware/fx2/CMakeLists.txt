@@ -17,7 +17,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/config/Toolchain-sdcc.cmake)
-PROJECT(USRP1 C)
+PROJECT(SMINI1 C)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/config/")
 INCLUDE(FindPythonInterp)
 
@@ -30,7 +30,7 @@ ENABLE_LANGUAGE(ASM_SDCC)
 ########################################################################
 # C flags and linking flags
 ########################################################################
-ADD_DEFINITIONS(-DHAVE_USRP2)
+ADD_DEFINITIONS(-DHAVE_SMINI2)
 set(CMAKE_C_LINK_FLAGS "--code-loc 0x0000 --code-size 0x1800 --xram-loc 0x1800 --xram-size 0x0800 -Wl '-b USBDESCSEG = 0xE000'")
 set(CMAKE_C_FLAGS "--no-xinit-opt")
 
@@ -38,12 +38,12 @@ set(CMAKE_C_FLAGS "--no-xinit-opt")
 # Setup precompile tools
 ########################################################################
 set(REG_GENERATOR ${CMAKE_SOURCE_DIR}/utils/generate_regs.py)
-set(EDIT_GPIF_USRP1 ${CMAKE_SOURCE_DIR}/utils/edit-gpif.py)
+set(EDIT_GPIF_SMINI1 ${CMAKE_SOURCE_DIR}/utils/edit-gpif.py)
 set(EDIT_GPIF_B100 ${CMAKE_SOURCE_DIR}/utils/edit-gpif-b100.py)
 set(BUILD_EEPROM ${CMAKE_SOURCE_DIR}/utils/build_eeprom.py)
 
 ########################################################################
 # Add the subdirectories
 ########################################################################
-ADD_SUBDIRECTORY(usrp1)
+ADD_SUBDIRECTORY(smini1)
 ADD_SUBDIRECTORY(b100)

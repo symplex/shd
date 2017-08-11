@@ -28,8 +28,8 @@ and possible more options.
  ignore-cal-file     | Ignores existing device calibration files                                    | All Devices with cal-file support| See \ref ignore_cal_file
  master_clock_rate   | Master Clock Rate in Hz                                                      | X3x0, B2x0, B1x0, E3x0, E1x0 | master_clock_rate=16e6
  dboard_clock_rate   | Daughterboard clock rate in Hz                                               | X3x0               | dboard_clock_rate=50e6
- mcr                 | Override master clock rate settings (see \ref usrp1_hw_extclk)               | USRP1              | mcr=52e6
- niusrprpc_port      | RPC Port for NI USRP RIO                                                     | X3x0               | niusrprpc_port=5445
+ mcr                 | Override master clock rate settings (see \ref smini1_hw_extclk)               | SMINI1              | mcr=52e6
+ nisminirpc_port      | RPC Port for NI SMINI RIO                                                     | X3x0               | nisminirpc_port=5445
  system_ref_rate     | Reference Clock Rate in Hz                                                   | X3x0               | system_ref_rate=10e6
  self_cal_adc_delay  | Run ADC transfer delay self-calibration.                                     | X3x0               | self_cal_adc_delay=1
  ext_adc_self_test   | Run an extended ADC self test (more than the usual)                          | X3x0               | ext_adc_self_test=1
@@ -44,7 +44,7 @@ See \ref config_stream_args and \ref page_transport for more details.
 
 \section config_subdev Specifying the Subdevice
 
-A subdevice specification (or "subdev spec") string for USRP family devices is composed of:
+A subdevice specification (or "subdev spec") string for SMINI family devices is composed of:
 
     <motherboard slot name>:<daughterboard frontend name>
 
@@ -78,16 +78,16 @@ first radio ("channel 0") and slot A should be the second radio ("channel 1"):
     B:0 A:0
 
 On devices with more than one radio, setting the subdev spec to a single value
-declares that the other radio is not used. In a configuration with multiple USRPs,
+declares that the other radio is not used. In a configuration with multiple SMINIs,
 this means that this device will only be assigned a single channel.
 
-Note that a subdev spec string always only pertains to a *single* USRP, even if
-multiple USRPs are configured to run together. For such a configuration, you set
+Note that a subdev spec string always only pertains to a *single* SMINI, even if
+multiple SMINIs are configured to run together. For such a configuration, you set
 a subdev spec string for every device individually.
 
-\subsection config_subdev_slotnames USRP Family Motherboard Slot Names
+\subsection config_subdev_slotnames SMINI Family Motherboard Slot Names
 
-All USRP family motherboards have a first slot named **A:**. The USRP1 and X3x0
+All SMINI family motherboards have a first slot named **A:**. The SMINI1 and X3x0
 have two daughterboard subdevice slots, known as **A:** and **B:**.
 
 The B210 and E310 series have a different configuration, since their two radios
@@ -97,7 +97,7 @@ To select both radios on a B200 or an E300, use this string:
 
     A:A A:B
 
-\subsection config_subdev_default USRP Family Motherboard Slot Names
+\subsection config_subdev_default SMINI Family Motherboard Slot Names
 
 \subsection config_subdev_dbnames Daughterboard Frontend Names
 
@@ -108,8 +108,8 @@ frontend names available. The frontend names are documented in \ref page_dboards
 
 \section config_stream_args Streaming Arguments (Stream Args)
 
-When initializing a streamer using uhd::device::get_tx_stream() and/or uhd::device::get_rx_stream(),
-you must specify a uhd::stream_args_t object (see the manual for this struct and an in-depth
+When initializing a streamer using shd::device::get_tx_stream() and/or shd::device::get_rx_stream(),
+you must specify a shd::stream_args_t object (see the manual for this struct and an in-depth
 explanation of the individual components).
 
 */

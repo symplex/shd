@@ -16,12 +16,12 @@
 //
 
 #include "utils.hpp"
-#include <uhd/rfnoc/sink_block_ctrl_base.hpp>
-#include <uhd/rfnoc/constants.hpp>
-#include <uhd/utils/msg.hpp>
+#include <shd/rfnoc/sink_block_ctrl_base.hpp>
+#include <shd/rfnoc/constants.hpp>
+#include <shd/utils/msg.hpp>
 
-using namespace uhd;
-using namespace uhd::rfnoc;
+using namespace shd;
+using namespace shd::rfnoc;
 
 
 /***********************************************************************
@@ -30,7 +30,7 @@ using namespace uhd::rfnoc;
 stream_sig_t sink_block_ctrl_base::get_input_signature(size_t block_port) const
 {
     if (not _tree->exists(_root_path / "ports" / "in" / block_port)) {
-        throw uhd::runtime_error(str(
+        throw shd::runtime_error(str(
                 boost::format("Invalid port number %d for block %s")
                 % block_port % unique_id()
         ));
@@ -66,7 +66,7 @@ void sink_block_ctrl_base::configure_flow_control_in(
         size_t packets,
         size_t block_port
 ) {
-    UHD_RFNOC_BLOCK_TRACE() << boost::format("sink_block_ctrl_base::configure_flow_control_in(cycles=%d, packets=%d)") % cycles % packets << std::endl;
+    SHD_RFNOC_BLOCK_TRACE() << boost::format("sink_block_ctrl_base::configure_flow_control_in(cycles=%d, packets=%d)") % cycles % packets << std::endl;
     uint32_t cycles_word = 0;
     if (cycles) {
         cycles_word = (1<<31) | cycles;
@@ -99,7 +99,7 @@ void sink_block_ctrl_base::set_error_policy(
     {
         sr_write(SR_ERROR_POLICY, 1);
     }
-    else throw uhd::value_error("Block input cannot handle requested error policy: " + policy);
+    else throw shd::value_error("Block input cannot handle requested error policy: " + policy);
 }
 
 /***********************************************************************
@@ -107,7 +107,7 @@ void sink_block_ctrl_base::set_error_policy(
  **********************************************************************/
 size_t sink_block_ctrl_base::_request_input_port(
         const size_t suggested_port,
-        const uhd::device_addr_t &
+        const shd::device_addr_t &
 ) const {
     const std::set<size_t> valid_input_ports = utils::str_list_to_set<size_t>(_tree->list(_root_path / "ports" / "in"));
     return utils::node_map_find_first_free(_upstream_nodes, suggested_port, valid_input_ports);

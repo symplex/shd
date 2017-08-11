@@ -18,14 +18,14 @@
 #include <boost/format.hpp>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/property_tree.hpp>
-#include <uhd/rfnoc/constants.hpp>
-#include <uhd/rfnoc/block_id.hpp>
+#include <shd/exception.hpp>
+#include <shd/property_tree.hpp>
+#include <shd/rfnoc/constants.hpp>
+#include <shd/rfnoc/block_id.hpp>
 
 #include <iostream>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 block_id_t::block_id_t() :
     _device_no(0),
@@ -40,7 +40,7 @@ block_id_t::block_id_t(const std::string &block_str)
     _block_ctr(0)
 {
     if (not set(block_str)) {
-        throw uhd::value_error("block_id_t: Invalid block ID string.");
+        throw shd::value_error("block_id_t: Invalid block ID string.");
     }
 }
 
@@ -53,7 +53,7 @@ block_id_t::block_id_t(
     _block_ctr(block_ctr)
 {
     if (not is_valid_blockname(block_name)) {
-        throw uhd::value_error("block_id_t: Invalid block name.");
+        throw shd::value_error("block_id_t: Invalid block name.");
     }
 }
 
@@ -83,7 +83,7 @@ std::string block_id_t::get_local() const
     );
 }
 
-uhd::fs_path block_id_t::get_tree_root() const
+shd::fs_path block_id_t::get_tree_root() const
 {
     return str(boost::format("/mboards/%d/xbar/%s")
         % get_device_no()

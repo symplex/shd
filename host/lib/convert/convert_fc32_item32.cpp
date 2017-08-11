@@ -16,12 +16,12 @@
 //
 
 #include "convert_common.hpp"
-#include <uhd/utils/byteswap.hpp>
-#include <uhd/utils/msg.hpp>
+#include <shd/utils/byteswap.hpp>
+#include <shd/utils/msg.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <vector>
 
-using namespace uhd::convert;
+using namespace shd::convert;
 
 typedef uint32_t (*to32_type)(uint32_t);
 
@@ -95,20 +95,20 @@ static converter::sptr make_convert_ ## itype ## _1_ ## otype ## _1(void) \
 { \
     return converter::sptr(new fcn<type, conv>()); \
 } \
-UHD_STATIC_BLOCK(register_convert_ ## itype ## _1_ ## otype ## _1) \
+SHD_STATIC_BLOCK(register_convert_ ## itype ## _1_ ## otype ## _1) \
 { \
-    uhd::convert::id_type id; \
+    shd::convert::id_type id; \
     id.num_inputs = 1; id.num_outputs = 1;  \
     id.input_format = #itype; id.output_format = #otype; \
-    uhd::convert::register_converter(id, &make_convert_ ## itype ## _1_ ## otype ## _1, PRIORITY_GENERAL); \
+    shd::convert::register_converter(id, &make_convert_ ## itype ## _1_ ## otype ## _1, PRIORITY_GENERAL); \
 }
 
-__make_registrations(fc32_item32_le, fc32, convert_fc32_item32_1_to_star_1, float, uhd::wtohx)
-__make_registrations(fc32_item32_be, fc32, convert_fc32_item32_1_to_star_1, float, uhd::ntohx)
-__make_registrations(fc32_item32_le, fc64, convert_fc32_item32_1_to_star_1, double, uhd::wtohx)
-__make_registrations(fc32_item32_be, fc64, convert_fc32_item32_1_to_star_1, double, uhd::ntohx)
+__make_registrations(fc32_item32_le, fc32, convert_fc32_item32_1_to_star_1, float, shd::wtohx)
+__make_registrations(fc32_item32_be, fc32, convert_fc32_item32_1_to_star_1, float, shd::ntohx)
+__make_registrations(fc32_item32_le, fc64, convert_fc32_item32_1_to_star_1, double, shd::wtohx)
+__make_registrations(fc32_item32_be, fc64, convert_fc32_item32_1_to_star_1, double, shd::ntohx)
 
-__make_registrations(fc32, fc32_item32_le, convert_star_1_to_fc32_item32_1, float, uhd::wtohx)
-__make_registrations(fc32, fc32_item32_be, convert_star_1_to_fc32_item32_1, float, uhd::ntohx)
-__make_registrations(fc64, fc32_item32_le, convert_star_1_to_fc32_item32_1, double, uhd::wtohx)
-__make_registrations(fc64, fc32_item32_be, convert_star_1_to_fc32_item32_1, double, uhd::ntohx)
+__make_registrations(fc32, fc32_item32_le, convert_star_1_to_fc32_item32_1, float, shd::wtohx)
+__make_registrations(fc32, fc32_item32_be, convert_star_1_to_fc32_item32_1, float, shd::ntohx)
+__make_registrations(fc64, fc32_item32_le, convert_star_1_to_fc32_item32_1, double, shd::wtohx)
+__make_registrations(fc64, fc32_item32_be, convert_star_1_to_fc32_item32_1, double, shd::ntohx)

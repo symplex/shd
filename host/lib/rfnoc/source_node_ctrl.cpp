@@ -16,16 +16,16 @@
 //
 
 #include "utils.hpp"
-#include <uhd/utils/msg.hpp>
-#include <uhd/rfnoc/source_node_ctrl.hpp>
-#include <uhd/rfnoc/sink_node_ctrl.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/rfnoc/source_node_ctrl.hpp>
+#include <shd/rfnoc/sink_node_ctrl.hpp>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 size_t source_node_ctrl::connect_downstream(
         node_ctrl_base::sptr downstream_node,
         size_t port,
-        const uhd::device_addr_t &args
+        const shd::device_addr_t &args
 ) {
     boost::mutex::scoped_lock lock(_output_mutex);
     port = _request_output_port(port, args);
@@ -35,7 +35,7 @@ size_t source_node_ctrl::connect_downstream(
 
 void source_node_ctrl::set_rx_streamer(bool active, const size_t port)
 {
-    UHD_RFNOC_BLOCK_TRACE() << "source_node_ctrl::set_rx_streamer() " << port << " -> " << active << std::endl;
+    SHD_RFNOC_BLOCK_TRACE() << "source_node_ctrl::set_rx_streamer() " << port << " -> " << active << std::endl;
 
     /* This will enable all upstream blocks:
     BOOST_FOREACH(const node_ctrl_base::node_map_pair_t upstream_node, list_upstream_nodes()) {
@@ -67,7 +67,7 @@ void source_node_ctrl::set_rx_streamer(bool active, const size_t port)
 
 size_t source_node_ctrl::_request_output_port(
         const size_t suggested_port,
-        const uhd::device_addr_t &
+        const shd::device_addr_t &
 ) const {
     return utils::node_map_find_first_free(_downstream_nodes, suggested_port);
 }
@@ -78,16 +78,16 @@ void source_node_ctrl::_register_downstream_node(
 ) {
     // Do all the checks:
     if (port == ANY_PORT) {
-        throw uhd::type_error(str(
+        throw shd::type_error(str(
                 boost::format("[%s] Invalid output port number (ANY).")
                 % unique_id()
         ));
     }
     if (_downstream_nodes.count(port) and not _downstream_nodes[port].expired()) {
-        throw uhd::runtime_error(str(boost::format("On node %s, output port %d is already connected.") % unique_id() % port));
+        throw shd::runtime_error(str(boost::format("On node %s, output port %d is already connected.") % unique_id() % port));
     }
     if (not boost::dynamic_pointer_cast<sink_node_ctrl>(downstream_node)) {
-        throw uhd::type_error("Attempting to register a non-sink block as downstream.");
+        throw shd::type_error("Attempting to register a non-sink block as downstream.");
     }
     // Alles klar, Herr Kommissar :)
 

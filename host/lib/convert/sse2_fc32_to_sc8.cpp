@@ -16,13 +16,13 @@
 //
 
 #include "convert_common.hpp"
-#include <uhd/utils/byteswap.hpp>
+#include <shd/utils/byteswap.hpp>
 #include <emmintrin.h>
 
-using namespace uhd::convert;
+using namespace shd::convert;
 
 template <const int shuf>
-UHD_INLINE __m128i pack_sc32_4x(
+SHD_INLINE __m128i pack_sc32_4x(
     const __m128 &in0, const __m128 &in1,
     const __m128 &in2, const __m128 &in3,
     const __m128 &scalar
@@ -75,7 +75,7 @@ DECLARE_CONVERTER(fc32, 1, sc8_item32_be, 1, PRIORITY_SIMD){
     }
 
     //convert remainder
-    xx_to_item32_sc8<uhd::htonx>(input+i, output+(i/2), nsamps-i, scale_factor);
+    xx_to_item32_sc8<shd::htonx>(input+i, output+(i/2), nsamps-i, scale_factor);
 }
 
 DECLARE_CONVERTER(fc32, 1, sc8_item32_le, 1, PRIORITY_SIMD){
@@ -111,5 +111,5 @@ DECLARE_CONVERTER(fc32, 1, sc8_item32_le, 1, PRIORITY_SIMD){
     }
 
     //convert remainder
-    xx_to_item32_sc8<uhd::htowx>(input+i, output+(i/2), nsamps-i, scale_factor);
+    xx_to_item32_sc8<shd::htowx>(input+i, output+(i/2), nsamps-i, scale_factor);
 }

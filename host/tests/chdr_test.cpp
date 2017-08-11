@@ -15,14 +15,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/chdr.hpp>
-#include <uhd/utils/byteswap.hpp>
+#include <shd/transport/chdr.hpp>
+#include <shd/utils/byteswap.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/format.hpp>
 #include <cstdlib>
 #include <iostream>
 
-using namespace uhd::transport::vrt;
+using namespace shd::transport::vrt;
 
 static void pack_and_unpack(
     if_packet_info_t &if_packet_info_in
@@ -46,14 +46,14 @@ static void pack_and_unpack(
         packet_buff, if_packet_info_in
     );
     std::cout << std::endl;
-    uint32_t header_bits = (uhd::ntohx(packet_buff[0]) >> 28);
+    uint32_t header_bits = (shd::ntohx(packet_buff[0]) >> 28);
     std::cout << boost::format("header bits = 0b%d%d%d%d") % ((header_bits & 8) > 0)
                                                            % ((header_bits & 4) > 0)
                                                            % ((header_bits & 2) > 0)
                                                            % ((header_bits & 1) > 0) << std::endl;
     for (size_t i = 0; i < 5; i++)
     {
-        std::cout << boost::format("packet_buff[%u] = 0x%08x") % i % uhd::ntohx(packet_buff[i]) << std::endl;
+        std::cout << boost::format("packet_buff[%u] = 0x%08x") % i % shd::ntohx(packet_buff[i]) << std::endl;
     }
 
     if_packet_info_t if_packet_info_out;

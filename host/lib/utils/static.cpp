@@ -15,10 +15,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/static.hpp>
+#include <shd/utils/static.hpp>
 #include <stdexcept>
 #include <iostream>
-_uhd_static_fixture::_uhd_static_fixture(void (*fcn)(void), const char *name){
+_shd_static_fixture::_shd_static_fixture(void (*fcn)(void), const char *name){
     try{
         fcn();
     }

@@ -1,7 +1,7 @@
 ########################################################################
 # Toolchain file for cross building for ARM Cortex A8 w/ NEON
 # Usage:  cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/arm_cortex_a8_\
-cross.cmake -DENABLE_E100=ON -DENABLE_USRP_E_UTILS=TRUE -DENABLE_ORC=ON \
+cross.cmake -DENABLE_E100=ON -DENABLE_SMINI_E_UTILS=TRUE -DENABLE_ORC=ON \
 -DCAMKE_INSTALL_PREFIX=./install ../
 ########################################################################
 set( CMAKE_SYSTEM_NAME Linux )

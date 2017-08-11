@@ -6,8 +6,8 @@
 
 \subsection linux_requirements Requirements
 
-In order to use the PCIe transport connection on the USRP X300 / X310 devices,
-you must install the NI USRP RIO driver stack. These include kernel modules
+In order to use the PCIe transport connection on the SMINI X300 / X310 devices,
+you must install the NI SMINI RIO driver stack. These include kernel modules
 which must be loaded.
 
 Your kernel version must be supported by the kernel modules. Only 64-bit kernels
@@ -17,19 +17,19 @@ are supported.
 
 \subsection linux_installation Installing the Drivers in Linux
 
-The NI USRP RIO installer can be found <a
-href=http://files.ettus.com/binaries/niusrprio/niusrprio-installer-15.0.0.tar.gz>here</a>.
+The NI SMINI RIO installer can be found <a
+href=http://files.ettus.com/binaries/nisminirio/nisminirio-installer-15.0.0.tar.gz>here</a>.
 
 Download the installer and extract it with the following command:
 
-    tar zxf niusrprio-installer-15.0.0.tar.gz
+    tar zxf nisminirio-installer-15.0.0.tar.gz
 
-The files will be extracted into a directory called <b>niusrprio-installer</b>.
+The files will be extracted into a directory called <b>nisminirio-installer</b>.
 
-To install the NI USRPRIO kernel modules and RPC server, run the following
+To install the NI SMINIRIO kernel modules and RPC server, run the following
 command:
 
-    sudo niusrprio-installer/INSTALL
+    sudo nisminirio-installer/INSTALL
 
 Select 'y' for each prompt, and the script will install all necessary
 components.  This script will automatically load all necessary kernel modules
@@ -40,53 +40,53 @@ for the duration of the session.
 Once everything is installed, run the following commands to enable use of the
 X300/X310 over PCI Express:
 
-    sudo /usr/local/bin/niusrprio_pcie start
+    sudo /usr/local/bin/nisminirio_pcie start
 
 To stop these processes, run the following command:
 
-    sudo /usr/local/bin/niusrprio_pcie stop
+    sudo /usr/local/bin/nisminirio_pcie stop
 
 To check if the kernel modules are loaded and if the RPC server is running, run
 the following command:
 
-    /usr/local/bin/niusrprio_pcie status
+    /usr/local/bin/nisminirio_pcie status
 
-<b>NOTE:</b> niusrprio_pcie start does not run when the host system is booted.
-If you would like the USRP PCIe device to be available automatically after
-a system restart, please create an init.d script that runs niusrprio_pcie start.
+<b>NOTE:</b> nisminirio_pcie start does not run when the host system is booted.
+If you would like the SMINI PCIe device to be available automatically after
+a system restart, please create an init.d script that runs nisminirio_pcie start.
 
 \subsection linux_swapping Hot-Plugging and Power-Cycling
 
-The USRP X3x0, NI USRP-294x and NI USRP-295x devices <b>cannot</b> be hot-swapped when connected over PCI Express.
+The SMINI X3x0, NI SMINI-294x and NI SMINI-295x devices <b>cannot</b> be hot-swapped when connected over PCI Express.
 Unplugging the PCI Express connection or powering the device should be done only after disabling the device or
 powering off the host computer.
 
-<b>WARNING:</b> If the device is unplugged without running the `niusrprio_pcie stop` command, the system could become unstable.
+<b>WARNING:</b> If the device is unplugged without running the `nisminirio_pcie stop` command, the system could become unstable.
 
 \subsection linux_upgrades Upgrading Kernels
 
-The NI USRPRIO kernel modules are built for a specific kernel version. If you
+The NI SMINIRIO kernel modules are built for a specific kernel version. If you
 upgrade/downgrade the linux kernel on the host to a version different from the
 one that the installer was run on, then you may see the following error message
-when running `niusrprio start`.
+when running `nisminirio start`.
 
     ERROR: could not insert 'NiRioSrv': Unknown symbol in module, or unknown
-    parameter (see dmesg) ERROR: could not insert 'niusrpriok': Unknown symbol
+    parameter (see dmesg) ERROR: could not insert 'nisminiriok': Unknown symbol
     in module, or unknown parameter (see dmesg)
 
 To rebuild the kernel modules for the currently running kernel, simple run the
 following
 
-    sudo /usr/local/bin/niusrprio_pcie stop 
+    sudo /usr/local/bin/nisminirio_pcie stop 
     sudo /usr/local/bin/updateNIDrivers --no-prompt 
-    sudo /usr/local/bin/niusrprio_pcie start
+    sudo /usr/local/bin/nisminirio_pcie start
 
 \subsection linux_uninstalling Uninstalling in Linux
 
-To uninstall the NI USRP RIO kernel modules and RPC server, run the following
+To uninstall the NI SMINI RIO kernel modules and RPC server, run the following
 command:
 
-    sudo /usr/local/bin/niusrprio_uninstall
+    sudo /usr/local/bin/nisminirio_uninstall
 
 Select y at the prompt, and the script will uninstall all installed components.
 
@@ -105,20 +105,20 @@ The kernel driver is only supported on:
 - Windows Vista 64-bit
 - Windows XP (SP3) 32-bit.
 
-\subsection win_install Installing NI-USRP in Windows
+\subsection win_install Installing NI-SMINI in Windows
 
-The NI-USRP 14.5 installer can be found <a
-href="http://search.ni.com/nisearch/app/main/p/bot/no/ap/global/lang/en/pg/1/q/NI-USRP%2014.5/">here</a> You will need to
+The NI-SMINI 14.5 installer can be found <a
+href="http://search.ni.com/nisearch/app/main/p/bot/no/ap/global/lang/en/pg/1/q/NI-SMINI%2014.5/">here</a> You will need to
 create a free NI User Account to download the installer.
 
-Perform the following steps to download and install the NI-USRP exe driver
+Perform the following steps to download and install the NI-SMINI exe driver
 package:
 
-- Choose the "2. Standard Download:NIUSRP1450.zip" option to download NIUSRP1450.zip to your computer 
-- Extract the contents of NIUSRP1450.zip to 'C:\\National Instruments Downloads\\NI-USRP\\14.5'
+- Choose the "2. Standard Download:NISMINI1450.zip" option to download NISMINI1450.zip to your computer 
+- Extract the contents of NISMINI1450.zip to 'C:\\National Instruments Downloads\\NI-SMINI\\14.5'
 - In the extract location, run setup.exe and follow the prompts.
 
-Reboot the computer after both the NI-USRP package has been installed.
+Reboot the computer after both the NI-SMINI package has been installed.
 
 \subsection win_enabling Enabling and Disabling Usage
 
@@ -126,21 +126,21 @@ Once everything is installed and the system is rebooted, your X300/X310 PCI
 Express device should automatically be detected by the Windows Device Manager.
 The device should be enabled by default.
 
-- To disable the USRPRIO device, navigate to "Device Manager", locate your USRPRIO-X3x0 device, right-click on it and choose "Disable"
-- To enable the USRPRIO device, navigate to "Device Manager", locate your USRPRIO-X3x0 device, right-click on it and choose "Enable".
+- To disable the SMINIRIO device, navigate to "Device Manager", locate your SMINIRIO-X3x0 device, right-click on it and choose "Disable"
+- To enable the SMINIRIO device, navigate to "Device Manager", locate your SMINIRIO-X3x0 device, right-click on it and choose "Enable".
 
 \subsection win_swapping Hot-plugging and Power-cycling
 
-The USRP X3x0, NI USRP-294x and NI USRP-295x devices <b>cannot</b> be hot-swapped when connected over PCI Express.
+The SMINI X3x0, NI SMINI-294x and NI SMINI-295x devices <b>cannot</b> be hot-swapped when connected over PCI Express.
 Unplugging the PCI Express connection or powering the device should be done only after disabling the device or
 powering off the host computer.
 
 <b>WARNING:</b> If the device is unplugged without disabling it in device manager, the system could become unstable.
 
-\subsection win_uninstall Uninstalling NI-USRP in Windows
+\subsection win_uninstall Uninstalling NI-SMINI in Windows
 
 Navigate to the Control Panel and open "Programs". Then select National
-Instruments Software and select NI-USRP and NI-RIO from the list. Click on
+Instruments Software and select NI-SMINI and NI-RIO from the list. Click on
 uninstall to remove the drivers from your system.
 
 */

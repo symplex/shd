@@ -1,0 +1,4 @@
+usr/include
+usr/lib/*/pkgconfig
+usr/lib/*/libshd.so
+usr/share/doc/shd/doxygen /usr/share/doc/libshd-dev/

@@ -15,20 +15,20 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/chdr.hpp>
-#include <uhd/utils/byteswap.hpp>
-#include <uhd/exception.hpp>
+#include <shd/transport/chdr.hpp>
+#include <shd/utils/byteswap.hpp>
+#include <shd/exception.hpp>
 
 //define the endian macros to convert integers
 #ifdef BOOST_BIG_ENDIAN
     #define BE_MACRO(x) (x)
-    #define LE_MACRO(x) uhd::byteswap(x)
+    #define LE_MACRO(x) shd::byteswap(x)
 #else
-    #define BE_MACRO(x) uhd::byteswap(x)
+    #define BE_MACRO(x) shd::byteswap(x)
     #define LE_MACRO(x) (x)
 #endif
 
-using namespace uhd::transport::vrt;
+using namespace shd::transport::vrt;
 
 static const uint32_t HDR_FLAG_TSF = (1 << 29);
 static const uint32_t HDR_FLAG_EOB = (1 << 28);
@@ -39,7 +39,7 @@ static const uint32_t HDR_FLAG_ERROR = (1 << 28);
 /***************************************************************************/
 /*! Translate the contents of \p if_packet_info into a 32-Bit word and return it.
  */
-UHD_INLINE uint32_t _hdr_pack_chdr(
+SHD_INLINE uint32_t _hdr_pack_chdr(
         if_packet_info_t &if_packet_info
 ) {
     // Set fields in if_packet_info
@@ -102,7 +102,7 @@ void chdr::if_hdr_pack_le(
 /***************************************************************************/
 /* Unpacking                                                               */
 /***************************************************************************/
-UHD_INLINE void _hdr_unpack_chdr(
+SHD_INLINE void _hdr_unpack_chdr(
         const uint32_t chdr,
         if_packet_info_t &if_packet_info
 ) {
@@ -133,10 +133,10 @@ UHD_INLINE void _hdr_unpack_chdr(
     size_t pkt_size_word32 = (pkt_size_bytes / 4) + ((pkt_size_bytes % 4) ? 1 : 0);
     // Check lengths match:
     if (pkt_size_word32 < if_packet_info.num_header_words32) {
-        throw uhd::value_error("Bad CHDR or invalid packet length");
+        throw shd::value_error("Bad CHDR or invalid packet length");
     }
     if (if_packet_info.num_packet_words32 < pkt_size_word32) {
-        throw uhd::value_error("Bad CHDR or packet fragment");
+        throw shd::value_error("Bad CHDR or packet fragment");
     }
     if_packet_info.num_payload_bytes = pkt_size_bytes - (4 * if_packet_info.num_header_words32);
     if_packet_info.num_payload_words32 = pkt_size_word32 - if_packet_info.num_header_words32;

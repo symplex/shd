@@ -15,22 +15,22 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/types/sid.hpp>
-#include <uhd/transport/zero_copy.hpp>
+#include <shd/types/sid.hpp>
+#include <shd/transport/zero_copy.hpp>
 
-namespace uhd {
+namespace shd {
 
     /*! Holds all necessary items for a bidirectional link
      */
     struct both_xports_t
     {
         both_xports_t(): recv_buff_size(0), send_buff_size(0) {}
-        uhd::transport::zero_copy_if::sptr recv;
-        uhd::transport::zero_copy_if::sptr send;
+        shd::transport::zero_copy_if::sptr recv;
+        shd::transport::zero_copy_if::sptr send;
         size_t recv_buff_size;
         size_t send_buff_size;
-        uhd::sid_t send_sid;
-        uhd::sid_t recv_sid;
+        shd::sid_t send_sid;
+        shd::sid_t recv_sid;
     };
 
 };

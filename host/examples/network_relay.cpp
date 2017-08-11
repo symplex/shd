@@ -15,8 +15,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/utils/safe_main.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/utils/safe_main.hpp>
 #include <boost/program_options.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/thread.hpp>
@@ -34,7 +34,7 @@ typedef boost::shared_ptr<asio::ip::udp::socket> socket_type;
 
 static const size_t insane_mtu = 9000;
 
-#if defined(UHD_PLATFORM_MACOS)
+#if defined(SHD_PLATFORM_MACOS)
     //limit buffer resize on macos or it will error
     const size_t rx_dsp_buff_size = size_t(1e6);
 #else
@@ -122,7 +122,7 @@ private:
     }
 
     void server_thread(void){
-        uhd::set_thread_priority_safe();
+        shd::set_thread_priority_safe();
         std::cout << "    entering server_thread..." << std::endl;
         wait_for_thread.notify_one();    // notify constructor that this thread has started
         std::vector<char> buff(insane_mtu);
@@ -148,7 +148,7 @@ private:
     }
 
     void client_thread(void){
-        uhd::set_thread_priority_safe();
+        shd::set_thread_priority_safe();
         std::cout << "    entering client_thread..." << std::endl;
         wait_for_thread.notify_one();    // notify constructor that this thread has started
         std::vector<char> buff(insane_mtu);
@@ -176,8 +176,8 @@ private:
 /***********************************************************************
  * Main
  **********************************************************************/
-int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+int SHD_SAFE_MAIN(int argc, char *argv[]){
+    shd::set_thread_priority_safe();
 
     //variables to be set by po
     std::string addr;
@@ -187,7 +187,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "help message")
-        ("addr", po::value<std::string>(&addr), "the resolvable address of the usrp (must be specified)")
+        ("addr", po::value<std::string>(&addr), "the resolvable address of the smini (must be specified)")
         ("bind", po::value<std::string>(&bind)->default_value("0.0.0.0"), "bind the server to this network address (default: any)")
     ;
     po::variables_map vm;
@@ -197,8 +197,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     //print the help message
     if (vm.count("help") or not vm.count("addr")){
         std::cout
-            << boost::format("UHD Network Relay %s") % desc << std::endl
-            << "Runs a network relay between UHD on one computer and a USRP on the network.\n"
+            << boost::format("SHD Network Relay %s") % desc << std::endl
+            << "Runs a network relay between SHD on one computer and a SMINI on the network.\n"
             << "This example is basically for test purposes. Use at your own convenience.\n"
             << std::endl;
         return EXIT_FAILURE;

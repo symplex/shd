@@ -7,8 +7,8 @@ will work regardless of attached daughterboards, FPGIO wiring etc.
 ## Adding new tests
 
 To add new tests, add new files with classes that derive from unittest.TestCase.
-Most of the time, you'll want to derive from `uhd_test_case` or
-`uhd_example_test_case`.
+Most of the time, you'll want to derive from `shd_test_case` or
+`shd_example_test_case`.
 
 ## Adding new devices
 

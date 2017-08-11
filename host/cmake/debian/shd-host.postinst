@@ -1,0 +1,17 @@
+#! /bin/sh
+
+set -e
+if [ "$1" = "configure" ]; then
+ # Create smini group for udev access
+ if ! getent group smini >/dev/null; then
+   addgroup --system smini
+ fi
+ # Apply smini2 networking optimization
+ if [ -x "`which sysctl 2>/dev/null`" ]; then
+   sysctl -p /etc/sysctl.d/shd-smini2.conf || echo "Warning: Could not update sysctl settings for network devices."
+ fi
+fi
+
+#DEBHELPER#
+
+exit 0

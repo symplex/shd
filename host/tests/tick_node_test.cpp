@@ -16,11 +16,11 @@
 //
 
 #include "graph.hpp"
-#include <uhd/rfnoc/tick_node_ctrl.hpp>
+#include <shd/rfnoc/tick_node_ctrl.hpp>
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 
-using namespace uhd::rfnoc;
+using namespace shd::rfnoc;
 
 // test class derived, knows about rates
 class tick_aware_node : public test_node, public tick_node_ctrl
@@ -117,5 +117,5 @@ BOOST_AUTO_TEST_CASE(test_both_ways_search_fail)
     node_B->set_rx_streamer(true, 0);
     node_C->set_rx_streamer(true, 0);
 
-    BOOST_CHECK_THROW(node_B->get_tick_rate(), uhd::runtime_error);
+    BOOST_CHECK_THROW(node_B->get_tick_rate(), shd::runtime_error);
 }

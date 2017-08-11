@@ -15,20 +15,20 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <uhd/transport/zero_copy_recv_offload.hpp>
-#include <uhd/transport/bounded_buffer.hpp>
-#include <uhd/transport/buffer_pool.hpp>
-#include <uhd/utils/msg.hpp>
-#include <uhd/utils/log.hpp>
-#include <uhd/utils/safe_call.hpp>
+#include <shd/transport/zero_copy_recv_offload.hpp>
+#include <shd/transport/bounded_buffer.hpp>
+#include <shd/transport/buffer_pool.hpp>
+#include <shd/utils/msg.hpp>
+#include <shd/utils/log.hpp>
+#include <shd/utils/safe_call.hpp>
 #include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
-using namespace uhd;
-using namespace uhd::transport;
+using namespace shd;
+using namespace shd::transport;
 
 typedef bounded_buffer<managed_recv_buffer::sptr> bounded_buffer_t;
 
@@ -47,7 +47,7 @@ public:
         _inbox(transport->get_num_recv_frames()),
         _recv_done(false)
     {
-        UHD_LOG << "Created threaded transport" << std::endl;
+        SHD_LOG << "Created threaded transport" << std::endl;
 
         // Create the receive and send threads to offload
         // the system calls onto other threads
@@ -75,7 +75,7 @@ public:
         set_recv_done();
 
         // Wait for them to join
-        UHD_SAFE_CALL(
+        SHD_SAFE_CALL(
             _recv_thread.join();
         )
     }

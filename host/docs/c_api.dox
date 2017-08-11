@@ -1,19 +1,19 @@
-/*! \page page_c_api UHD - C API
+/*! \page page_c_api SHD - C API
 
 \tableofcontents
 
 \section c_api_intro Introduction
 
-Alongside its C++ API, UHD provides a C API wrapper for the
-uhd::usrp::multi_usrp and uhd::usrp_clock::multi_usrp_clock classes, as well as
-their associated classes and structs. Other important UHD functions are also
+Alongside its C++ API, SHD provides a C API wrapper for the
+shd::smini::multi_smini and shd::smini_clock::multi_smini_clock classes, as well as
+their associated classes and structs. Other important SHD functions are also
 included in this API. To use this API, simply:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.c}
-#include <uhd.h>
+#include <shd.h>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-...and all UHD C-level structs and functions will be available to you. The
+...and all SHD C-level structs and functions will be available to you. The
 sections below give more detail on the key features of the C API.
 
 Keep in mind that the C-API is a wrapper around the C++ API, so performance can
@@ -24,8 +24,8 @@ never exceed that of the C++ API.
 The C API was designed to mirror the C++ API as closely as possible. This means
 that most API calls are mapped 1:1 from C++ to C, and the documentation for the
 C++ API can still be useful and should be considered when using the C API.
-For example, the uhd_usrp_set_rx_antenna() and
-uhd::multi_usrp::set_rx_antenna() calls do the same thing under the hood, and
+For example, the shd_smini_set_rx_antenna() and
+shd::multi_smini::set_rx_antenna() calls do the same thing under the hood, and
 thus, if the behaviour of the C API call is unclear, consulting the
 corresponding C++ API call documentation can be helpful.
 
@@ -35,7 +35,7 @@ and exceptions, which are translated into error codes (see \ref c_api_errorcode)
 
 \subsection c_api_handles C-Level Handles
 
-Most of the UHD classes that can be accessed on the C level are done so through handles,
+Most of the SHD classes that can be accessed on the C level are done so through handles,
 which internally store the C++ representation and allow access to internal values
 through helper functions.
 
@@ -46,15 +46,15 @@ leak. The example below shows the proper usage of an RX metadata handle over the
 lifetime, from instantiation to destruction.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.c}
-uhd_rx_metadata_handle md;
-uhd_rx_metadata_make(&md);
+shd_rx_metadata_handle md;
+shd_rx_metadata_make(&md);
 
 // Streaming here puts useful information into metadata
 time_t full_secs;
 double frac_secs;
-uhd_rx_metadata_time_spec(md, &full_secs, &frac_secs);
+shd_rx_metadata_time_spec(md, &full_secs, &frac_secs);
 
-uhd_rx_metadata_free(&md);
+shd_rx_metadata_free(&md);
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Again, make sure to pass your handle into a make() function before using it, or you will
@@ -63,41 +63,41 @@ a free() function, or your program will segfault.
 
 \subsection c_api_errorcode Error Codes
 
-As C cannot handle C++ runtime exceptions, UHD's C wrapper functions catch all exceptions
+As C cannot handle C++ runtime exceptions, SHD's C wrapper functions catch all exceptions
 and translate them into error codes, which are returned by each function. Any output variables
 are passed in as pointers into the function, which will set them internally.
 
-Each uhd::runtime_error has a corresponding ::uhd_error value. Separate error codes indicate
+Each shd::runtime_error has a corresponding ::shd_error value. Separate error codes indicate
 that a boost::exception or std::exception has been thrown, and any other exceptions are
-indicated by a catch-all ::UHD_ERROR_UNKNOWN code.
+indicated by a catch-all ::SHD_ERROR_UNKNOWN code.
 
-All UHD C-level handles store the string representation of the last C++ exception thrown internally.
+All SHD C-level handles store the string representation of the last C++ exception thrown internally.
 These handles have corresponding *_get_last_error() functions that will place the error string into a
 supplied string buffer.
 
-For example, if a USRP device's handle throws an exception internally, the following code can access
+For example, if a SMINI device's handle throws an exception internally, the following code can access
 its error info:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
 char err_msg[256];
-uhd_usrp_handle usrp;
+shd_smini_handle smini;
 double gain;
-// USRP configuration done here
-uhd_error error_code = uhd_usrp_get_rx_gain(usrp, 0, "", &gain);
+// SMINI configuration done here
+shd_error error_code = shd_smini_get_rx_gain(smini, 0, "", &gain);
 if(error_code){
-    uhd_usrp_get_last_error(usrp, err_msg, 256);
+    shd_smini_get_last_error(smini, err_msg, 256);
     fprintf(stderr, "Error code %d: %s\n", error_code, err_msg);
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-All error codes can be found in <uhd/error.h>.
+All error codes can be found in <shd/error.h>.
 
 \subsection c_api_examples Example Code
 
-UHD provides two examples that demonstrate the typical use case of the C API: RX and TX streaming.
+SHD provides two examples that demonstrate the typical use case of the C API: RX and TX streaming.
 The <b>rx_samples_c</b> example is a simplified C version of <b>rx_samples_to_file</b>,
 and the <b>tx_samples_c</b> example is a simplified C version of <b>tx_waveforms</b>. These examples
-can be easily adapted or serve as a starting point for your own UHD C applications.
+can be easily adapted or serve as a starting point for your own SHD C applications.
 
 */
 // vim:ft=doxygen:

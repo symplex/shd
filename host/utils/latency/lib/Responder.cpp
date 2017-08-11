@@ -27,43 +27,43 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
-#include <uhd/utils/thread_priority.hpp>
-#include <uhd/property_tree.hpp>
+#include <shd/utils/thread_priority.hpp>
+#include <shd/property_tree.hpp>
 
 const std::string _eth_file("eths_info.txt");
 
-// UHD screen handler during initialization. Error messages will be printed to log file
-static std::string uhd_error_msgs;
-static void screen_handler(uhd::msg::type_t type, const std::string& msg)
+// SHD screen handler during initialization. Error messages will be printed to log file
+static std::string shd_error_msgs;
+static void screen_handler(shd::msg::type_t type, const std::string& msg)
 {
     printw( msg.c_str() );
     //printw("\n");
     refresh();
-    if(type == uhd::msg::error){
-        uhd_error_msgs.append(msg);
-        uhd_error_msgs.append("\n");
+    if(type == shd::msg::error){
+        shd_error_msgs.append(msg);
+        shd_error_msgs.append("\n");
     }
 }
 
-// UHD screen handler during test run. Error messages will be printed to log file
+// SHD screen handler during test run. Error messages will be printed to log file
 static int s_late_count = 0;
-static Responder* s_responder; // needed here to have a way to inject uhd msg into Responder.
-// function is only called by UHD, if s_responder points to a valid instance.
-// this instance sets the function to be the output callback for UHD.
-static void _late_handler(uhd::msg::type_t type, const std::string& msg)
+static Responder* s_responder; // needed here to have a way to inject shd msg into Responder.
+// function is only called by SHD, if s_responder points to a valid instance.
+// this instance sets the function to be the output callback for SHD.
+static void _late_handler(shd::msg::type_t type, const std::string& msg)
 {
-    s_responder->print_uhd_late_handler(type, msg);
+    s_responder->print_shd_late_handler(type, msg);
 }
 
-void Responder::print_uhd_late_handler(uhd::msg::type_t type, const std::string& msg)
+void Responder::print_shd_late_handler(shd::msg::type_t type, const std::string& msg)
 {
     if (msg == "L") // This is just a test
     {
         ++s_late_count;
     }
-    if(type == uhd::msg::error){
-        uhd_error_msgs.append(msg);
-        uhd_error_msgs.append("\n");
+    if(type == shd::msg::error){
+        shd_error_msgs.append(msg);
+        shd_error_msgs.append("\n");
         // Only print error messages. There will be very many 'L's due to the way the test works.
         print_msg(msg);
     }
@@ -124,7 +124,7 @@ Responder::Responder( Options& opt)
     _overruns(0), // printed on exit
     _max_success(0), // < 0 --> write results to file
     _return_code(RETCODE_OK),
-    _stream_cmd(uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS),
+    _stream_cmd(shd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS),
     _timeout_burst_count(0),
     _timeout_eob_count(0),
     _y_delay_pos(-1),
@@ -134,22 +134,22 @@ Responder::Responder( Options& opt)
     time( &_dbginfo.start_time ); // for debugging
     s_responder = this;
 
-    if (uhd::set_thread_priority_safe(_opt.rt_priority, _opt.realtime) == false) // try to set realtime scheduling
+    if (shd::set_thread_priority_safe(_opt.rt_priority, _opt.realtime) == false) // try to set realtime scheduling
     {
         cerr << "Failed to set real-time" << endl;
     }
 
     _return_code = calculate_dependent_values();
 
-    uhd::msg::register_handler(&screen_handler); // used to print USRP initialization status
+    shd::msg::register_handler(&screen_handler); // used to print SMINI initialization status
 
     // From this point on, everything is written to a ncurses window!
     create_ncurses_window();
 
-    print_create_usrp_msg();
+    print_create_smini_msg();
     try
     {
-        _usrp = create_usrp_device();
+        _smini = create_smini_device();
     }
     catch (const std::runtime_error& e)
     {
@@ -159,7 +159,7 @@ Responder::Responder( Options& opt)
     catch(...){
         print_msg("unhandled ERROR");
         _return_code = RETCODE_UNKNOWN_EXCEPTION;
-        print_msg_and_wait("create USRP device failed!\nPress key to abort test...");
+        print_msg_and_wait("create SMINI device failed!\nPress key to abort test...");
         return;
     }
 
@@ -167,7 +167,7 @@ Responder::Responder( Options& opt)
     _pResponse = alloc_response_buffer_with_data(_response_length);
 
     // ensure that filename is set
-    string test_id = _usrp->get_mboard_name();
+    string test_id = _smini->get_mboard_name();
     if (set_stats_filename(test_id) )
     {
         _return_code = RETCODE_BAD_ARGS; // make sure run() does return!
@@ -180,7 +180,7 @@ Responder::Responder( Options& opt)
     }
 
     // set up handlers for test run
-    uhd::msg::register_handler(&_late_handler); // capture UHD output.
+    shd::msg::register_handler(&_late_handler); // capture SHD output.
     register_stop_signal_handler();
 }
 
@@ -256,14 +256,14 @@ Responder::print_test_title()
 }
 
 void
-Responder::print_usrp_status()
+Responder::print_smini_status()
 {
     std::string msg;
-    msg += (boost::format("Using device:\n%s\n") % _usrp->get_pp_string() ).str();
+    msg += (boost::format("Using device:\n%s\n") % _smini->get_pp_string() ).str();
     msg += (boost::format("Setting RX rate: %f Msps\n") % (_opt.sample_rate/1e6)).str();
-    msg += (boost::format("Actual RX rate:  %f Msps\n") % (_usrp->get_rx_rate()/1e6) ).str();
+    msg += (boost::format("Actual RX rate:  %f Msps\n") % (_smini->get_rx_rate()/1e6) ).str();
     msg += (boost::format("Setting TX rate: %f Msps\n") % (_opt.sample_rate/1e6) ).str();
-    msg += (boost::format("Actual TX rate:  %f Msps") % (_usrp->get_tx_rate()/1e6) ).str();
+    msg += (boost::format("Actual TX rate:  %f Msps") % (_smini->get_tx_rate()/1e6) ).str();
     print_msg(msg);
     print_tx_stream_status();
     print_rx_stream_status();
@@ -301,49 +301,49 @@ Responder::print_test_parameters()
 
 // e.g. B200 doesn't support this command. Check if possible and only set rx_dc_offset if available
 void
-Responder::set_usrp_rx_dc_offset(uhd::usrp::multi_usrp::sptr usrp, bool ena)
+Responder::set_smini_rx_dc_offset(shd::smini::multi_smini::sptr smini, bool ena)
 {
-    uhd::property_tree::sptr tree = usrp->get_device()->get_tree();
+    shd::property_tree::sptr tree = smini->get_device()->get_tree();
     // FIXME: Path needs to be build in a programmatic way.
-    bool dc_offset_exists = tree->exists( uhd::fs_path("/mboards/0/rx_frontends/A/dc_offset") );
+    bool dc_offset_exists = tree->exists( shd::fs_path("/mboards/0/rx_frontends/A/dc_offset") );
     if(dc_offset_exists)
     {
-        usrp->set_rx_dc_offset(ena);
+        smini->set_rx_dc_offset(ena);
     }
 }
 
 void
-Responder::print_create_usrp_msg()
+Responder::print_create_smini_msg()
 {
-    std::string msg("Creating the USRP device");
+    std::string msg("Creating the SMINI device");
     if (_opt.device_args.empty() == false)
         msg.append( (boost::format(" with args \"%s\"") % _opt.device_args ).str() );
     msg.append("...");
     print_msg(msg);
 }
 
-uhd::usrp::multi_usrp::sptr
-Responder::create_usrp_device()
+shd::smini::multi_smini::sptr
+Responder::create_smini_device()
 {
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(_opt.device_args);
-    usrp->set_rx_rate(_opt.sample_rate); // set the rx sample rate
-    usrp->set_tx_rate(_opt.sample_rate); // set the tx sample rate
-    _tx_stream = create_tx_streamer(usrp);
-    _rx_stream = create_rx_streamer(usrp);
+    shd::smini::multi_smini::sptr smini = shd::smini::multi_smini::make(_opt.device_args);
+    smini->set_rx_rate(_opt.sample_rate); // set the rx sample rate
+    smini->set_tx_rate(_opt.sample_rate); // set the tx sample rate
+    _tx_stream = create_tx_streamer(smini);
+    _rx_stream = create_rx_streamer(smini);
     if ((_dc_offset_countdown == 0) && (_simulate_frequency == 0.0))
-        set_usrp_rx_dc_offset(usrp, false);
-    return usrp;
+        set_smini_rx_dc_offset(smini, false);
+    return smini;
 }
 
-uhd::rx_streamer::sptr
-Responder::create_rx_streamer(uhd::usrp::multi_usrp::sptr usrp)
+shd::rx_streamer::sptr
+Responder::create_rx_streamer(shd::smini::multi_smini::sptr smini)
 {
-    uhd::stream_args_t stream_args("fc32"); //complex floats
+    shd::stream_args_t stream_args("fc32"); //complex floats
     if (_samps_per_packet > 0)
     {
         stream_args.args["spp"] = str(boost::format("%d") % _samps_per_packet);
     }
-    uhd::rx_streamer::sptr rx_stream = usrp->get_rx_stream(stream_args);
+    shd::rx_streamer::sptr rx_stream = smini->get_rx_stream(stream_args);
     _samps_per_packet = rx_stream->get_max_num_samps();
 
     return rx_stream;
@@ -360,15 +360,15 @@ Responder::print_rx_stream_status()
     print_msg(msg);
 }
 
-uhd::tx_streamer::sptr
-Responder::create_tx_streamer(uhd::usrp::multi_usrp::sptr usrp)
+shd::tx_streamer::sptr
+Responder::create_tx_streamer(shd::smini::multi_smini::sptr smini)
 {
-    uhd::stream_args_t tx_stream_args("fc32"); //complex floats
+    shd::stream_args_t tx_stream_args("fc32"); //complex floats
     if (_allow_late_bursts == false)
     {
         tx_stream_args.args["underflow_policy"] = "next_burst";
     }
-    uhd::tx_streamer::sptr tx_stream = usrp->get_tx_stream(tx_stream_args);
+    shd::tx_streamer::sptr tx_stream = smini->get_tx_stream(tx_stream_args);
     return tx_stream;
 }
 
@@ -407,9 +407,9 @@ Responder::print_timeout_msg()
     print_msg( (boost::format("Send timeout, burst_count = %ld\teob_count = %ld\n") % _timeout_burst_count % _timeout_eob_count ).str() );
 }
 
-uhd::tx_metadata_t Responder::get_tx_metadata(uhd::time_spec_t rx_time, size_t n)
+shd::tx_metadata_t Responder::get_tx_metadata(shd::time_spec_t rx_time, size_t n)
 {
-    uhd::tx_metadata_t tx_md;
+    shd::tx_metadata_t tx_md;
     tx_md.start_of_burst = true;
     tx_md.end_of_burst = false;
     if ((_opt.skip_eob == false) && (_opt.combine_eob)) {
@@ -418,20 +418,20 @@ uhd::tx_metadata_t Responder::get_tx_metadata(uhd::time_spec_t rx_time, size_t n
 
     if (_no_delay == false) {
         tx_md.has_time_spec = true;
-        tx_md.time_spec = rx_time + uhd::time_spec_t(0, n, _opt.sample_rate) + uhd::time_spec_t(_delay);
+        tx_md.time_spec = rx_time + shd::time_spec_t(0, n, _opt.sample_rate) + shd::time_spec_t(_delay);
     } else {
         tx_md.has_time_spec = false;
     }
     return tx_md;
 }
 
-bool Responder::send_tx_burst(uhd::time_spec_t rx_time, size_t n)
+bool Responder::send_tx_burst(shd::time_spec_t rx_time, size_t n)
 {
     if (_opt.skip_send == true) {
         return false;
     }
     //send a single packet
-    uhd::tx_metadata_t tx_md = get_tx_metadata(rx_time, n);
+    shd::tx_metadata_t tx_md = get_tx_metadata(rx_time, n);
     const size_t length_to_send = _response_length + (_opt.flush_count - (tx_md.end_of_burst ? 0 : 1));
 
     size_t num_tx_samps = _tx_stream->send(_pResponse, length_to_send, tx_md, _opt.timeout); // send pulse!
@@ -539,35 +539,35 @@ Responder::print_msg(std::string msg)
 
 // Check if error occured during call to receive
 bool
-Responder::handle_rx_errors(uhd::rx_metadata_t::error_code_t err, size_t num_rx_samps)
+Responder::handle_rx_errors(shd::rx_metadata_t::error_code_t err, size_t num_rx_samps)
 {
     // handle errors
-    if (err == uhd::rx_metadata_t::ERROR_CODE_TIMEOUT)
+    if (err == shd::rx_metadata_t::ERROR_CODE_TIMEOUT)
     {
         std::string msg = (boost::format("Timeout while streaming (received %ld samples)") % _num_total_samps).str();
         print_error_msg(msg);
         _return_code = RETCODE_RECEIVE_TIMEOUT;
         return true;
     }
-    else if (err == uhd::rx_metadata_t::ERROR_CODE_BAD_PACKET)
+    else if (err == shd::rx_metadata_t::ERROR_CODE_BAD_PACKET)
     {
         std::string msg = (boost::format("Bad packet (received %ld samples)") % _num_total_samps).str();
         print_error_msg(msg);
         _return_code = RETCODE_BAD_PACKET;
         return true;
     }
-    else if ((num_rx_samps == 0) && (err == uhd::rx_metadata_t::ERROR_CODE_NONE))
+    else if ((num_rx_samps == 0) && (err == shd::rx_metadata_t::ERROR_CODE_NONE))
     {
         print_error_msg("Received no samples");
         _return_code = RETCODE_RECEIVE_FAILED;
         return true;
     }
-    else if (err == uhd::rx_metadata_t::ERROR_CODE_OVERFLOW)
+    else if (err == shd::rx_metadata_t::ERROR_CODE_OVERFLOW)
     {
         ++_overruns;
         print_overrun_msg(); // update overrun info on console.
     }
-    else if (err != uhd::rx_metadata_t::ERROR_CODE_NONE)
+    else if (err != shd::rx_metadata_t::ERROR_CODE_NONE)
     {
         throw std::runtime_error(str(boost::format(
             "Unexpected error code 0x%x"
@@ -720,10 +720,10 @@ Responder::print_interactive_msg(std::string msg)
 bool
 Responder::tx_burst_is_late()
 {
-    uhd::async_metadata_t async_md;
-    if (_usrp->get_device()->recv_async_msg(async_md, 0))
+    shd::async_metadata_t async_md;
+    if (_smini->get_device()->recv_async_msg(async_md, 0))
     {
-        if (async_md.event_code == uhd::async_metadata_t::EVENT_CODE_TIME_ERROR)
+        if (async_md.event_code == shd::async_metadata_t::EVENT_CODE_TIME_ERROR)
         {
             return true;
         }
@@ -752,7 +752,7 @@ Responder::print_init_test_status()
     erase();
     refresh();
     print_test_title();
-    print_usrp_status();
+    print_smini_status();
     print_test_parameters();
 
     std::string msg("");
@@ -767,9 +767,9 @@ Responder::print_init_test_status()
     _x_delay_pos = -1;
 }
 
-// in interactive mode with second usrp sending bursts. calibrate trigger level
+// in interactive mode with second smini sending bursts. calibrate trigger level
 float
-Responder::calibrate_usrp_for_test_run()
+Responder::calibrate_smini_for_test_run()
 {
     bool calibration_finished = false;
     float threshold = 0.0f;
@@ -780,7 +780,7 @@ Responder::calibrate_usrp_for_test_run()
     std::vector<std::complex<float> > buff(_opt.samps_per_buff);
     while (not s_stop_signal_called && !calibration_finished && _return_code == RETCODE_OK)
     {
-        uhd::rx_metadata_t rx_md;
+        shd::rx_metadata_t rx_md;
         size_t num_rx_samps = _rx_stream->recv(&buff.front(), buff.size(), rx_md, _opt.timeout);
 
         // handle errors
@@ -789,13 +789,13 @@ Responder::calibrate_usrp_for_test_run()
             break;
         }
 
-        // Wait for USRP for DC offset calibration
+        // Wait for SMINI for DC offset calibration
         if (_dc_offset_countdown > 0)
         {
             _dc_offset_countdown -= (int64_t)num_rx_samps;
             if (_dc_offset_countdown > 0)
                 continue;
-            set_usrp_rx_dc_offset(_usrp, false);
+            set_smini_rx_dc_offset(_smini, false);
             print_msg("DC offset calibration complete");
         }
 
@@ -879,9 +879,9 @@ Responder::calibrate_usrp_for_test_run()
                     threshold = ave_low + ((ave_high - ave_low) * _opt.trigger_level);
                     print_msg( (boost::format("Phase #2: Ave low: %.3f (#%d), ave high: %.3f (#%d), threshold: %.3f\n") % ave_low % ave_low_count % ave_high % ave_high_count % threshold).str() );
 
-                    _stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
+                    _stream_cmd.stream_mode = shd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
                     _stream_cmd.stream_now = true;
-                    _usrp->issue_stream_cmd(_stream_cmd);
+                    _smini->issue_stream_cmd(_stream_cmd);
 
                     double diff = abs(ave_high - ave_low);
                     if (diff < _opt.pulse_detection_threshold)
@@ -891,9 +891,9 @@ Responder::calibrate_usrp_for_test_run()
                         break;
                     }
 
-                    _stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS;
+                    _stream_cmd.stream_mode = shd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS;
                     _stream_cmd.stream_now = true;
-                    _usrp->issue_stream_cmd(_stream_cmd);
+                    _smini->issue_stream_cmd(_stream_cmd);
                 }
             }
             else
@@ -904,17 +904,17 @@ Responder::calibrate_usrp_for_test_run()
     return threshold;
 }
 
-// try to stop USRP properly after tests
+// try to stop SMINI properly after tests
 void
-Responder::stop_usrp_stream()
+Responder::stop_smini_stream()
 {
     try
     {
-        if (_usrp)
+        if (_smini)
         {
-            _stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
+            _stream_cmd.stream_mode = shd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
             _stream_cmd.stream_now = true;
-            _usrp->issue_stream_cmd(_stream_cmd);
+            _smini->issue_stream_cmd(_stream_cmd);
         }
     }
     catch (...)
@@ -950,7 +950,7 @@ Responder::get_new_state(uint64_t total_samps, uint64_t simulate_duration, float
 // detect a pulse, respond to it and count number of pulses.
 // statsCurrent holds parameters.
 uint64_t
-Responder::detect_respond_pulse_count(STATS &statsCurrent, std::vector<std::complex<float> > &buff, uint64_t trigger_count, size_t num_rx_samps, float threshold, uhd::time_spec_t rx_time)
+Responder::detect_respond_pulse_count(STATS &statsCurrent, std::vector<std::complex<float> > &buff, uint64_t trigger_count, size_t num_rx_samps, float threshold, shd::time_spec_t rx_time)
 {
     // buff, threshold
     bool input_state = false;
@@ -1014,7 +1014,7 @@ Responder::run_test(float threshold)
     while (not s_stop_signal_called && _return_code == RETCODE_OK)
     {
         // get samples from rx stream.
-        uhd::rx_metadata_t rx_md;
+        shd::rx_metadata_t rx_md;
         size_t num_rx_samps = _rx_stream->recv(&buff.front(), buff.size(), rx_md, _opt.timeout);
         // handle errors
         if(handle_rx_errors(rx_md.error_code, num_rx_samps) )
@@ -1106,12 +1106,12 @@ Responder::run()
     print_init_test_status();
     try {
         //setup streaming
-        _stream_cmd.stream_mode = uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS;
+        _stream_cmd.stream_mode = shd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS;
         _stream_cmd.stream_now = true;
-        _usrp->issue_stream_cmd(_stream_cmd);
+        _smini->issue_stream_cmd(_stream_cmd);
 
         if( !_opt.batch_mode ){
-            float threshold = calibrate_usrp_for_test_run();
+            float threshold = calibrate_smini_for_test_run();
             if (_return_code != RETCODE_OK)
             {
                 return _return_code;
@@ -1134,7 +1134,7 @@ Responder::run()
         _return_code = RETCODE_UNKNOWN_EXCEPTION;
     }
 
-    stop_usrp_stream();
+    stop_smini_stream();
     time( &_dbginfo.end_time_test );
     return (_return_code < 0 ? _return_code : _overruns);
 }
@@ -1164,13 +1164,13 @@ Responder::write_log_file()
             ofstream logs(_stats_log_filename.c_str());
 
             logs << boost::format("title=%s") % _opt.test_title << endl;
-            logs << boost::format("device=%s") %  _usrp->get_mboard_name() << endl;
+            logs << boost::format("device=%s") %  _smini->get_mboard_name() << endl;
             logs << boost::format("device_args=%s") % _opt.device_args << endl;
             logs << boost::format("type=%s") %  hw_info["type"] << endl;
             if (hw_info.size() > 0)
             {
-                logs << boost::format("usrp_addr=%s") %  hw_info["usrp_addr"] << endl;
-                logs << boost::format("usrp_name=%s") %  hw_info["name"] << endl;
+                logs << boost::format("smini_addr=%s") %  hw_info["smini_addr"] << endl;
+                logs << boost::format("smini_name=%s") %  hw_info["name"] << endl;
                 logs << boost::format("serial=%s") %  hw_info["serial"] << endl;
                 logs << boost::format("host_interface=%s") %  hw_info["interface"] << endl;
                 logs << boost::format("host_addr=%s") %  hw_info["host_addr"] << endl;
@@ -1211,10 +1211,10 @@ Responder::write_log_file()
 
             write_debug_info(logs);
 
-            if(uhd_error_msgs.length() > 0)
+            if(shd_error_msgs.length() > 0)
             {
-                logs << endl << "%% UHD ERROR MESSAGES %%" << endl;
-                logs << uhd_error_msgs;
+                logs << endl << "%% SHD ERROR MESSAGES %%" << endl;
+                logs << shd_error_msgs;
             }
         }
     }
@@ -1265,17 +1265,17 @@ Responder::get_hw_info()
     if(eths.empty()){
         return result;
     }
-    uhd::device_addr_t usrp_info = get_usrp_info();
-    std::string uaddr = get_ip_subnet_addr(usrp_info["addr"]);
+    shd::device_addr_t smini_info = get_smini_info();
+    std::string uaddr = get_ip_subnet_addr(smini_info["addr"]);
 
     for(unsigned int i = 0 ; i < eths.size() ; i++ )
     {
         if(get_ip_subnet_addr(eths[i]["addr"]) == uaddr)
         {
-            result["type"] = usrp_info["type"];
-            result["usrp_addr"] = usrp_info["addr"];
-            result["name"] = usrp_info["name"];
-            result["serial"] = usrp_info["serial"];
+            result["type"] = smini_info["type"];
+            result["smini_addr"] = smini_info["addr"];
+            result["name"] = smini_info["name"];
+            result["serial"] = smini_info["serial"];
             result["interface"] = eths[i]["interface"];
             result["host_addr"] = eths[i]["addr"];
             result["mac"] = eths[i]["mac"];
@@ -1371,12 +1371,12 @@ Responder::read_eth_info()
     return eths;
 }
 
-// get info on used USRP
-uhd::device_addr_t
-Responder::get_usrp_info()
+// get info on used SMINI
+shd::device_addr_t
+Responder::get_smini_info()
 {
-    uhd::device_addrs_t device_addrs = uhd::device::find(_opt.device_args);
-    uhd::device_addr_t device_addr = device_addrs[0];
+    shd::device_addrs_t device_addrs = shd::device::find(_opt.device_args);
+    shd::device_addr_t device_addr = device_addrs[0];
     return device_addr;
 }
 

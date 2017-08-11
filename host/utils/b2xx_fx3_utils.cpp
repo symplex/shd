@@ -35,11 +35,11 @@
 #include <boost/functional/hash.hpp>
 
 #include <b200_iface.hpp>
-#include <uhd/config.hpp>
-#include <uhd/transport/usb_control.hpp>
-#include <uhd/transport/usb_device_handle.hpp>
-#include <uhd/exception.hpp>
-#include <uhd/utils/paths.hpp>
+#include <shd/config.hpp>
+#include <shd/transport/usb_control.hpp>
+#include <shd/transport/usb_device_handle.hpp>
+#include <shd/exception.hpp>
+#include <shd/utils/paths.hpp>
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -60,9 +60,9 @@ const static vid_pid_t known_vid_pids[] = {
 const static std::vector<vid_pid_t> known_vid_pid_vector(known_vid_pids, known_vid_pids + (sizeof(known_vid_pids) / sizeof(known_vid_pids[0])));
 
 static const size_t EEPROM_INIT_VALUE_VECTOR_SIZE = 8;
-static uhd::byte_vector_t construct_eeprom_init_value_vector(uint16_t vid, uint16_t pid)
+static shd::byte_vector_t construct_eeprom_init_value_vector(uint16_t vid, uint16_t pid)
 {
-    uhd::byte_vector_t init_values(EEPROM_INIT_VALUE_VECTOR_SIZE);
+    shd::byte_vector_t init_values(EEPROM_INIT_VALUE_VECTOR_SIZE);
     init_values.at(0) = 0x43;
     init_values.at(1) = 0x59;
     init_values.at(2) = 0x14;
@@ -153,16 +153,16 @@ int reset_usb()
     return 0;
 }
 
-uhd::transport::usb_device_handle::sptr open_device(const uint16_t vid, const uint16_t pid, const bool user_supplied = false)
+shd::transport::usb_device_handle::sptr open_device(const uint16_t vid, const uint16_t pid, const bool user_supplied = false)
 {
-    std::vector<uhd::transport::usb_device_handle::sptr> handles;
-    uhd::transport::usb_device_handle::sptr handle;
+    std::vector<shd::transport::usb_device_handle::sptr> handles;
+    shd::transport::usb_device_handle::sptr handle;
     vid_pid_t vp = {vid, pid};
 
     try {
         // try caller's VID/PID first
-        std::vector<uhd::transport::usb_device_handle::vid_pid_pair_t> vid_pid_pair_list(1,uhd::transport::usb_device_handle::vid_pid_pair_t(vid,pid));
-        handles = uhd::transport::usb_device_handle::get_device_list(vid_pid_pair_list);
+        std::vector<shd::transport::usb_device_handle::vid_pid_pair_t> vid_pid_pair_list(1,shd::transport::usb_device_handle::vid_pid_pair_t(vid,pid));
+        handles = shd::transport::usb_device_handle::get_device_list(vid_pid_pair_list);
         if (handles.size() == 0)
         {
             if (user_supplied)
@@ -174,7 +174,7 @@ uhd::transport::usb_device_handle::sptr open_device(const uint16_t vid, const ui
             for (size_t i = 0; handles.size() == 0 && i < known_vid_pid_vector.size(); i++)
             {
                 vp = known_vid_pid_vector[i];
-                handles = uhd::transport::usb_device_handle::get_device_list(vp.vid, vp.pid);
+                handles = shd::transport::usb_device_handle::get_device_list(vp.vid, vp.pid);
             }
 
         }
@@ -190,21 +190,21 @@ uhd::transport::usb_device_handle::sptr open_device(const uint16_t vid, const ui
     }
     catch(const std::exception &) {
         std::cerr << "Failed to communicate with the device!" << std::endl;
-        #ifdef UHD_PLATFORM_WIN32
-        std::cerr << "The necessary drivers are not installed. Read the UHD Transport Application Notes for details:\nhttp://files.ettus.com/manual/page_transport.html" << std::endl;
-        #endif /* UHD_PLATFORM_WIN32 */
+        #ifdef SHD_PLATFORM_WIN32
+        std::cerr << "The necessary drivers are not installed. Read the SHD Transport Application Notes for details:\nhttp://files.ettus.com/manual/page_transport.html" << std::endl;
+        #endif /* SHD_PLATFORM_WIN32 */
         handle.reset();
     }
 
     return handle;
 }
 
-b200_iface::sptr make_b200_iface(const uhd::transport::usb_device_handle::sptr &handle)
+b200_iface::sptr make_b200_iface(const shd::transport::usb_device_handle::sptr &handle)
 {
     b200_iface::sptr b200;
 
     try {
-        uhd::transport::usb_control::sptr usb_ctrl = uhd::transport::usb_control::make(handle, 0);
+        shd::transport::usb_control::sptr usb_ctrl = shd::transport::usb_control::make(handle, 0);
         b200 = b200_iface::make(usb_ctrl);
 
         if (!b200)
@@ -212,16 +212,16 @@ b200_iface::sptr make_b200_iface(const uhd::transport::usb_device_handle::sptr &
     }
     catch(const std::exception &) {
         std::cerr << "Failed to communicate with the device!" << std::endl;
-        #ifdef UHD_PLATFORM_WIN32
-        std::cerr << "The necessary drivers are not installed. Read the UHD Transport Application Notes for details:\nhttp://files.ettus.com/manual/page_transport.html" << std::endl;
-        #endif /* UHD_PLATFORM_WIN32 */
+        #ifdef SHD_PLATFORM_WIN32
+        std::cerr << "The necessary drivers are not installed. Read the SHD Transport Application Notes for details:\nhttp://files.ettus.com/manual/page_transport.html" << std::endl;
+        #endif /* SHD_PLATFORM_WIN32 */
         b200.reset();
     }
 
     return b200;
 }
 
-int read_eeprom(b200_iface::sptr& b200, uhd::byte_vector_t& data)
+int read_eeprom(b200_iface::sptr& b200, shd::byte_vector_t& data)
 {
     try {
         data = b200->read_eeprom(0x0, 0x0, 8);
@@ -233,7 +233,7 @@ int read_eeprom(b200_iface::sptr& b200, uhd::byte_vector_t& data)
     return 0;
 }
 
-int write_eeprom(b200_iface::sptr& b200, const uhd::byte_vector_t& data)
+int write_eeprom(b200_iface::sptr& b200, const shd::byte_vector_t& data)
 {
     try {
       b200->write_eeprom(0x0, 0x0, data);
@@ -245,10 +245,10 @@ int write_eeprom(b200_iface::sptr& b200, const uhd::byte_vector_t& data)
     return 0;
 }
 
-int verify_eeprom(b200_iface::sptr& b200, const uhd::byte_vector_t& data)
+int verify_eeprom(b200_iface::sptr& b200, const shd::byte_vector_t& data)
 {
     bool verified = true;
-    uhd::byte_vector_t read_bytes;
+    shd::byte_vector_t read_bytes;
     if (read_eeprom(b200, read_bytes))
         return -1;
 
@@ -273,7 +273,7 @@ int verify_eeprom(b200_iface::sptr& b200, const uhd::byte_vector_t& data)
     return 0;
 }
 
-int write_and_verify_eeprom(b200_iface::sptr& b200, const uhd::byte_vector_t& data)
+int write_and_verify_eeprom(b200_iface::sptr& b200, const shd::byte_vector_t& data)
 {
     if (write_eeprom(b200, data))
         return -1;
@@ -285,7 +285,7 @@ int write_and_verify_eeprom(b200_iface::sptr& b200, const uhd::byte_vector_t& da
 
 int erase_eeprom(b200_iface::sptr& b200)
 {
-    uhd::byte_vector_t bytes(8);
+    shd::byte_vector_t bytes(8);
 
     memset(&bytes[0], 0xFF, 8);
     if (write_and_verify_eeprom(b200, bytes))
@@ -354,7 +354,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return reset_usb();
     }
 
-    uhd::transport::usb_device_handle::sptr handle;
+    shd::transport::usb_device_handle::sptr handle;
     b200_iface::sptr b200;
 
     vid = B200_VENDOR_ID;   // Default
@@ -420,7 +420,7 @@ int32_t main(int32_t argc, char *argv[]) {
         std::cout << "Loading firmware" << std::endl;
 
         if (fw_file.empty())
-            fw_file = uhd::find_image_path(B200_FW_FILE_NAME);
+            fw_file = shd::find_image_path(B200_FW_FILE_NAME);
 
         if(fw_file.empty()) {
             std::cerr << "Firmware image not found!" << std::endl;
@@ -456,7 +456,7 @@ int32_t main(int32_t argc, char *argv[]) {
     // Added for testing purposes - not exposed
     if (vm.count("read-eeprom"))
     {
-        uhd::byte_vector_t data;
+        shd::byte_vector_t data;
 
         if (read_eeprom(b200, data))
             return -1;
@@ -490,7 +490,7 @@ int32_t main(int32_t argc, char *argv[]) {
         // reset the device
         try {
             b200->reset_fx3();
-        } catch (uhd::exception &e) {
+        } catch (shd::exception &e) {
             std::cerr << "Exception while resetting FX3: " << e.what() << std::endl;
             return -1;
         }
@@ -546,7 +546,7 @@ int32_t main(int32_t argc, char *argv[]) {
     if (vm.count("speed")){
         uint8_t speed;
         try {speed = b200->get_usb_speed();}
-        catch (uhd::exception &e) {
+        catch (shd::exception &e) {
             std::cerr << "Exception while getting USB speed: " << e.what() << std::endl;
             return -1;
         }
@@ -555,14 +555,14 @@ int32_t main(int32_t argc, char *argv[]) {
 
     if (vm.count("reset-device")) {
         try {b200->reset_fx3();}
-        catch (uhd::exception &e) {
+        catch (shd::exception &e) {
             std::cerr << "Exception while resetting FX3: " << e.what() << std::endl;
             return -1;
         }
 
     } else if (vm.count("reset-fpga")) {
         try {b200->set_fpga_reset_pin(true);}
-        catch (uhd::exception &e) {
+        catch (shd::exception &e) {
             std::cerr << "Exception while resetting FPGA: " << e.what() << std::endl;
             return -1;
         }
@@ -571,7 +571,7 @@ int32_t main(int32_t argc, char *argv[]) {
         std::cout << "Loading FPGA image (" << fpga_file << ")" << std::endl;
         uint32_t fx3_state;
         try {fx3_state = b200->load_fpga(fpga_file);} // returns 0 on success, or FX3 state on error
-        catch (uhd::exception &e) {
+        catch (shd::exception &e) {
             std::cerr << "Exception while loading FPGA: " << e.what() << std::endl;
             return ~0;
         }

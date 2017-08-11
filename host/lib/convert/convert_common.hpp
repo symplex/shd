@@ -15,28 +15,28 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INCLUDED_LIBUHD_CONVERT_COMMON_HPP
-#define INCLUDED_LIBUHD_CONVERT_COMMON_HPP
+#ifndef INCLUDED_LIBSHD_CONVERT_COMMON_HPP
+#define INCLUDED_LIBSHD_CONVERT_COMMON_HPP
 
-#include <uhd/convert.hpp>
-#include <uhd/utils/static.hpp>
+#include <shd/convert.hpp>
+#include <shd/utils/static.hpp>
 #include <stdint.h>
 #include <complex>
 
 #define _DECLARE_CONVERTER(name, in_form, num_in, out_form, num_out, prio) \
-    struct name : public uhd::convert::converter{ \
+    struct name : public shd::convert::converter{ \
         static sptr make(void){return sptr(new name());} \
         double scale_factor; \
         void set_scalar(const double s){scale_factor = s;} \
         void operator()(const input_type&, const output_type&, const size_t); \
     }; \
-    UHD_STATIC_BLOCK(__register_##name##_##prio){ \
-        uhd::convert::id_type id; \
+    SHD_STATIC_BLOCK(__register_##name##_##prio){ \
+        shd::convert::id_type id; \
         id.input_format = #in_form; \
         id.num_inputs = num_in; \
         id.output_format = #out_form; \
         id.num_outputs = num_out; \
-        uhd::convert::register_converter(id, &name::make, prio); \
+        shd::convert::register_converter(id, &name::make, prio); \
     } \
     void name::operator()( \
         const input_type &inputs, const output_type &outputs, const size_t nsamps \
@@ -95,7 +95,7 @@ typedef item32_t (*xtox_t)(item32_t);
 /***********************************************************************
  * Convert xx to items32 sc16 buffer
  **********************************************************************/
-template <typename T> UHD_INLINE item32_t xx_to_item32_sc16_x1(
+template <typename T> SHD_INLINE item32_t xx_to_item32_sc16_x1(
     const std::complex<T> &num, const double scale_factor
 ){
     uint16_t real = int16_t(num.real()*float(scale_factor));
@@ -103,7 +103,7 @@ template <typename T> UHD_INLINE item32_t xx_to_item32_sc16_x1(
     return (item32_t(real) << 16) | (item32_t(imag) << 0);
 }
 
-template <> UHD_INLINE item32_t xx_to_item32_sc16_x1(
+template <> SHD_INLINE item32_t xx_to_item32_sc16_x1(
     const sc16_t &num, const double
 ){
     uint16_t real = int16_t(num.real());
@@ -112,7 +112,7 @@ template <> UHD_INLINE item32_t xx_to_item32_sc16_x1(
 }
 
 template <xtox_t to_wire, typename T>
-UHD_INLINE void xx_to_item32_sc16(
+SHD_INLINE void xx_to_item32_sc16(
     const std::complex<T> *input,
     item32_t *output,
     const size_t nsamps,
@@ -127,7 +127,7 @@ UHD_INLINE void xx_to_item32_sc16(
 /***********************************************************************
  * Convert items32 sc16 buffer to xx
  **********************************************************************/
-template <typename T> UHD_INLINE std::complex<T> item32_sc16_x1_to_xx(
+template <typename T> SHD_INLINE std::complex<T> item32_sc16_x1_to_xx(
     const item32_t item, const double scale_factor
 ){
     return std::complex<T>(
@@ -136,7 +136,7 @@ template <typename T> UHD_INLINE std::complex<T> item32_sc16_x1_to_xx(
     );
 }
 
-template <> UHD_INLINE sc16_t item32_sc16_x1_to_xx(
+template <> SHD_INLINE sc16_t item32_sc16_x1_to_xx(
     const item32_t item, const double
 ){
     return sc16_t(
@@ -145,7 +145,7 @@ template <> UHD_INLINE sc16_t item32_sc16_x1_to_xx(
 }
 
 template <xtox_t to_host, typename T>
-UHD_INLINE void item32_sc16_to_xx(
+SHD_INLINE void item32_sc16_to_xx(
     const item32_t *input,
     std::complex<T> *output,
     const size_t nsamps,
@@ -160,7 +160,7 @@ UHD_INLINE void item32_sc16_to_xx(
 /***********************************************************************
  * Convert xx to items32 sc8 buffer
  **********************************************************************/
-template <typename T> UHD_INLINE item32_t xx_to_item32_sc8_x1(
+template <typename T> SHD_INLINE item32_t xx_to_item32_sc8_x1(
     const std::complex<T> &in0, const std::complex<T> &in1, const double scale_factor
 ){
     uint8_t real1 = int8_t(in0.real()*float(scale_factor));
@@ -173,7 +173,7 @@ template <typename T> UHD_INLINE item32_t xx_to_item32_sc8_x1(
     ;
 }
 
-template <> UHD_INLINE item32_t xx_to_item32_sc8_x1(
+template <> SHD_INLINE item32_t xx_to_item32_sc8_x1(
     const sc16_t &in0, const sc16_t &in1, const double
 ){
     uint8_t real1 = int8_t(in0.real());
@@ -186,7 +186,7 @@ template <> UHD_INLINE item32_t xx_to_item32_sc8_x1(
     ;
 }
 
-template <> UHD_INLINE item32_t xx_to_item32_sc8_x1(
+template <> SHD_INLINE item32_t xx_to_item32_sc8_x1(
     const sc8_t &in0, const sc8_t &in1, const double
 ){
     uint8_t real1 = int8_t(in0.real());
@@ -200,7 +200,7 @@ template <> UHD_INLINE item32_t xx_to_item32_sc8_x1(
 }
 
 template <xtox_t to_wire, typename T>
-UHD_INLINE void xx_to_item32_sc8(
+SHD_INLINE void xx_to_item32_sc8(
     const std::complex<T> *input,
     item32_t *output,
     const size_t nsamps,
@@ -221,7 +221,7 @@ UHD_INLINE void xx_to_item32_sc8(
 /***********************************************************************
  * Convert items32 sc8 buffer to xx
  **********************************************************************/
-template <typename T> UHD_INLINE void item32_sc8_x1_to_xx(
+template <typename T> SHD_INLINE void item32_sc8_x1_to_xx(
     const item32_t item, std::complex<T> &out0, std::complex<T> &out1, const double scale_factor
 ){
     out1 = std::complex<T>(
@@ -234,7 +234,7 @@ template <typename T> UHD_INLINE void item32_sc8_x1_to_xx(
     );
 }
 
-template <> UHD_INLINE void item32_sc8_x1_to_xx(
+template <> SHD_INLINE void item32_sc8_x1_to_xx(
     const item32_t item, sc16_t &out0, sc16_t &out1, const double
 ){
     out1 = sc16_t(
@@ -247,7 +247,7 @@ template <> UHD_INLINE void item32_sc8_x1_to_xx(
     );
 }
 
-template <> UHD_INLINE void item32_sc8_x1_to_xx(
+template <> SHD_INLINE void item32_sc8_x1_to_xx(
     const item32_t item, sc8_t &out0, sc8_t &out1, const double
 ){
     out1 = sc8_t(
@@ -261,7 +261,7 @@ template <> UHD_INLINE void item32_sc8_x1_to_xx(
 }
 
 template <xtox_t to_host, typename T>
-UHD_INLINE void item32_sc8_to_xx(
+SHD_INLINE void item32_sc8_to_xx(
     const item32_t *input,
     std::complex<T> *output,
     const size_t nsamps,
@@ -289,4 +289,4 @@ UHD_INLINE void item32_sc8_to_xx(
     }
 }
 
-#endif /* INCLUDED_LIBUHD_CONVERT_COMMON_HPP */
+#endif /* INCLUDED_LIBSHD_CONVERT_COMMON_HPP */

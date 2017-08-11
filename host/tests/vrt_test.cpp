@@ -16,13 +16,13 @@
 //
 
 #include <boost/test/unit_test.hpp>
-#include <uhd/transport/vrt_if_packet.hpp>
-#include <uhd/utils/byteswap.hpp>
+#include <shd/transport/vrt_if_packet.hpp>
+#include <shd/utils/byteswap.hpp>
 #include <boost/format.hpp>
 #include <cstdlib>
 #include <iostream>
 
-using namespace uhd::transport;
+using namespace shd::transport;
 
 static void pack_and_unpack(
     vrt::if_packet_info_t &if_packet_info_in
@@ -40,7 +40,7 @@ static void pack_and_unpack(
     std::cout << std::endl;
     for (size_t i = 0; i < 5; i++)
     {
-        std::cout << boost::format("packet_buff[%u] = 0x%.8x") % i % uhd::byteswap(packet_buff[i]) << std::endl;
+        std::cout << boost::format("packet_buff[%u] = 0x%.8x") % i % shd::byteswap(packet_buff[i]) << std::endl;
     }
 
     vrt::if_packet_info_t if_packet_info_out;
